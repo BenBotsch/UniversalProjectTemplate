@@ -31,7 +31,9 @@ what the task needs:
 - [Branching and Releases](governance/branching-and-releases.md): branch model and names, merge strategy, SemVer, release criteria and branch protection.
 - [Commit Conventions](governance/commit-conventions.md): Conventional Commits, types, issue references and breaking changes.
 - [Review Policy](governance/review-policy.md): review checklist, elevated attention and solo development.
-- [Agent Workflow](governance/agent-workflow.md): agent adapter files and how to verify that tools pick them up.
+- [Agent Workflow](governance/agent-workflow.md): agent working cycle, reading strategy, pull request evidence, reporting and adapter files.
+- [Agent Permissions](governance/agent-permissions.md): what agents may do without approval, enforcing controls and escalation.
+- [Documentation Policy](governance/documentation-policy.md): where information lives, when to update documents and when to write an ADR.
 
 ## Architecture
 

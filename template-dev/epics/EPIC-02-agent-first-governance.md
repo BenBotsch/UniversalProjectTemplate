@@ -29,7 +29,7 @@ Make the repository safe and predictable for coding agents: one authoritative `A
 |---|---|---|---|---|---|
 | [FEAT-004](../features/FEAT-004-agents-md.md) | Write Root AGENTS.md | 1 | critical | 001 | implemented |
 | [FEAT-005](../features/FEAT-005-agent-adapter-files.md) | Add Thin Agent Adapter Files | 1 | high | 004 | active |
-| [FEAT-006](../features/FEAT-006-agent-governance-docs.md) | Write Agent Workflow, Permissions and Documentation Policy | 1 | high | 003, 004 | planned |
+| [FEAT-006](../features/FEAT-006-agent-governance-docs.md) | Write Agent Workflow, Permissions and Documentation Policy | 1 | high | 003, 004 | implemented |
 
 ## Risks and Dependencies
 
