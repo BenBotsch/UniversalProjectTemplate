@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-project-template:schema:bootstrap:1.3",
+  "title": "bootstrap.yml",
+  "description": "What bootstrap provisions, its safety defaults, repository settings, branch protection, project initialization, template-only paths and profiles.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "bootstrap", "repository_settings", "protection", "init"],
+  "properties": {
+    "schema_version": { "const": "1.3" },
+    "x_extensions": { "type": "object", "description": "Project-specific fields; ignored by template tooling." },
+    "bootstrap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "create_develop_branch",
+        "synchronize_labels",
+        "configure_issue_templates",
+        "configure_pull_request_templates",
+        "configure_rulesets",
+        "enable_issues",
+        "enable_discussions",
+        "initialize_technology_profile",
+        "configure_dependabot",
+        "configure_security",
+        "validate_after_setup",
+        "dry_run_default",
+        "overwrite_user_changes",
+        "template_only_paths",
+        "optional_profiles"
+      ],
+      "properties": {
+        "create_develop_branch": { "type": "boolean" },
+        "synchronize_labels": { "type": "boolean" },
+        "configure_issue_templates": { "type": "boolean" },
+        "configure_pull_request_templates": { "type": "boolean" },
+        "configure_rulesets": { "type": "boolean" },
+        "enable_issues": { "type": "boolean" },
+        "enable_discussions": { "type": "boolean" },
+        "initialize_technology_profile": { "type": "boolean" },
+        "configure_dependabot": { "type": "boolean" },
+        "configure_security": { "type": "boolean" },
+        "validate_after_setup": { "type": "boolean" },
+        "dry_run_default": { "type": "boolean" },
+        "overwrite_user_changes": { "type": "boolean" },
+        "template_only_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "description": "Path relative to the repository root, without leading slash or '..' segments.",
+            "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[^\\\\:*?\"<>|]+$"
+          }
+        },
+        "optional_profiles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["python", "cpp", "node", "flutter", "docker", "hybrid"] }
+        }
+      }
+    },
+    "repository_settings": {
+      "type": "object",
+      "description": "GitHub settings applied by 'project-bootstrap configure-repo'. Branch names and the description come from project.yml, merge methods from workflow.yml.",
+      "additionalProperties": false,
+      "required": ["has_wiki", "delete_branch_on_merge", "actions", "security"],
+      "properties": {
+        "has_wiki": { "type": "boolean" },
+        "delete_branch_on_merge": { "type": "boolean" },
+        "topics": {
+          "type": "array",
+          "description": "Replaces the repository topics; omit it to leave the topics unmanaged.",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,49}$" }
+        },
+        "actions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["allowed_actions", "default_workflow_permissions", "can_approve_pull_request_reviews"],
+          "properties": {
+            "allowed_actions": { "enum": ["all", "local_only", "selected"] },
+            "github_owned_allowed": { "type": "boolean" },
+            "verified_allowed": { "type": "boolean" },
+            "patterns_allowed": {
+              "type": "array",
+              "description": "Allowed non-GitHub actions and reusable workflows, for example 'owner/repo@*'.",
+              "uniqueItems": true,
+              "items": { "type": "string", "pattern": "^[A-Za-z0-9*][A-Za-z0-9._/*-]*(@[A-Za-z0-9._/*-]+)?$" }
+            },
+            "default_workflow_permissions": { "enum": ["read", "write"] },
+            "can_approve_pull_request_reviews": { "type": "boolean" }
+          },
+          "if": { "properties": { "allowed_actions": { "const": "selected" } } },
+          "then": { "required": ["github_owned_allowed", "verified_allowed", "patterns_allowed"] },
+          "else": {
+            "description": "The allow-list applies only to allowed_actions 'selected'.",
+            "properties": { "github_owned_allowed": false, "verified_allowed": false, "patterns_allowed": false }
+          }
+        },
+        "security": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dependabot_alerts",
+            "dependabot_security_updates",
+            "secret_scanning",
+            "secret_scanning_push_protection",
+            "private_vulnerability_reporting"
+          ],
+          "properties": {
+            "dependabot_alerts": { "type": "boolean" },
+            "dependabot_security_updates": { "type": "boolean" },
+            "secret_scanning": { "type": "boolean" },
+            "secret_scanning_push_protection": { "type": "boolean" },
+            "private_vulnerability_reporting": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "protection": {
+      "type": "object",
+      "description": "Rulesets applied by 'project-bootstrap apply-rulesets' to the default and development branch of project.yml and to the release tags. Merge methods come from workflow.yml.",
+      "additionalProperties": false,
+      "required": ["mode", "required_status_checks"],
+      "properties": {
+        "mode": {
+          "enum": ["solo", "team"],
+          "description": "solo: pull requests need no approval; team: one approval, code owner review, stale approvals dismissed."
+        },
+        "required_status_checks": {
+          "type": "array",
+          "description": "Check names, for example the job name 'quality-gate'. A check is required only after it has reported once on the branch.",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 255 }
+        },
+        "release_tag_pattern": {
+          "type": "string",
+          "description": "fnmatch pattern of release tags without 'refs/tags/', for example 'v*'. Omit it to leave tags unprotected.",
+          "pattern": "^[A-Za-z0-9*][A-Za-z0-9._/*-]*$"
+        }
+      }
+    },
+    "init": {
+      "type": "object",
+      "description": "Defaults of 'project-bootstrap init'. Name, owner and description come from the GitHub repository; command line options override every value.",
+      "additionalProperties": false,
+      "required": ["license"],
+      "properties": {
+        "license": {
+          "type": "string",
+          "description": "SPDX id of a license that the GitHub licenses API offers, for example 'MIT' or 'Apache-2.0', or 'none' for no license ('All rights reserved').",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9.+-]{0,63}$"
+        },
+        "code_owner": {
+          "type": "string",
+          "description": "User or team ('org/team') without '@' that replaces the template's code owner; default is the repository owner.",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9-]{0,38}(/[A-Za-z0-9][A-Za-z0-9._-]{0,99})?$"
+        },
+        "copyright_holder": {
+          "type": "string",
+          "description": "Copyright holder in LICENSE and README; default is the profile name of the repository owner.",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[^\\r\\n\\[\\]]+$"
+        }
+      }
+    }
+  }
+}

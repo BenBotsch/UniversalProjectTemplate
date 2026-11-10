@@ -1,6 +1,8 @@
 # Issue template chooser configuration.
 #
-# OWNER and REPOSITORY are placeholders that bootstrap replaces.
+# template-only:start
+# OWNER and REPOSITORY are placeholders that "project-bootstrap init" replaces.
+# template-only:end
 # - The security link works only if private vulnerability reporting is enabled for the repository
 #   (Settings > Security > Private vulnerability reporting).
 # - The support link works only if GitHub Discussions are enabled for the repository.

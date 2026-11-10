@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -92,7 +93,9 @@ def test_config_disables_blank_issues_and_links_private_reporting() -> None:
     config = load_form("config.yml")
     assert config["blank_issues_enabled"] is False
     urls = [link["url"] for link in config["contact_links"]]
-    assert "https://github.com/OWNER/REPOSITORY/security/advisories/new" in urls
+    # OWNER/REPOSITORY in the template, the real repository after project-bootstrap init.
+    reporting = re.compile(r"https://github\.com/[^/]+/[^/]+/security/advisories/new")
+    assert any(reporting.fullmatch(url) for url in urls)
 
 
 # check_form

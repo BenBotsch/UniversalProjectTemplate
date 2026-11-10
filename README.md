@@ -2,18 +2,25 @@
 
 PROJECT_DESCRIPTION
 
+<!-- template-only:start -->
 ## Using this template
 
-This repository was created from a language-agnostic project template. Before you start
-development:
+This repository is a language-agnostic project template. To turn a repository created from it
+into a project:
 
-1. Create the repository with the bootstrap script in `scripts/bootstrap/`. It synchronizes the
-   labels and creates the `develop` branch; see its [README](scripts/bootstrap/README.md).
-2. Replace the placeholders `PROJECT_NAME`, `PROJECT_DESCRIPTION`, `OWNER` and `REPOSITORY`.
-   The bootstrap script does not replace them yet. Check the owner in `.github/CODEOWNERS`.
-3. Decide on the license of the project and update `LICENSE` (see [License](#license)).
-4. Select a technology profile and fill in the sections below.
-5. Remove this section.
+1. Create the repository from the template on GitHub and give it a description. The script in
+   `scripts/bootstrap/` does this and synchronizes the labels; see its
+   [README](scripts/bootstrap/README.md).
+2. Clone the new repository, install the bootstrap tool from `tools/engineering-bootstrap/` of
+   the clone and open an issue for the initialization.
+3. Run `project-bootstrap init --repo <owner>/<name>` in the clone to review the plan, then again
+   with `--apply --issue <number>`. It deletes the template-only files and this section, replaces
+   the placeholders, writes the license you choose and commits the result on a branch.
+4. Push the branch, open a pull request to `develop`, select a technology profile and fill in the
+   sections below.
+
+The tool's README in `tools/engineering-bootstrap/` describes the options of `init`.
+<!-- template-only:end -->
 
 ## Features
 
@@ -59,7 +66,7 @@ not implemented counts as failed. The `quality-gate` job is the single required 
 | `tests/`, `examples/` | Optional, depending on the technology profile |
 | `AGENTS.md` | Binding rules for contributors and coding agents |
 | `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md`, `CHANGELOG.md` | Community and policy files |
-| `LICENSE` | License of the template; each project decides on its own |
+| `LICENSE` | License of the project; see [License](#license) |
 | `.editorconfig`, `.gitattributes`, `.gitignore` | Cross-platform formatting, line endings and ignore rules |
 
 The template prescribes no programming language and no source layout. Language-specific files

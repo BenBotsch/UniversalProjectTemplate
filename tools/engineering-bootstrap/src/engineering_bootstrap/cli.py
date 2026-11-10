@@ -6,11 +6,14 @@ Every command runs as a dry run unless ``--apply`` is given. Exit codes:
 - ``1``: a change failed, the configuration is invalid, no token is available, or
   ``apply-rulesets`` found an unprotected repository without ``--allow-unprotected``.
 - ``2``: invalid usage, an unconfirmed prune, or a command that is not implemented yet.
+
+``init`` refuses to run against a template repository with exit code ``1``.
 """
 
 from __future__ import annotations
 
 import argparse
+import datetime
 import logging
 import re
 import sys
@@ -29,6 +32,7 @@ from engineering_bootstrap.config import (
     validate_config,
 )
 from engineering_bootstrap.engine import Action, Change, Engine
+from engineering_bootstrap.git import Git, GitError
 from engineering_bootstrap.github import (
     AuthenticationError,
     GitHubClient,
@@ -37,6 +41,7 @@ from engineering_bootstrap.github import (
     resolve_token,
 )
 from engineering_bootstrap.report import Report, render_json, render_text
+from engineering_bootstrap.resources import init as project_init
 from engineering_bootstrap.resources.branches import BranchResource, spec_from_config
 from engineering_bootstrap.resources.labels import LabelResource, specs_from_config
 from engineering_bootstrap.resources.repo_settings import (
@@ -90,10 +95,30 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
 
     init = commands.add_parser(
-        "init", parents=[common], help="create and configure a repository (not implemented yet)"
+        "init",
+        parents=[common],
+        help="turn a local clone of a repository created from the template into the project",
     )
     init.add_argument("--repo", required=True, metavar="OWNER/NAME")
-    init.add_argument("--profile", metavar="PROFILE", help="technology profile, e.g. python")
+    init.add_argument(
+        "--path", type=Path, default=Path("."), help="root of the clone (default: %(default)s)"
+    )
+    init.add_argument(
+        "--issue", type=int, metavar="N", help="issue of the initialization; required by --apply"
+    )
+    init.add_argument("--name", help="project name (default: the repository name)")
+    init.add_argument("--description", help="description (default: the repository description)")
+    init.add_argument("--code-owner", metavar="USER|ORG/TEAM", help="code owner without '@'")
+    init.add_argument("--license", metavar="SPDX_ID", help="license id or 'none'")
+    init.add_argument("--copyright-holder", metavar="NAME", help="copyright holder")
+    init.add_argument(
+        "--template-source",
+        metavar="OWNER/NAME",
+        help="template repository, if GitHub does not report it",
+    )
+    init.add_argument(
+        "--profile", metavar="PROFILE", help="technology profile, e.g. python (not implemented yet)"
+    )
 
     validate = commands.add_parser(
         "validate",
@@ -297,6 +322,83 @@ def _apply_rulesets(
     )
 
 
+def _init(args: argparse.Namespace, transport: httpx.BaseTransport | None) -> Report | int:
+    if args.profile is not None:
+        print("init --profile is not implemented yet (FEAT-031)", file=sys.stderr)
+        return EXIT_USAGE
+    if args.issue is not None and args.issue < 1:
+        print("--issue must be a positive issue number", file=sys.stderr)
+        return EXIT_USAGE
+    if args.template_source is not None and not REPO_PATTERN.fullmatch(args.template_source):
+        print(f"invalid --template-source {args.template_source!r}", file=sys.stderr)
+        return EXIT_USAGE
+    root = args.path.resolve()
+    if args.config == DEFAULT_CONFIG:
+        args.config = root / DEFAULT_CONFIG
+    try:
+        git = Git.in_directory(root)
+    except GitError as exc:
+        print(str(exc), file=sys.stderr)
+        return EXIT_FAILED
+    prepared = _prepare_remote(args)
+    if isinstance(prepared, int):
+        return prepared
+    config, token = prepared
+    try:
+        settings = project_init.settings_from_config(config.files)
+    except (KeyError, TypeError) as exc:
+        print(f"invalid configuration: {exc}", file=sys.stderr)
+        return EXIT_FAILED
+    options = project_init.InitOptions(
+        name=args.name,
+        description=args.description,
+        code_owner=args.code_owner,
+        license=args.license,
+        copyright_holder=args.copyright_holder,
+        template_source=args.template_source,
+    )
+
+    with GitHubClient(token, transport=transport) as client:
+        repository = client.get_json(f"/repos/{args.repo}")
+        try:
+            project_init.check_target(git, args.repo, repository, config.files["project"])
+            values = project_init.values_from_github(
+                client,
+                args.repo,
+                repository,
+                config.files["bootstrap"].get("init", {}),
+                options,
+                datetime.datetime.now(datetime.UTC).year,
+            )
+        except project_init.InitRefusedError as exc:
+            print(f"init refused: {exc}", file=sys.stderr)
+            return EXIT_FAILED
+        except ValueError as exc:
+            print(f"init: {exc}", file=sys.stderr)
+            return EXIT_USAGE
+
+    def resource() -> project_init.InitResource:
+        return project_init.InitResource(root, values, settings, git.tracked_files)
+
+    changes = project_init.run_init(
+        git,
+        resource,
+        apply=args.apply,
+        issue=args.issue,
+        development_branch=config.files["project"]["repository"]["development_branch"],
+        validate=project_init.run_validation,
+    )
+    for change in changes:
+        for step in change.details.get("next_steps", ()):
+            print(f"next: {step}", file=sys.stderr)
+    return Report(
+        command=args.command,
+        mode="apply" if args.apply else "dry-run",
+        target=args.repo,
+        changes=changes,
+    )
+
+
 def _emit(report: Report, args: argparse.Namespace) -> int:
     sys.stdout.write(render_json(report) if args.format == "json" else render_text(report))
     if args.report_file is not None:
@@ -319,6 +421,7 @@ def main(argv: Sequence[str] | None = None, *, transport: httpx.BaseTransport | 
     _configure_logging(args.verbose)
 
     remote_commands = {
+        "init": _init,
         "sync-labels": _sync_labels,
         "configure-repo": _configure_repo,
         "apply-rulesets": _apply_rulesets,

@@ -8,6 +8,9 @@ Rules, each reported with its ID:
   and files matching ``placeholder_allowlist``.
 - ``REPO-TEMPLATE-ONLY``: in a derived repository, no tracked file lies below a
   ``bootstrap.template_only_paths`` entry.
+- ``REPO-TEMPLATE-MARKER``: in a derived repository, no tracked text file outside the
+  template-only paths and the placeholder allowlist contains a ``template-only:start`` or
+  ``template-only:end`` marker; ``project-bootstrap init`` removes these blocks.
 - ``REPO-DEAD-LINK-TEMPLATE``: no Markdown file outside the template-only paths links to a
   template-only path, in both template and derived repositories.
 - ``REPO-DOCS-INDEX``: every Markdown file under ``docs/`` except ``README.md`` and
@@ -54,6 +57,7 @@ DEFAULT_REQUIRED_FILES = (
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/ISSUE_TEMPLATE/config.yml",
 )
+TEMPLATE_MARKER = re.compile(r"template-only:(?:start|end)")
 DEFAULT_PLACEHOLDER_TOKENS = (
     "PROJECT_NAME",
     "PROJECT_DESCRIPTION",
@@ -288,6 +292,28 @@ def _token_pattern(tokens: list[str]) -> re.Pattern[str] | None:
     return re.compile(rf"(?<![A-Za-z0-9_])(?:{alternatives})")
 
 
+def _project_texts(
+    repo: Path, files: list[str], settings: Settings
+) -> list[tuple[str, str]]:
+    """Return path and text of the tracked text files a derived repository must clean up.
+
+    Files in ``template_only_paths`` and files matching ``placeholder_allowlist`` are left out.
+    """
+    texts = []
+    for relative in files:
+        if _is_below(relative, settings.template_only_paths):
+            continue
+        if any(
+            fnmatch.fnmatchcase(relative, glob)
+            for glob in settings.placeholder_allowlist
+        ):
+            continue
+        text = _read_text(repo, relative)
+        if text is not None:
+            texts.append((relative, text))
+    return texts
+
+
 def check_placeholders(
     repo: Path, files: list[str], settings: Settings
 ) -> list[Finding]:
@@ -301,17 +327,7 @@ def check_placeholders(
     if pattern is None:
         return []
     findings = []
-    for relative in files:
-        if _is_below(relative, settings.template_only_paths):
-            continue
-        if any(
-            fnmatch.fnmatchcase(relative, glob)
-            for glob in settings.placeholder_allowlist
-        ):
-            continue
-        text = _read_text(repo, relative)
-        if text is None:
-            continue
+    for relative, text in _project_texts(repo, files, settings):
         for number, line in enumerate(text.splitlines(), start=1):
             match = pattern.search(line)
             if match:
@@ -320,6 +336,28 @@ def check_placeholders(
                         "REPO-PLACEHOLDER",
                         relative,
                         f"placeholder {match.group(0)!r} was not replaced",
+                        line=number,
+                    )
+                )
+    return findings
+
+
+def check_template_markers(
+    repo: Path, files: list[str], settings: Settings
+) -> list[Finding]:
+    """Report template-only markers left in a derived repository (``REPO-TEMPLATE-MARKER``)."""
+    if settings.is_template:
+        return []
+    findings = []
+    for relative, text in _project_texts(repo, files, settings):
+        for number, line in enumerate(text.splitlines(), start=1):
+            match = TEMPLATE_MARKER.search(line)
+            if match:
+                findings.append(
+                    Finding(
+                        "REPO-TEMPLATE-MARKER",
+                        relative,
+                        f"marker {match.group(0)!r} is left; remove the template-only block",
                         line=number,
                     )
                 )
@@ -489,6 +527,7 @@ def validate_repository(repo: Path) -> tuple[Settings, list[Finding]]:
     findings.extend(check_required_files(repo, settings))
     findings.extend(check_template_only(files, settings))
     findings.extend(check_placeholders(repo, files, settings))
+    findings.extend(check_template_markers(repo, files, settings))
     findings.extend(check_template_links(repo, files, settings))
     findings.extend(check_docs_index(repo, files, settings))
     findings.extend(check_forms(repo))

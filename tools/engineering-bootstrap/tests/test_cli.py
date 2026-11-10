@@ -290,6 +290,7 @@ def test_configure_repo_needs_bootstrap_schema_1_1(
     data["schema_version"] = "1.0"
     del data["repository_settings"]
     del data["protection"]
+    del data["init"]
     bootstrap_file.write_text(yaml.safe_dump(data), encoding="utf-8")
 
     code = configure(repo_project, fake_repository)
@@ -364,6 +365,7 @@ def test_apply_rulesets_needs_bootstrap_schema_1_2(
     data = yaml.safe_load(bootstrap_file.read_text(encoding="utf-8"))
     data["schema_version"] = "1.1"
     del data["protection"]
+    del data["init"]
     bootstrap_file.write_text(yaml.safe_dump(data), encoding="utf-8")
 
     code = protect(repo_project, fake_repository)

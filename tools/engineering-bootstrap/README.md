@@ -10,10 +10,10 @@ projects do not contain it.
 ## Status
 
 The core is in place: configuration loading and validation, the plan and apply engine, the
-GitHub API client and the reports. Implemented commands are `validate` without `--repo`, which
-checks the local configuration, `sync-labels`, `configure-repo` and `apply-rulesets`. All other
-commands exit with
-code `2` and the message "not implemented yet".
+GitHub API client and the reports. Implemented commands are `init` without `--profile`,
+`validate` without `--repo`, which checks the local configuration, `sync-labels`, `configure-repo`
+and `apply-rulesets`. All other commands and options exit with code `2` and the message "not
+implemented yet".
 
 ## Installation
 
@@ -38,7 +38,7 @@ ruff format --check .
 ## Commands
 
 ```text
-project-bootstrap init --repo OWNER/NAME --profile python [--dry-run | --apply]
+project-bootstrap init --repo OWNER/NAME [--path DIR] [--dry-run | --apply --issue N]
 project-bootstrap validate [--repo OWNER/NAME]
 project-bootstrap sync-labels --repo OWNER/NAME [--dry-run | --apply [--prune [--yes]]]
 project-bootstrap configure-repo --repo OWNER/NAME [--dry-run | --apply]
@@ -65,8 +65,26 @@ Options of `sync-labels`:
 | `--prune` | Also delete labels that are not in `labels.yml`; requires `--apply` |
 | `--yes` | Confirm `--prune` without the interactive question, for example in CI |
 
+Options of `init`:
+
+| Option | Meaning |
+|---|---|
+| `--repo OWNER/NAME` | Repository created from the template; required. The clone's `origin` must point to it |
+| `--path DIR` | Root of the local clone; default the current directory |
+| `--issue N` | Issue of the initialization; required with `--apply`. It names the branch `chore/N-project-init` and the commit footer `Refs: #N` |
+| `--name`, `--description` | Project name and description; default the repository name and the GitHub description |
+| `--code-owner USER\|ORG/TEAM` | Code owner without `@`; default `init.code_owner`, else the repository owner |
+| `--license SPDX\|none` | License; default `init.license` |
+| `--copyright-holder TEXT` | Holder in `LICENSE`; default `init.copyright_holder`, else the owner's profile name |
+| `--template-source OWNER/NAME` | Template repository; default the repository's GitHub template |
+| `--profile NAME` | Technology profile; not implemented yet |
+
+Without `--config`, `init` reads `.project/bootstrap.yml` of the clone given by `--path`.
+
 Exit codes: `0` success, `1` a change failed, the configuration is invalid, no token is
-available or `apply-rulesets` found an unprotected repository, `2` invalid usage, an unconfirmed `--prune` or a command that is not implemented yet.
+available, `apply-rulesets` found an unprotected repository or `init` refused the target, `2`
+invalid usage, an invalid `init` value, an unconfirmed `--prune` or a command that is not
+implemented yet.
 
 ## Label Synchronization
 
@@ -84,6 +102,39 @@ available or `apply-rulesets` found an unprotected repository, `2` invalid usage
   changes.
 - `bootstrap.synchronize_labels` in `bootstrap.yml` does not affect this command; it is meant for
   `init`.
+
+## Project Initialization
+
+`init` turns a fresh clone of a repository created from the template into a project. It works on
+the local working tree; the only GitHub requests are reads of the repository, the owner's profile
+and the license text. The plan has one change per path:
+
+- every path in `bootstrap.template_only_paths` is deleted, including this tool;
+- `.project/project.yml` gets the name, description, visibility, `is_template: false` and
+  `template.source`; comments and layout are kept;
+- `LICENSE` is written from the GitHub licenses API with the current year and the copyright
+  holder, or deleted for `none`; the `## License` section of `README.md` names the license or
+  states "All rights reserved";
+- every other tracked UTF-8 text file loses its template-only marker blocks and gets its
+  placeholder tokens replaced, and `.github/CODEOWNERS` names the project's code owner instead of
+  the template's. Files in `placeholder_allowlist` are not edited. A configured token without a
+  known value is reported as `skipped` and must be replaced by hand.
+
+Markers and tokens are described in [Project Configuration](../../.project/README.md#template-only-content).
+
+`init` refuses, with exit code `1` and before it changes anything, a repository that is a template
+on GitHub, the template's own checkout (`is_template: true` and `template.source` equal to
+`--repo`) and a clone whose `origin` does not point to `--repo`.
+
+With `--apply --issue N` it requires a clean working tree, creates `chore/N-project-init` from the
+development branch of `project.yml` (local, else `origin/`), writes the changes, stages them and
+runs the clone's `scripts/ci/validate_repository.py`. Only if validation reports no error does it
+commit `chore: initialize project from template`. It never pushes; the report and standard error
+list the `git push` and `gh pr create` commands for the pull request into the development branch.
+If writing or validation fails, nothing is committed and the branch is left for inspection.
+
+Install the tool from the template checkout without `--editable` before the first `--apply`,
+because initialization deletes `tools/`. A second run on the initialized clone plans no change.
 
 ## Branches and Repository Settings
 
@@ -159,7 +210,9 @@ Rules per branch, plan limits and manual steps:
   already matches is reported as `noop`, so a second `--apply` with unchanged configuration
   changes nothing.
 - **No deletion by default.** Planned deletions are reported as `skipped` unless destructive
-  mode is enabled; for labels that is `--apply --prune` with confirmation.
+  mode is enabled; for labels that is `--apply --prune` with confirmation. `init` is the exception:
+  it deletes template-only paths in the local working tree, and the result is reviewed in the
+  pull request before it reaches GitHub.
 - **Partial failures.** If a resource fails, its changes are reported as `failed` and resources
   that depend on it as `skipped`; independent resources still run, and the exit code is `1`.
   Changes that were written have `"applied": true` in the report, so a partial run can be
@@ -231,11 +284,13 @@ credential-like values with `***`, also at debug level.
 | `cli.py` | Argument parsing, logging setup, report output and exit codes |
 | `config.py` | Reads `.project/*.yml` and validates each file against `.project/schemas/` |
 | `engine.py` | `Resource` protocol, dependency order, dry run and apply |
+| `git.py` | Local Git commands of `init`: tracked files, status, branch, stage and commit |
 | `github.py` | Token resolution, HTTP client with pagination, rate limits, retries, typed errors and log redaction |
 | `report.py` | Text and JSON reports |
 | `resources/labels.py` | Label resource: compare, create, update, rename and delete labels |
 | `resources/branches.py` | Branch resource: check the default branch, create the development branch |
 | `resources/repo_settings.py` | Settings resource: repository, Actions and security settings |
+| `resources/init.py` | Init resource and run: values, target checks, text edits, validation and commit |
 | `resources/rulesets.py` | Ruleset resource: plan detection, branch and tag rulesets, required checks |
 
 A resource implements `read_actual()`, `desired()`, `diff(actual, desired)` and `apply(change)`.

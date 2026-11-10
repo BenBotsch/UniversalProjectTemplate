@@ -9,10 +9,15 @@ These rules apply to humans and coding agents alike. Agents additionally follow
 - Python 3.10 or later for the repository checks in `scripts/ci/`.
 - The tools required by the technology profile, listed in [README.md](README.md#requirements).
 
+Clone the development branch:
+
 ```text
-git clone https://github.com/OWNER/REPOSITORY.git
-cd REPOSITORY
-git switch develop
+git clone --branch develop https://github.com/OWNER/REPOSITORY.git
+```
+
+Then install the dependencies of the repository checks from the root of the clone:
+
+```text
 python -m pip install -r scripts/ci/requirements.txt
 ```
 

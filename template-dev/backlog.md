@@ -42,7 +42,7 @@ issue is authoritative.
 | 23 | [FEAT-025](features/FEAT-025-sync-labels.md) | Implement Idempotent Label Synchronization | EPIC-07 | 2 | then | high | s | 008, 024 | - | yes | implemented |
 | 24 | [FEAT-026](features/FEAT-026-branches-and-repo-settings.md) | Configure Branches and Repository Settings | EPIC-07 | 2 | then | high | m | 024 | - | yes | implemented |
 | 25 | [FEAT-027](features/FEAT-027-rulesets-and-plan-detection.md) | Apply Rulesets with Plan Detection and Solo Mode | EPIC-07 | 2 | then | high | l | 020, 026 | - | yes | implemented |
-| 26 | [FEAT-028](features/FEAT-028-project-init.md) | Initialize Derived Project and Remove Template-Only Content | EPIC-07 | 2 | then | critical | l | 002, 007, 013, 015, 024 | - | yes | planned |
+| 26 | [FEAT-028](features/FEAT-028-project-init.md) | Initialize Derived Project and Remove Template-Only Content | EPIC-07 | 2 | then | critical | l | 002, 007, 013, 015, 024 | - | yes | implemented |
 | 27 | [FEAT-029](features/FEAT-029-validate-audit-health.md) | Implement Validate, Audit, Drift Detection and Health Score | EPIC-07 | 2 | then | medium | m | 015, 025, 026, 027 | - | yes | planned |
 | 28 | [FEAT-030](features/FEAT-030-bootstrap-test-suite.md) | Build Bootstrap End-to-End Test Suite | EPIC-07 | 2 | then | high | m | 025, 026, 027, 028 | - | yes | planned |
 | 29 | [FEAT-048](features/FEAT-048-seed-backlog-migration.md) | Migrate Seed Backlog to GitHub Issues | EPIC-10 | 2 | then | high | m | 007, 008, 025 | - | no | planned |
