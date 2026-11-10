@@ -1,0 +1,86 @@
+# Python technology profile: uv, Ruff, mypy, pytest with coverage, build and dependency audit.
+# Format and rules: profiles/README.md and docs/architecture/adr/0006-technology-profiles.md.
+schema_version: "1.0"
+id: "python"
+version: "0.1.0"
+description: "Python package with uv, Ruff, mypy, pytest, build and pip-audit jobs"
+technology:
+  languages: ["python"]
+  package_managers: ["uv"]
+files:
+  - ".github/actions/python-setup/action.yml"
+  - ".github/workflows/python.yml"
+  - "pyproject.toml"
+  - "src/PROJECT_PACKAGE/__init__.py"
+  - "src/PROJECT_PACKAGE/py.typed"
+  - "tests/test_smoke.py"
+ci_jobs:
+  - id: "python"
+    workflow: "python.yml"
+quality_gates:
+  python_formatting:
+    required_when_applicable: true
+    covers: "formatting"
+    applies_when:
+      languages: ["python"]
+    workflow: "python.yml"
+    job: "format"
+    status: "implemented"
+  python_lint:
+    required_when_applicable: true
+    covers: "lint"
+    applies_when:
+      languages: ["python"]
+    workflow: "python.yml"
+    job: "lint"
+    status: "implemented"
+  python_type_check:
+    required_when_applicable: true
+    applies_when:
+      languages: ["python"]
+    workflow: "python.yml"
+    job: "type-check"
+    status: "implemented"
+  python_tests:
+    required_for_code_changes: true
+    covers: "tests"
+    applies_when:
+      languages: ["python"]
+      ignored_paths: ["*.md", "docs/*"]
+    workflow: "python.yml"
+    job: "test"
+    status: "implemented"
+  python_build:
+    required_when_applicable: true
+    covers: "build"
+    applies_when:
+      languages: ["python"]
+    workflow: "python.yml"
+    job: "build"
+    status: "implemented"
+  python_security:
+    required_when_applicable: true
+    covers: "security"
+    applies_when:
+      languages: ["python"]
+    workflow: "python.yml"
+    job: "audit"
+    status: "implemented"
+dependabot:
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+    # New releases are proposed after a week, so a compromised release has time to be withdrawn.
+    cooldown:
+      default-days: 7
+    labels: ["area:python", "type:task"]
+    commit-message:
+      prefix: "build"
+      include: "scope"
+labels:
+  - name: "area:python"
+    color: "c5def5"
+    description: "Python code, packaging and tooling"
+    group: "area"

@@ -1,0 +1,109 @@
+# Python jobs of the python technology profile. Reusable workflow: ci.yml calls it, so the
+# quality-gate job can evaluate its jobs (ADR-0003). Each job has a gate in quality-gates.yml.
+# The workspace-relative form ./ is used for the local action because actionlint does not accept
+# the self-repository form $/ yet; switch when it does.
+name: "Python"
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    name: "format"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up the project"
+        uses: ./.github/actions/python-setup # zizmor: ignore[self-repository]
+      - name: "Check formatting"
+        run: uv run ruff format --check .
+
+  lint:
+    name: "lint"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up the project"
+        uses: ./.github/actions/python-setup # zizmor: ignore[self-repository]
+      - name: "Lint"
+        run: uv run ruff check --output-format=github .
+
+  type-check:
+    name: "type-check"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up the project"
+        uses: ./.github/actions/python-setup # zizmor: ignore[self-repository]
+      - name: "Check types"
+        run: uv run mypy
+
+  test:
+    # GitHub appends the matrix values, so the runs are reported as "test (3.12)" and so on.
+    name: "test"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every Python version that requires-python in pyproject.toml supports.
+        python-version: ["3.12", "3.13"]
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up the project"
+        uses: ./.github/actions/python-setup # zizmor: ignore[self-repository]
+        with:
+          python-version: ${{ matrix.python-version }}
+      # pytest exits with an error when it collects no test, so a missing test suite fails the gate.
+      - name: "Run tests with coverage"
+        run: uv run pytest --cov --cov-report=term-missing
+
+  build:
+    name: "build"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up the project"
+        uses: ./.github/actions/python-setup # zizmor: ignore[self-repository]
+      - name: "Build the sdist and wheel"
+        run: uv build
+
+  audit:
+    name: "audit"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up the project"
+        uses: ./.github/actions/python-setup # zizmor: ignore[self-repository]
+      - name: "Audit the locked dependencies for known vulnerabilities"
+        env:
+          REQUIREMENTS: "${{ runner.temp }}/requirements.txt"
+        run: |
+          uv export --all-groups --no-emit-project --format requirements-txt --output-file "${REQUIREMENTS}"
+          uvx --from "pip-audit==2.10.1" pip-audit --strict --disable-pip --requirement "${REQUIREMENTS}"

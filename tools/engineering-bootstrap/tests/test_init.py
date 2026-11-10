@@ -571,14 +571,8 @@ def test_path_outside_a_git_root_fails(
     assert api.requests == []
 
 
-def test_template_checkout_initializes_to_a_valid_project(
-    tmp_path: Path,
-    api: FakeGitHubAPI,
-    monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    """Every placeholder and marker of the real template is handled, and validation passes."""
-    monkeypatch.setenv("GITHUB_TOKEN", "test-token")
+def template_checkout(tmp_path: Path) -> Path:
+    """Return a git clone of the template working tree as it would be committed."""
     root = tmp_path / "project"
     # Tracked and new, not ignored files: the working tree as it would be committed.
     listing = git(REPOSITORY_ROOT, "ls-files", "--cached", "--others", "--exclude-standard")
@@ -598,8 +592,23 @@ def test_template_checkout_initializes_to_a_valid_project(
     git(root, "remote", "add", "origin", f"https://github.com/{REPO}.git")
     git(root, "add", "--all")
     git(root, "commit", "--quiet", "--message", "chore: create from template")
+    return root
 
-    code = run(root, api, "--apply", "--issue", "1")
+
+@pytest.mark.parametrize("profile", [None, "python"])
+def test_template_checkout_initializes_to_a_valid_project(
+    tmp_path: Path,
+    api: FakeGitHubAPI,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    profile: str | None,
+) -> None:
+    """Every placeholder and marker of the real template is handled, and validation passes."""
+    monkeypatch.setenv("GITHUB_TOKEN", "test-token")
+    root = template_checkout(tmp_path)
+    options = ["--profile", profile] if profile else []
+
+    code = run(root, api, "--apply", "--issue", "1", *options)
 
     changes = by_key(report(capsys))
     assert code == EXIT_OK, [c for c in changes.values() if c["action"] == "failed"]
@@ -607,6 +616,12 @@ def test_template_checkout_initializes_to_a_valid_project(
     assert changes["chore/1-project-init"]["applied"] is True
     assert not [key for key in changes if key.startswith("placeholder:")]
     assert broken_local_links(root) == []
+    # Kept documents that describe the tokens must not be rewritten by the replacement.
+    adr = "docs/architecture/adr/0006-technology-profiles.md"
+    assert read(root, adr) == read(REPOSITORY_ROOT, adr)
+    assert git(root, "status", "--porcelain") == ""
+    applied = [".github/workflows/python.yml", "pyproject.toml", "tests/test_smoke.py"]
+    assert [(root / path).is_file() for path in applied] == [profile == "python"] * len(applied)
 
 
 LINK = re.compile(r"\]\(\s*<?([^)\s>]+)>?(?:\s+[\"'][^)]*)?\)")
