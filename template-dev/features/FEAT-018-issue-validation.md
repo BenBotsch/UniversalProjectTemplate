@@ -113,11 +113,11 @@ actionlint .github/workflows/issue-validation.yml
 - **Verification:** unit tests for every rule and §21.6 case, the runner against a fake API
   client and `UrllibClient` against a local HTTP server; `actionlint`, `zizmor` and `yamllint` on
   the workflow.
-- **Manual test (2026-11-10):** in `BenBotsch/upt-smoke-public` the labels were synchronized
-  with `sync-labels --apply` and the workflow reached `main` through #6 (into `develop`) and the
-  release pull request #7. Issue #8, created with `gh issue create` without labels or form
-  headings, got one comment with `ISSUE-R1` and `status:needs-info`. Adding `type:task` updated
-  the same comment to five `ISSUE-R11` findings; filling in the form sections resolved it and
-  restored `status:triage`. Two `priority:*` labels reported `ISSUE-R3`, removing one resolved
-  it; a `status:needs-info` set by a person was kept. Eight runs, all successful, and no run was
-  started by the validator's own label changes.
+- **Manual test (2026-11-10):** in `BenBotsch/upt-smoke-public` the labels were synchronized with
+  `sync-labels --apply` and the workflow reached `main` through `upt-smoke-public#6` (into
+  `develop`) and the release pull request `upt-smoke-public#7`. Issue `upt-smoke-public#8`, created
+  with `gh issue create` without labels or form headings, got one comment with `ISSUE-R1` and
+  `status:needs-info`. Adding `type:task` updated the same comment to five `ISSUE-R11` findings;
+  filling in the form sections resolved it and restored `status:triage`. Two `priority:*` labels
+  reported `ISSUE-R3`, removing one resolved it; a `status:needs-info` set by a person was kept.
+  Eight runs, all successful, and no run was started by the validator's own label changes.
