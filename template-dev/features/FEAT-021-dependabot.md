@@ -3,7 +3,7 @@ id: "FEAT-021"
 title: "Configure Dependabot Baseline"
 epic: "EPIC-06"
 phase: 2
-status: "planned"
+status: "active"
 priority: "high"
 effort: "xs"
 target_repo: "universal-project-template"
@@ -52,12 +52,12 @@ default branch (`main`) and must be synced to `develop` (§19).
 
 ## Tasks
 
-- [ ] **T1:** Add `dependabot.yml`.
-- [ ] **T2:** Add documentation section.
+- [x] **T1:** Add `dependabot.yml`.
+- [x] **T2:** Add documentation section.
 
 ## Acceptance Criteria
 
-- [ ] Dependency updates are configured (§17.5).
+- [x] Dependency updates are configured (§17.5).
 - [ ] GitHub shows the Dependabot configuration as valid in a test repository.
 
 ## Verification
@@ -72,3 +72,15 @@ yamllint .github/dependabot.yml
 - **Allowed paths:** `.github/dependabot.yml`, the doc section, this feature file, backlog status.
 - **Requires approval:** none.
 - **Pitfalls:** Version-update PRs honor `target-branch`; security-update PRs do not.
+
+## Implementation Notes
+
+- `.github/dependabot.yml` follows §10.8 with `commit-message.prefix: "ci"` and
+  `include: "scope"`, which produces titles such as `ci(deps): bump actions/checkout ...`. Both
+  labels exist in `.project/labels.yml`.
+- Only `github-actions` is configured. The template also contains `scripts/ci/requirements*.txt`;
+  a `pip` entry for them is left out because the scope names only GitHub Actions. Profiles add
+  ecosystems (`FEAT-031`).
+- `docs/governance/branching-and-releases.md` has a new "Dependency Updates" section;
+  `docs/governance/security-policy.md` names the file in the dependency row.
+- Open: GitHub must show the configuration as valid after the push.

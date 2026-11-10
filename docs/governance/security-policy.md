@@ -11,7 +11,7 @@ vulnerability is described in [SECURITY.md](../../SECURITY.md).
 | Workflow tokens | Minimal `GITHUB_TOKEN` permissions | `permissions: contents: read` in every workflow |
 | Workflow dependencies | Actions pinned to reviewed full commit SHAs, or a lock-file mechanism | `actions-pinning` job in `security.yml` |
 | Secrets | No committed tokens or keys; secret scanning enabled where available | `secret-scan` job in `security.yml` (Gitleaks) |
-| Dependencies | Dependabot and suitable dependency checks | Added during bootstrap for the ecosystems in use |
+| Dependencies | Dependabot and suitable dependency checks | `.github/dependabot.yml` for GitHub Actions; other ecosystems are added for the ecosystems in use |
 | Code | CodeQL or another SAST tool, depending on the stack and plan | Added per technology profile |
 | Containers | Image scanning, minimal images, no root user where possible | Added per technology profile |
 | Releases | Checksums, attestations, signed tags or artifacts where suitable | Release workflow |

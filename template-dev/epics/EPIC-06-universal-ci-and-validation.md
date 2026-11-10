@@ -36,7 +36,7 @@ Enforce metadata and quality automatically: repository, issue and PR validation,
 | [FEAT-018](../features/FEAT-018-issue-validation.md) | Implement Issue Validator and Issue Validation Workflow | 2 | high | 007, 008, 009, 014 | planned |
 | [FEAT-019](../features/FEAT-019-pr-validation-and-commitlint.md) | Implement Pull Request Validation and Commit Convention Checks | 2 | high | 011, 012, 014 | planned |
 | [FEAT-020](../features/FEAT-020-quality-gate-evaluator.md) | Enforce Quality Gates Without False Green Pipelines | 2 | high | 013, 016 | planned |
-| [FEAT-021](../features/FEAT-021-dependabot.md) | Configure Dependabot Baseline | 2 | high | 008 | planned |
+| [FEAT-021](../features/FEAT-021-dependabot.md) | Configure Dependabot Baseline | 2 | high | 008 | active |
 | [FEAT-022](../features/FEAT-022-severity-priority-suggestion.md) | Suggest Priority from Bug Severity | 2 | low | 018 | planned |
 
 ## Risks and Dependencies

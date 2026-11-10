@@ -1,0 +1,21 @@
+# Dependabot version updates.
+#
+# Only GitHub Actions is configured here. Add an ecosystem (pip, npm, docker, ...) only when the
+# project contains its manifest files; technology profiles add their own entries.
+# Version update pull requests target develop. Security update pull requests always target the
+# default branch (main) and must be synchronized into develop afterwards; see
+# docs/governance/branching-and-releases.md.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+    labels:
+      - "area:ci-cd"
+      - "type:task"
+    # Produces pull request titles such as "ci(deps): bump actions/checkout from A to B".
+    commit-message:
+      prefix: "ci"
+      include: "scope"

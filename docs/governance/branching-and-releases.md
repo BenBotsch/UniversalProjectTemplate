@@ -85,6 +85,20 @@ from `main` into `develop` and merge it with a merge commit:
 
 Resolve conflicts in the synchronization pull request, never by force-pushing either branch.
 
+## Dependency Updates
+
+[`.github/dependabot.yml`](../../.github/dependabot.yml) configures Dependabot version updates:
+
+- Version update pull requests target `develop`, are opened weekly and carry the labels
+  `area:ci-cd` and `type:task`.
+- Their commit messages and titles start with `ci(deps):`, so they follow the commit conventions.
+- The template configures only the `github-actions` ecosystem. Add an ecosystem such as `pip`,
+  `npm` or `docker` only when the project contains its manifest files. Use only labels that exist
+  in `.project/labels.yml`.
+- Security update pull requests ignore `target-branch` and always target the default branch
+  (`main`). After merging one, synchronize `main` into `develop` as described in
+  [Synchronizing `main` into `develop`](#synchronizing-main-into-develop).
+
 ## Semantic Versioning
 
 Versions follow [Semantic Versioning 2.0.0](https://semver.org/):
