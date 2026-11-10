@@ -26,7 +26,7 @@ Predictable collaboration: a PR template, CODEOWNERS convention, and documented 
 
 | ID | Title | Phase | Priority | Depends on | Status |
 |---|---|---|---|---|---|
-| [FEAT-011](../features/FEAT-011-pr-template-and-codeowners.md) | Add Pull Request Template and CODEOWNERS Convention | 1 | critical | 001 | active |
+| [FEAT-011](../features/FEAT-011-pr-template-and-codeowners.md) | Add Pull Request Template and CODEOWNERS Convention | 1 | critical | 001 | implemented |
 | [FEAT-012](../features/FEAT-012-branching-commit-release-docs.md) | Document Branching, Commit and Release Conventions | 1 | high | 003 | implemented |
 
 ## Risks and Dependencies

@@ -3,7 +3,7 @@ id: "FEAT-011"
 title: "Add Pull Request Template and CODEOWNERS Convention"
 epic: "EPIC-04"
 phase: 1
-status: "active"
+status: "implemented"
 priority: "critical"
 effort: "xs"
 target_repo: "universal-project-template"
@@ -58,8 +58,8 @@ block solo accounts (§14.3).
 
 ## Acceptance Criteria
 
-- [ ] A new PR in a test repository is pre-filled with the template.
-- [ ] CODEOWNERS is syntactically valid (GitHub shows no CODEOWNERS errors on the file page) after placeholder replacement.
+- [x] A new PR in a test repository is pre-filled with the template.
+- [x] CODEOWNERS is syntactically valid (GitHub shows no CODEOWNERS errors on the file page) after placeholder replacement.
 
 ## Verification
 
@@ -81,3 +81,8 @@ grep -c "^## " .github/PULL_REQUEST_TEMPLATE.md     # 7 level-2 sections
   validation no longer reports an unset owner. `@OWNER_OR_TEAM` stays a placeholder token in
   `workflow.yml`, so a project that reintroduces it is still reported. `README.md` asks derived
   projects to check the owner. `FEAT-028` must replace the owner instead of a placeholder.
+- Verified on 2026-11-10 in the test repository `BenBotsch/upt-smoke-2`, created from the template
+  after the merge of PR #4 and bootstrapped with `New-ProjectRepository.ps1 -Apply`:
+  `GET /repos/BenBotsch/upt-smoke-2/codeowners/errors?ref=main` returns no errors, and the
+  community profile lists `.github/PULL_REQUEST_TEMPLATE.md` as `pull_request_template`. GitHub
+  uses that file to pre-fill new pull requests; the pre-filled web form itself was not opened.
