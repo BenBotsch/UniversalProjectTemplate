@@ -3,7 +3,7 @@ id: "FEAT-018"
 title: "Implement Issue Validator and Issue Validation Workflow"
 epic: "EPIC-06"
 phase: 2
-status: "active"
+status: "implemented"
 priority: "high"
 effort: "l"
 target_repo: "universal-project-template"
@@ -65,7 +65,7 @@ initial labels follow `DEC-05` default.
 - [x] **T2:** Section parsing per type with tests.
 - [x] **T3:** Dependency and `agent:ready` checks with API mocks.
 - [x] **T4:** Runner with comment upsert and label handling; loop protection.
-- [ ] **T5:** Workflow file; manual test in a test repository.
+- [x] **T5:** Workflow file; manual test in a test repository.
 
 ## Acceptance Criteria
 
@@ -107,12 +107,17 @@ actionlint .github/workflows/issue-validation.yml
   The job fails with exit `1` for an API error, with a rate-limit or `issues: write` hint, and
   with exit `2` for an invalid event file.
 - **Deviations:** `ISSUE-R10` (closed issues) is left to review, because the validator skips
-  closed issues. `priority` and `effort` were added to `optional_single_label_groups` in
+  closed issues. `priority` was added to `optional_single_label_groups` in
   `.project/workflow.yml` (outside the allowed paths) so that "at most one" is policy, not code.
   `docs/governance/issue-management.md` and `scripts/ci/README.md` describe the validator.
-- **Verification so far:** unit tests for every rule and §21.6 case, the runner against a fake
-  API client and `UrllibClient` against a local HTTP server; `actionlint`, `zizmor` and
-  `yamllint` on the workflow.
-- **Open:** T5's manual test in `BenBotsch/upt-smoke-public` needs approval for creating issues
-  there and a merge of the workflow into that repository's default branch, because `issues`
-  events run the workflow file of the default branch. The feature stays `active` until then.
+- **Verification:** unit tests for every rule and §21.6 case, the runner against a fake API
+  client and `UrllibClient` against a local HTTP server; `actionlint`, `zizmor` and `yamllint` on
+  the workflow.
+- **Manual test (2026-11-10):** in `BenBotsch/upt-smoke-public` the labels were synchronized with
+  `sync-labels --apply` and the workflow reached `main` through `upt-smoke-public#6` (into
+  `develop`) and the release pull request `upt-smoke-public#7`. Issue `upt-smoke-public#8`, created
+  with `gh issue create` without labels or form headings, got one comment with `ISSUE-R1` and
+  `status:needs-info`. Adding `type:task` updated the same comment to five `ISSUE-R11` findings;
+  filling in the form sections resolved it and restored `status:triage`. Two `priority:*` labels
+  reported `ISSUE-R3`, removing one resolved it; a `status:needs-info` set by a person was kept.
+  Eight runs, all successful, and no run was started by the validator's own label changes.

@@ -33,7 +33,7 @@ Enforce metadata and quality automatically: repository, issue and PR validation,
 | [FEAT-015](../features/FEAT-015-repository-validator.md) | Implement Repository Validator with Placeholder and Template-Only Checks | 2 | critical | 014 | implemented |
 | [FEAT-016](../features/FEAT-016-base-ci-workflows.md) | Add Universal Base CI and Quality Workflows | 2 | critical | 014, 015 | implemented |
 | [FEAT-017](../features/FEAT-017-security-baseline-workflow.md) | Add Security Baseline Workflow and Secret Scanning | 2 | critical | 016 | implemented |
-| [FEAT-018](../features/FEAT-018-issue-validation.md) | Implement Issue Validator and Issue Validation Workflow | 2 | high | 007, 008, 009, 014 | active |
+| [FEAT-018](../features/FEAT-018-issue-validation.md) | Implement Issue Validator and Issue Validation Workflow | 2 | high | 007, 008, 009, 014 | implemented |
 | [FEAT-019](../features/FEAT-019-pr-validation-and-commitlint.md) | Implement Pull Request Validation and Commit Convention Checks | 2 | high | 011, 012, 014 | implemented |
 | [FEAT-020](../features/FEAT-020-quality-gate-evaluator.md) | Enforce Quality Gates Without False Green Pipelines | 2 | high | 013, 016 | implemented |
 | [FEAT-021](../features/FEAT-021-dependabot.md) | Configure Dependabot Baseline | 2 | high | 008 | implemented |
