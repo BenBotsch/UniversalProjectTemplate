@@ -350,6 +350,8 @@ def remove_template_blocks(text: str) -> tuple[str, int]:
 
     Both marker lines are removed with the block, whatever comment syntax surrounds them. A blank
     line after a block that follows a blank line is removed too, so no double blank line remains.
+    When only blank lines follow the last block, the blank lines before it are removed as well, so
+    the text does not end with a blank line.
 
     Returns:
         The text and the number of removed blocks.
@@ -361,6 +363,8 @@ def remove_template_blocks(text: str) -> tuple[str, int]:
     start: int | None = None
     blocks = 0
     drop_blank = False
+    # True while no non-blank line has followed the last removed block.
+    block_at_end = False
     for number, line in enumerate(text.splitlines(keepends=True), start=1):
         if MARKER_START in line:
             if start is not None:
@@ -372,12 +376,18 @@ def remove_template_blocks(text: str) -> tuple[str, int]:
             start = None
             blocks += 1
             drop_blank = not kept or not kept[-1].strip()
+            block_at_end = True
         elif start is None:
             if not (drop_blank and not line.strip()):
                 kept.append(line)
             drop_blank = False
+            if line.strip():
+                block_at_end = False
     if start is not None:
         raise ValueError(f"line {start}: {MARKER_START} without {MARKER_END}")
+    if block_at_end:
+        while kept and not kept[-1].strip():
+            kept.pop()
     return "".join(kept), blocks
 
 
