@@ -269,6 +269,53 @@ def test_readme_link_to_template_dev_fails(tmp_path: Path) -> None:
     ]
 
 
+TEMPLATE_README = (
+    "# Example\n\n"
+    "<!-- template-only:start -->\n"
+    "## Using this Template\n\n"
+    "Steps.\n"
+    "<!-- template-only:end -->\n\n"
+    "## Features\n"
+)
+
+
+@pytest.mark.parametrize("is_template", [True, False])
+def test_link_to_a_heading_in_a_template_only_block_fails(
+    tmp_path: Path, is_template: bool
+) -> None:
+    files = {
+        "README.md": TEMPLATE_README,
+        "scripts/x/README.md": "# X\n\nSee [usage](../../README.md#using-this-template).\n",
+    }
+    findings = run(make_repo(tmp_path, files, is_template=is_template))
+    dead = [item for item in findings if item.rule == "REPO-DEAD-LINK-TEMPLATE"]
+    assert [(item.file, item.line) for item in dead] == [("scripts/x/README.md", 3)]
+    assert "template-only block of README.md" in dead[0].message
+
+
+def test_same_file_link_to_a_template_only_heading_fails(tmp_path: Path) -> None:
+    readme = TEMPLATE_README + "\nSee [usage](#using-this-template).\n"
+    findings = run(make_repo(tmp_path, {"README.md": readme}, is_template=True))
+    assert [(item.rule, item.line) for item in findings] == [
+        ("REPO-DEAD-LINK-TEMPLATE", 11)
+    ]
+
+
+def test_links_inside_template_only_blocks_are_not_reported(tmp_path: Path) -> None:
+    files = {
+        "README.md": TEMPLATE_README,
+        "docs/x.md": (
+            "# X\n\n"
+            "<!-- template-only:start -->\n"
+            "[usage](../README.md#using-this-template), [plan](../template-dev/plan.md)\n"
+            "<!-- template-only:end -->\n\n"
+            "[features](../README.md#features)\n"
+        ),
+        "docs/INDEX.md": "[x](x.md)\n",
+    }
+    assert run(make_repo(tmp_path, files, is_template=True)) == []
+
+
 @pytest.mark.parametrize(
     "link",
     [

@@ -164,6 +164,10 @@ In YAML, `CODEOWNERS` and other files with `#` comments the lines are `# templat
 `# template-only:end`. Repository validation fails if a marker remains while `is_template` is
 `false`.
 
+Content outside these blocks must not link to a template-only path or to a heading inside a
+template-only block, because the link is dead after initialization; `REPO-DEAD-LINK-TEMPLATE`
+reports both, also in the template.
+
 ## Placeholders
 
 Values that bootstrap replaces during initialization use these tokens: `PROJECT_NAME`,
