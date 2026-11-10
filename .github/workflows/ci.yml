@@ -42,6 +42,48 @@ jobs:
       - name: "Validate repository structure"
         run: python -I scripts/ci/validate_repository.py
 
+  # Tests the bootstrap tool, which exists only in the template repository. In derived projects
+  # the directory is removed, and the job succeeds without running anything.
+  bootstrap-tool:
+    name: "bootstrap-tool"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: "tools/engineering-bootstrap"
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Check for the bootstrap tool"
+        id: presence
+        working-directory: "."
+        run: |
+          if [ -d tools/engineering-bootstrap ]; then
+            echo "present=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "present=false" >> "${GITHUB_OUTPUT}"
+            echo "::notice::tools/engineering-bootstrap does not exist; nothing to test"
+          fi
+      - name: "Set up Python"
+        if: steps.presence.outputs.present == 'true'
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: "Install test and lint dependencies"
+        if: steps.presence.outputs.present == 'true'
+        run: python -I -m pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: "Run tests"
+        if: steps.presence.outputs.present == 'true'
+        run: python -I -m pytest
+      - name: "Lint"
+        if: steps.presence.outputs.present == 'true'
+        run: ruff check --output-format=github .
+      - name: "Check formatting"
+        if: steps.presence.outputs.present == 'true'
+        run: ruff format --check .
+
   # The workspace-relative form ./ is used for reusable workflows because actionlint does not
   # accept the self-repository form $/ yet; switch when it does.
   quality:
@@ -66,7 +108,7 @@ jobs:
     # Runs even if a needed job failed or was skipped; the evaluator decides. Without always(),
     # a failed dependency would skip this job, and a skipped required check can count as passed.
     if: always()
-    needs: [repository-validation, quality, security, pull-request]
+    needs: [repository-validation, bootstrap-tool, quality, security, pull-request]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

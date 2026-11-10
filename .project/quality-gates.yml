@@ -78,6 +78,13 @@ quality_gates:
     workflow: "security.yml"
     job: "actions-pinning"
     status: "implemented"
+  bootstrap_tool:
+    required_when_applicable: true
+    applies_when:
+      changed_paths: ["tools/engineering-bootstrap/*"]
+    workflow: "ci.yml"
+    job: "bootstrap-tool"
+    status: "implemented"
   formatting:
     required_when_applicable: true
     applies_when:

@@ -3,7 +3,7 @@ id: "FEAT-024"
 title: "Build Bootstrap CLI Core with Plan, Apply and Reports"
 epic: "EPIC-07"
 phase: 2
-status: "planned"
+status: "implemented"
 priority: "critical"
 effort: "l"
 target_repo: "engineering-bootstrap"
@@ -48,7 +48,7 @@ clear permission errors), §13.7 proposed commands. §16.3 places the tool in it
 
 | Path | Description |
 |---|---|
-| `pyproject.toml` | Package `engineering_bootstrap`, entry point `project-bootstrap`, Python >= 3.11 |
+| `pyproject.toml` | Package `engineering_bootstrap`, entry point `project-bootstrap`, Python >= 3.12 |
 | `src/engineering_bootstrap/cli.py` | Subcommands from §13.7; global `--config`, `--dry-run` (default), `--apply`, `--format text\|json`, `--report-file` |
 | `src/engineering_bootstrap/engine.py` | `Resource` protocol: `read_actual()`, `desired()`, `diff()`, `apply(change)`; ordered execution |
 | `src/engineering_bootstrap/github.py` | Client with auth, pagination, rate-limit backoff, typed errors |
@@ -68,16 +68,16 @@ clear permission errors), §13.7 proposed commands. §16.3 places the tool in it
 
 ## Tasks
 
-- [ ] **T1:** Package skeleton, CLI parsing, config loading.
-- [ ] **T2:** Engine with `Resource` protocol and a fake resource for tests.
-- [ ] **T3:** GitHub client with auth from `gh auth token` or `GITHUB_TOKEN`, pagination, rate limits, retries.
-- [ ] **T4:** Report writers and JSON schema doc.
+- [x] **T1:** Package skeleton, CLI parsing, config loading.
+- [x] **T2:** Engine with `Resource` protocol and a fake resource for tests.
+- [x] **T3:** GitHub client with auth from `gh auth token` or `GITHUB_TOKEN`, pagination, rate limits, retries.
+- [x] **T4:** Report writers and JSON schema doc.
 
 ## Acceptance Criteria
 
-- [ ] Bootstrap supports dry-run (§17.1).
-- [ ] Bootstrap can run repeatedly without corrupting configuration: verified with a fake resource (§17.1).
-- [ ] No secret appears in logs at debug level (test asserts redaction).
+- [x] Bootstrap supports dry-run (§17.1).
+- [x] Bootstrap can run repeatedly without corrupting configuration: verified with a fake resource (§17.1).
+- [x] No secret appears in logs at debug level (test asserts redaction).
 
 ## Verification
 
@@ -92,3 +92,37 @@ project-bootstrap validate --config .project/bootstrap.yml --dry-run --format js
 - **Allowed paths:** `tools/engineering-bootstrap/**`, this feature file, backlog status.
 - **Requires approval:** any `--apply` against real GitHub.
 - **Pitfalls:** Keep the engine free of GitHub specifics so resources stay testable with fakes.
+
+## Implementation Notes
+
+- Implemented in `tools/engineering-bootstrap/` (R7); the package README documents commands,
+  options, exit codes, authentication, behavior and the report format (R6). The report schema is
+  `src/engineering_bootstrap/schemas/report-1.0.schema.json`.
+- **Deviation:** `requires-python = ">=3.12"` instead of 3.11, following ADR-0002 (DEC-01).
+- **Deviation:** HTTP mocks use `httpx.MockTransport` instead of `respx` or `responses`; the client
+  is built on `httpx`, so no extra test dependency is needed (decision of the maintainer).
+- Of the §13.7 commands, only `validate` without `--repo` (local configuration) is implemented.
+  `init`, `sync-labels`, `audit` and `validate --repo` exit with code 2 and "not implemented yet";
+  their resources follow in FEAT-025 to FEAT-029.
+- `config.py` validates each `.project/*.yml` against the project's own
+  `.project/schemas/<name>-<version>.schema.json`. The cross-file checks remain in
+  `scripts/ci/validate_project.py`; the separate repository (§16.3) cannot import them.
+- The engine skips planned deletions unless `allow_destructive` is set; the CLI has no option for
+  it yet. After network or server errors only idempotent methods are retried, not `POST`;
+  rate-limited requests are retried for every method (R4, R5).
+- Redaction (R3): the client logs only method, URL and status; `RedactingFilter` on the log
+  handlers removes the token, `Authorization` values and GitHub token patterns. Tests assert that
+  debug logs of the client and `httpx` contain neither the token nor `Bearer`.
+- **Paths outside the allowed paths, approved by the maintainer:** `.project/bootstrap.yml` (the
+  package is a template-only path), `.github/workflows/ci.yml` (job `bootstrap-tool`, also needed
+  by `quality-gate`), `.project/quality-gates.yml` (gate `bootstrap_tool`, applies to changes below
+  `tools/engineering-bootstrap/`), `scripts/ci/README.md` (checks table) and
+  `tests/ci/test_validate_project.py` (two cases assumed exactly one template-only path).
+- **Verification (local, Windows, Python 3.12 virtual environment):** 65 package tests pass;
+  `ruff check` and `ruff format --check` pass; after `pip install ./tools/engineering-bootstrap`,
+  `project-bootstrap --help` lists the four commands and
+  `project-bootstrap validate --config .project/bootstrap.yml --dry-run --format json` reports
+  five `noop` entries with exit code 0. `tests/ci` (294 tests), both repository validators,
+  actionlint, zizmor, yamllint, markdownlint and gitleaks pass. The `bootstrap-tool` job has not
+  run on GitHub yet; it runs with the next push.
+- No `--apply` against real GitHub was executed.

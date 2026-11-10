@@ -239,13 +239,13 @@ def test_missing_required_field_is_reported(project_copy: Path) -> None:
         ),
         (
             "bootstrap",
-            lambda d: d["bootstrap"]["template_only_paths"].append("../outside"),
-            "bootstrap.template_only_paths.1",
+            lambda d: d["bootstrap"]["template_only_paths"].insert(0, "../outside"),
+            "bootstrap.template_only_paths.0",
         ),
         (
             "bootstrap",
-            lambda d: d["bootstrap"]["template_only_paths"].append("/absolute"),
-            "bootstrap.template_only_paths.1",
+            lambda d: d["bootstrap"]["template_only_paths"].insert(0, "/absolute"),
+            "bootstrap.template_only_paths.0",
         ),
     ],
 )

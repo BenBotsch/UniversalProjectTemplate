@@ -27,6 +27,7 @@ other projects.
 | `ci.yml` | `repository-validation` | `python -I -m pytest tests/ci` |
 | | | `python -I scripts/ci/validate_project.py` |
 | | | `python -I scripts/ci/validate_repository.py` |
+| `ci.yml` | `bootstrap-tool` | `python -I -m pytest`, `ruff check .` and `ruff format --check .` in `tools/engineering-bootstrap/`; template repository only |
 | `quality.yml` | `workflow-lint` | `actionlint` |
 | | | `zizmor .github/workflows/` |
 | `quality.yml` | `yaml-lint` | `yamllint --strict .` |

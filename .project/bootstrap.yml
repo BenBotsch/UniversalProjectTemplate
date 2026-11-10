@@ -23,6 +23,7 @@ bootstrap:
   # repository validation fails if one exists while project.is_template is false.
   template_only_paths:
     - "template-dev/"
+    - "tools/engineering-bootstrap/"
 
   optional_profiles:
     - python
