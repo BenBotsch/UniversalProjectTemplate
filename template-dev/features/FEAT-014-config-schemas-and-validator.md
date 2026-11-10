@@ -43,7 +43,7 @@ migrations. §10.6 names `scripts/ci/validate_project.py` as a planned implement
 |---|---|
 | `.project/schemas/*.schema.json` | JSON Schema draft 2020-12, one per file, `$id` includes schema version |
 | `scripts/ci/validate_project.py` | Loads each file, selects schema by `schema_version`, reports `file:path: message`; exit code 0/1 |
-| `scripts/ci/requirements.txt` | Pinned `pyyaml`, `jsonschema` (hashes when the security baseline in `FEAT-017` requires them) |
+| `scripts/ci/requirements.txt` | Exists since `FEAT-008` with pinned `pytest` and `pyyaml`; add pinned `jsonschema` (hashes when the security baseline in `FEAT-017` requires them) |
 | `tests/ci/test_validate_project.py` | Valid fixtures pass; invalid fixtures fail with expected messages |
 | `tests/ci/fixtures/**` | Valid and invalid config samples |
 

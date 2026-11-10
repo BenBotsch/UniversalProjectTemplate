@@ -7,7 +7,7 @@ name prefix matches the declared group. Labels in group "meta" carry no prefix.
 
 Usage: python -I scripts/ci/check_labels.py [path]   (default: .project/labels.yml)
 Exit codes: 0 valid, 1 invalid or unreadable file.
-Requires: pyyaml.
+Requires: pyyaml (see scripts/ci/requirements.txt).
 """
 
 from __future__ import annotations

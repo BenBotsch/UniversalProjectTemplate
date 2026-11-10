@@ -34,7 +34,7 @@ start. §21.6: "label already exists → no error".
 
 - `scripts/bootstrap/New-ProjectRepository.ps1` with `-Owner`, `-Name`, `-Visibility`,
   `-Description`, `-DryRun`.
-- Label sync from `.github/labels.yml` (create or update, never delete).
+- Label sync from `.project/labels.yml` (create or update, never delete).
 
 ### Out of Scope
 
