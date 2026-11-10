@@ -11,7 +11,8 @@ projects do not contain it.
 
 The core is in place: configuration loading and validation, the plan and apply engine, the
 GitHub API client and the reports. Implemented commands are `validate` without `--repo`, which
-checks the local configuration, `sync-labels` and `configure-repo`. All other commands exit with
+checks the local configuration, `sync-labels`, `configure-repo` and `apply-rulesets`. All other
+commands exit with
 code `2` and the message "not implemented yet".
 
 ## Installation
@@ -41,6 +42,7 @@ project-bootstrap init --repo OWNER/NAME --profile python [--dry-run | --apply]
 project-bootstrap validate [--repo OWNER/NAME]
 project-bootstrap sync-labels --repo OWNER/NAME [--dry-run | --apply [--prune [--yes]]]
 project-bootstrap configure-repo --repo OWNER/NAME [--dry-run | --apply]
+project-bootstrap apply-rulesets --repo OWNER/NAME [--dry-run | --apply] [--allow-unprotected]
 project-bootstrap audit --owner OWNER
 ```
 
@@ -63,8 +65,8 @@ Options of `sync-labels`:
 | `--prune` | Also delete labels that are not in `labels.yml`; requires `--apply` |
 | `--yes` | Confirm `--prune` without the interactive question, for example in CI |
 
-Exit codes: `0` success, `1` a change failed, the configuration is invalid or no token is
-available, `2` invalid usage, an unconfirmed `--prune` or a command that is not implemented yet.
+Exit codes: `0` success, `1` a change failed, the configuration is invalid, no token is
+available or `apply-rulesets` found an unprotected repository, `2` invalid usage, an unconfirmed `--prune` or a command that is not implemented yet.
 
 ## Label Synchronization
 
@@ -120,6 +122,34 @@ private repository. A `false` value switches a feature off. With `allowed_action
 a workflow that uses an action outside the allow-list fails until the action is added to
 `patterns_allowed` and `configure-repo` runs again. Organization policies can make GitHub refuse
 an Actions setting; the change is then `failed` with GitHub's message.
+
+## Rulesets
+
+`apply-rulesets --repo OWNER/NAME` needs `bootstrap.yml` with `schema_version: "1.2"` and a
+`protection` section; with an older schema it exits with `1` before any request. The token needs
+administration access to the repository. Resource `rulesets`, one change per ruleset:
+
+| Key | Applies to | Source |
+|---|---|---|
+| `bootstrap-default-branch` | Default branch | Branch from `project.yml`, merge methods from `workflow.yml`, review mode and required checks from `protection` |
+| `bootstrap-development-branch` | Development branch | As above |
+| `bootstrap-release-tags` | `refs/tags/<protection.release_tag_pattern>`; `skipped` when not set | `protection.release_tag_pattern` |
+| `<ruleset>:<check>` | A required check that never reported on the branch | `skipped`: the check is not required yet, because it would block every merge |
+| `other:<name>` | A ruleset with another name | `skipped`: reported, never changed |
+
+- A missing ruleset is created, a ruleset whose content differs is replaced as a whole, and a
+  matching one is `noop`. Parameters that GitHub adds with default values are ignored in the
+  comparison.
+- The rulesets have no bypass actors. A required check is bound to the GitHub App of its latest
+  run.
+- If GitHub offers no rulesets for the repository, as for private repositories on GitHub Free,
+  every ruleset is `failed` with a reason starting with `UNPROTECTED` and the exit code is `1`.
+  `--allow-unprotected` reports them as `skipped` instead and exits with `0`. There is no fallback
+  to classic branch protection, which is unavailable in the same case.
+- `bootstrap.configure_rulesets: false` reports every ruleset as `skipped` without a request.
+
+Rules per branch, plan limits and manual steps:
+[Branch Protection](../../docs/governance/branch-protection.md).
 
 ## Behavior
 
@@ -206,6 +236,7 @@ credential-like values with `***`, also at debug level.
 | `resources/labels.py` | Label resource: compare, create, update, rename and delete labels |
 | `resources/branches.py` | Branch resource: check the default branch, create the development branch |
 | `resources/repo_settings.py` | Settings resource: repository, Actions and security settings |
+| `resources/rulesets.py` | Ruleset resource: plan detection, branch and tag rulesets, required checks |
 
 A resource implements `read_actual()`, `desired()`, `diff(actual, desired)` and `apply(change)`.
 The engine has no GitHub specifics, so every resource can be tested with fakes; GitHub access is

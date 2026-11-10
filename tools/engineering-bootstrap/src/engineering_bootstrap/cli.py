@@ -3,7 +3,8 @@
 Every command runs as a dry run unless ``--apply`` is given. Exit codes:
 
 - ``0``: the run succeeded.
-- ``1``: a change failed, the configuration is invalid or no token is available.
+- ``1``: a change failed, the configuration is invalid, no token is available, or
+  ``apply-rulesets`` found an unprotected repository without ``--allow-unprotected``.
 - ``2``: invalid usage, an unconfirmed prune, or a command that is not implemented yet.
 """
 
@@ -42,6 +43,7 @@ from engineering_bootstrap.resources.repo_settings import (
     RepoSettingsResource,
     settings_from_config,
 )
+from engineering_bootstrap.resources.rulesets import RulesetResource, rulesets_from_config
 
 EXIT_OK = 0
 EXIT_FAILED = 1
@@ -119,6 +121,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="create the development branch and apply the repository settings",
     )
     configure.add_argument("--repo", required=True, metavar="OWNER/NAME")
+
+    rulesets = commands.add_parser(
+        "apply-rulesets",
+        parents=[common],
+        help="protect the default and development branch and the release tags with rulesets",
+    )
+    rulesets.add_argument("--repo", required=True, metavar="OWNER/NAME")
+    rulesets.add_argument(
+        "--allow-unprotected",
+        action="store_true",
+        help="exit with 0 even if GitHub offers no rulesets for the repository",
+    )
 
     audit = commands.add_parser(
         "audit", parents=[common], help="audit the repositories of an owner (not implemented yet)"
@@ -257,6 +271,32 @@ def _configure_repo(
     )
 
 
+def _apply_rulesets(
+    args: argparse.Namespace, transport: httpx.BaseTransport | None
+) -> Report | int:
+    prepared = _prepare_remote(args)
+    if isinstance(prepared, int):
+        return prepared
+    config, token = prepared
+    try:
+        specs = rulesets_from_config(config.files)
+    except ValueError as exc:
+        print(f"invalid configuration: {exc}", file=sys.stderr)
+        return EXIT_FAILED
+
+    with GitHubClient(token, transport=transport) as client:
+        resource = RulesetResource(
+            client, args.repo, specs, allow_unprotected=args.allow_unprotected
+        )
+        changes = Engine([resource]).run(apply=args.apply)
+    return Report(
+        command=args.command,
+        mode="apply" if args.apply else "dry-run",
+        target=args.repo,
+        changes=changes,
+    )
+
+
 def _emit(report: Report, args: argparse.Namespace) -> int:
     sys.stdout.write(render_json(report) if args.format == "json" else render_text(report))
     if args.report_file is not None:
@@ -278,7 +318,11 @@ def main(argv: Sequence[str] | None = None, *, transport: httpx.BaseTransport | 
     args = build_parser().parse_args(argv)
     _configure_logging(args.verbose)
 
-    remote_commands = {"sync-labels": _sync_labels, "configure-repo": _configure_repo}
+    remote_commands = {
+        "sync-labels": _sync_labels,
+        "configure-repo": _configure_repo,
+        "apply-rulesets": _apply_rulesets,
+    }
     if args.command in remote_commands:
         result = remote_commands[args.command](args, transport)
         return result if isinstance(result, int) else _emit(result, args)

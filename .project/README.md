@@ -4,8 +4,8 @@ The files in `.project/` describe the project in machine-readable form. They are
 convention, not native GitHub configuration**: GitHub ignores them. They take effect only through
 the bootstrap tool, the CI validators and the dashboard. A field that no tool reads has no effect.
 
-Every file starts with `schema_version`. The current version is `"1.1"` for `workflow.yml`,
-`quality-gates.yml`, `labels.yml` and `bootstrap.yml`, and `"1.0"` for `project.yml`. A change to the structure of
+Every file starts with `schema_version`. The current version is `"1.2"` for `bootstrap.yml`,
+`"1.1"` for `workflow.yml`, `quality-gates.yml` and `labels.yml`, and `"1.0"` for `project.yml`. A change to the structure of
 a file requires a new schema version and a migration note; see [Migrations](#migrations).
 
 ## Schemas and Validation
@@ -119,11 +119,18 @@ skipped, missing or `not_implemented` job fails the gate; it is never reported a
 | `repository_settings.actions.default_workflow_permissions` | `read`, `write` |
 | `repository_settings.actions.can_approve_pull_request_reviews` | `true`, `false` |
 | `repository_settings.security.*` | `true`, `false` for `dependabot_alerts`, `dependabot_security_updates`, `secret_scanning`, `secret_scanning_push_protection`, `private_vulnerability_reporting` |
+| `protection.mode` | `solo` (no required approval), `team` (one approval, code owner review, stale approvals dismissed) |
+| `protection.required_status_checks` | Check names, for example the CI job name `quality-gate`; each is required only after it has reported once on the branch |
+| `protection.release_tag_pattern` | Optional; release tag pattern without `refs/tags/`, for example `v*`. Omit it to leave tags unprotected |
 
 `project-bootstrap configure-repo` applies `repository_settings`. It takes the branch names and
 the description from `project.yml` and the merge methods from `workflow.yml`, so these values are
 not repeated here. Settings that GitHub does not offer for the repository's plan or visibility are
 reported as skipped.
+
+`project-bootstrap apply-rulesets` applies `protection` as rulesets on the default and the
+development branch of `project.yml` and on the release tags; `bootstrap.configure_rulesets`
+switches it off. See [Branch Protection](../docs/governance/branch-protection.md).
 
 ## Template-only content
 
@@ -155,3 +162,4 @@ only when `is_template` is `false`. `--format json` prints the findings for othe
 | `quality-gates.yml` | `1.0` | `1.1` | Adds `applies_when` per gate, mandatory except for `required` gates, and the required list `flaky_tests` | Set `schema_version: "1.1"`, add `applies_when` to each conditional gate and `flaky_tests: []`. `validate_project.py` still accepts `1.0`, but the quality-gate job rejects it. |
 | `labels.yml` | `1.0` | `1.1` | Adds the optional list `aliases` per label: existing label names that label synchronization renames to the configured name instead of creating a second label, so issues and pull requests keep their label | Set `schema_version: "1.1"` and add `aliases` where an existing label should be renamed. An alias must not equal another label's name or alias. `validate_project.py` still accepts `1.0` without `aliases`. |
 | `bootstrap.yml` | `1.0` | `1.1` | Adds the required section `repository_settings` with wiki, auto-delete of head branches, optional topics, Actions permissions, workflow token and security features, read by `project-bootstrap configure-repo` | Set `schema_version: "1.1"` and copy the `repository_settings` section of this template; adjust `patterns_allowed` to the third-party actions the workflows use. `validate_project.py` still accepts `1.0`, but `configure-repo` rejects it. |
+| `bootstrap.yml` | `1.1` | `1.2` | Adds the required section `protection` with the review mode, the required status checks and the optional release tag pattern, read by `project-bootstrap apply-rulesets` | Set `schema_version: "1.2"` and copy the `protection` section of this template; use `mode: "team"` when more than one maintainer reviews. `validate_project.py` still accepts `1.0` and `1.1`, but `apply-rulesets` rejects them. |
