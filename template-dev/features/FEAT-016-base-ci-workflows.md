@@ -3,7 +3,7 @@ id: "FEAT-016"
 title: "Add Universal Base CI and Quality Workflows"
 epic: "EPIC-06"
 phase: 2
-status: "active"
+status: "implemented"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -72,7 +72,7 @@ validation). An empty project must not start a build that does not exist (§1.3)
 - [x] GitHub Actions/YAML validation is available (§17.4).
 - [x] GitHub Actions permissions follow least privilege (§17.5).
 - [x] External Actions are pinned (§17.5).
-- [ ] The initial CI pipeline passes on the template and fails on a PR that introduces invalid metadata (§17.6).
+- [x] The initial CI pipeline passes on the template and fails on a PR that introduces invalid metadata (§17.6).
 
 ## Verification
 
@@ -108,3 +108,6 @@ markdownlint-cli2
 - First runs on GitHub on 2026-11-10, after the push of `develop`: `CI`, `Quality` and `Security`
   passed with all seven jobs. The negative test with a pull request that introduces invalid
   metadata is still open.
+- Negative test on 2026-11-10 (issue #1): draft pull request #2 set `project.status` to an invalid
+  value; `repository-validation` failed in `pytest tests/ci`, which also checks the real
+  `.project/`. The pull request was closed without merging.

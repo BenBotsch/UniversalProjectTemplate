@@ -3,7 +3,7 @@ id: "FEAT-017"
 title: "Add Security Baseline Workflow and Secret Scanning"
 epic: "EPIC-06"
 phase: 2
-status: "active"
+status: "implemented"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -64,7 +64,7 @@ input, `pull_request_target`, fork secrets, separate publish jobs), §10.3 Gitle
 ## Acceptance Criteria
 
 - [x] Secret scanning or an appropriate equivalent is configured (§17.4).
-- [ ] No credentials, tokens or private keys are committed: a fixture commit with a fake AWS key fails `secret-scan` (§17.5).
+- [x] No credentials, tokens or private keys are committed: a fixture commit with a fake AWS key fails `secret-scan` (§17.5).
 - [x] External Actions are pinned or managed by an approved lock strategy (§17.5).
 - [x] Test case "external PR with secret access → access denied" (§21.6) is documented with the workflow design that guarantees it.
 
@@ -95,3 +95,6 @@ python -I -m pytest tests/ci/test_check_action_pinning.py
 - Enabling GitHub secret scanning and push protection is a repository setting and stays open.
 - First run on GitHub on 2026-11-10: `secret-scan` (full history) and `actions-pinning` passed.
   The negative test with a fake key commit is still open.
+- Negative test on 2026-11-10 (issue #1): draft pull request #3 committed a fake AWS access key;
+  `secret-scan` failed with one redacted finding. The pull request was closed without merging.
+  The test branch must be deleted, because the scheduled full-history scan would report it.
