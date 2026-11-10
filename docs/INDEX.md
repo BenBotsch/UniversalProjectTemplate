@@ -27,6 +27,10 @@ what the task needs:
 ## Governance
 
 - [Issue Management](governance/issue-management.md): issue types, label taxonomy, metadata rules (`ISSUE-R*`), status lifecycle, hierarchy, issue forms and triage.
+- [Development Workflow](governance/development-workflow.md): the path of a change from issue to release, including hotfixes.
+- [Branching and Releases](governance/branching-and-releases.md): branch model and names, merge strategy, SemVer, release criteria and branch protection.
+- [Commit Conventions](governance/commit-conventions.md): Conventional Commits, types, issue references and breaking changes.
+- [Review Policy](governance/review-policy.md): review checklist, elevated attention and solo development.
 - [Agent Workflow](governance/agent-workflow.md): agent adapter files and how to verify that tools pick them up.
 
 ## Architecture
