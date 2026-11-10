@@ -17,7 +17,7 @@ issue is authoritative.
 
 | Rank | ID | Title | Epic | Phase | Tier | Priority | Effort | Depends on | Decisions | Agent-ready | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | [FEAT-001](features/FEAT-001-repository-skeleton.md) | Create Repository Skeleton and Hygiene Files | EPIC-01 | 1 | first | critical | s | - | - | yes | planned |
+| 1 | [FEAT-001](features/FEAT-001-repository-skeleton.md) | Create Repository Skeleton and Hygiene Files | EPIC-01 | 1 | first | critical | s | - | - | yes | implemented |
 | 2 | [FEAT-008](features/FEAT-008-label-taxonomy.md) | Define Complete Label Taxonomy in labels.yml | EPIC-03 | 1 | first | critical | s | 001 | - | yes | planned |
 | 3 | [FEAT-013](features/FEAT-013-project-configuration-files.md) | Create Machine-Readable Project Configuration Files | EPIC-05 | 1 | first | critical | m | 001 | - | yes | planned |
 | 4 | [FEAT-004](features/FEAT-004-agents-md.md) | Write Root AGENTS.md | EPIC-02 | 1 | first | critical | s | 001 | - | yes | planned |

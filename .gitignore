@@ -1,0 +1,63 @@
+# Template-wide ignore rules for a polyglot repository.
+# Profiles may add language-specific rules. Never ignore files the template
+# ships: .project/, .github/, docs/, scripts/.
+
+# --- Operating system noise ---------------------------------------------
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# --- Editors and IDEs ---------------------------------------------------
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+# VS Code: ignore local state, allow shared settings to be committed.
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# --- Build output and caches --------------------------------------------
+build/
+dist/
+out/
+coverage/
+.coverage
+.coverage.*
+htmlcov/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+*.egg-info/
+node_modules/
+.npm/
+.cache/
+
+# --- Virtual environments -----------------------------------------------
+.venv/
+venv/
+
+# --- Local environment and secrets --------------------------------------
+# Keep real credentials out of the repository; commit .env.example instead.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# --- Logs and temporary files -------------------------------------------
+*.log
+*.tmp
+tmp/

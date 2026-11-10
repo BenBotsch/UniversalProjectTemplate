@@ -3,7 +3,7 @@ id: "FEAT-001"
 title: "Create Repository Skeleton and Hygiene Files"
 epic: "EPIC-01"
 phase: 1
-status: "planned"
+status: "implemented"
 priority: "critical"
 effort: "s"
 target_repo: "universal-project-template"
@@ -60,15 +60,15 @@ put real content into them; this feature only lays down the hygiene files and do
 
 ## Tasks
 
-- [ ] **T1:** Write `.editorconfig` and `.gitattributes`.
-- [ ] **T2:** Write `.gitignore` with grouped, commented sections.
-- [ ] **T3:** Draft a "Repository Structure" section (text block in the PR description) for reuse by `FEAT-002` and `FEAT-003`.
+- [x] **T1:** Write `.editorconfig` and `.gitattributes`.
+- [x] **T2:** Write `.gitignore` with grouped, commented sections.
+- [x] **T3:** Draft a "Repository Structure" section (text block in the PR description) for reuse by `FEAT-002` and `FEAT-003`.
 
 ## Acceptance Criteria
 
-- [ ] No programming language or framework is mandatory (§17.1).
-- [ ] `git check-ignore` confirms `.env` and `node_modules/` are ignored and `.env.example`, `.project/project.yml` are not.
-- [ ] `git ls-files --eol` shows LF for text files after a fresh clone on Windows.
+- [x] No programming language or framework is mandatory (§17.1).
+- [x] `git check-ignore` confirms `.env` and `node_modules/` are ignored and `.env.example`, `.project/project.yml` are not.
+- [x] `git ls-files --eol` shows LF for text files after a fresh clone on Windows.
 
 ## Verification
 
@@ -83,3 +83,27 @@ git ls-files --eol
 - **Allowed paths:** `.editorconfig`, `.gitattributes`, `.gitignore`, this feature file, `template-dev/backlog.md` (status column).
 - **Requires approval:** none.
 - **Pitfalls:** Do not ignore `.vscode/` completely if shared settings are wanted later; do not add `template-dev/` to `.gitignore` (it must stay in the template repository).
+
+## Implementation Notes
+
+T3 draft for reuse by `FEAT-002` (`README.md`) and `FEAT-003` (`docs/development/`). Directories
+appear only once a feature gives them real content.
+
+```markdown
+## Repository Structure
+
+| Path | Purpose |
+|---|---|
+| `.github/` | Issue forms, pull request template, CODEOWNERS, workflows, Dependabot, release notes |
+| `.project/` | Machine-readable project metadata used by bootstrap, validation and the dashboard |
+| `docs/` | Project documentation; start at `docs/INDEX.md` |
+| `scripts/` | Bootstrap, CI and maintenance scripts |
+| `tests/`, `examples/` | Optional, depending on the technology profile |
+| `AGENTS.md` | Binding rules for coding agents; tool-specific files only point to it |
+| `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md`, `CHANGELOG.md` | Community and policy files |
+| `LICENSE` | Selected explicitly for each project |
+| `.editorconfig`, `.gitattributes`, `.gitignore` | Cross-platform formatting, line endings and ignore rules |
+
+The template prescribes no programming language and no source layout. Language-specific files such
+as `pyproject.toml`, `CMakeLists.txt` or `package.json` come from technology profiles.
+```
