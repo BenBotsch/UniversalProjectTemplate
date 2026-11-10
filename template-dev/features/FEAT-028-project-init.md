@@ -117,6 +117,14 @@ project-bootstrap init --repo <test-owner>/upt-smoke --dry-run --format json
   warning, `tests/ci` passed in the initialized project, and a second run planned no change.
   `init --repo BenBotsch/UniversalProjectTemplate` on the template checkout is refused with exit
   code `1`.
-- **Limits and follow-ups:** a live run against `BenBotsch/upt-smoke-public` needs separate
-  approval. `scripts/bootstrap/` stays in derived projects; it could become template-only. Stack
+- **Live run (2026-11-10):** `BenBotsch/upt-smoke-public` (public, created from the template),
+  after a local commit with the template `develop` state `f992f30`: the dry run planned 1
+  `create`, 8 `update`, 2 `delete`, 1 `skipped` and `LICENSE` as `noop` (MIT, same holder);
+  `--apply --issue 3` committed on `chore/3-project-init` with validation at 0 errors and 0
+  warnings, and a second run reported 6 `noop`. In pull request `upt-smoke-public#4` every check passed except the link check:
+  `scripts/bootstrap/README.md` linked to the removed "Using this template" section (#16). With
+  the fix of #17 applied to the branch, all checks including `quality-gate` passed.
+- **Limits and follow-ups:** a repository created from the template copies `main`, which does not
+  contain `init` until the next template release; the live run therefore brought the `develop`
+  state first. `scripts/bootstrap/` stays in derived projects; it could become template-only. Stack
   profiles (`--profile`) are `FEAT-031`.
