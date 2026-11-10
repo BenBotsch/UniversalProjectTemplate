@@ -4,9 +4,9 @@ The files in `.project/` describe the project in machine-readable form. They are
 convention, not native GitHub configuration**: GitHub ignores them. They take effect only through
 the bootstrap tool, the CI validators and the dashboard. A field that no tool reads has no effect.
 
-Every file starts with `schema_version`. The current version is `"1.1"` for `workflow.yml` and
-`quality-gates.yml`, and `"1.0"` for all other files. A change to the structure of a file requires
-a new schema version and a migration note; see [Migrations](#migrations).
+Every file starts with `schema_version`. The current version is `"1.1"` for `workflow.yml`,
+`quality-gates.yml` and `labels.yml`, and `"1.0"` for all other files. A change to the structure of
+a file requires a new schema version and a migration note; see [Migrations](#migrations).
 
 ## Schemas and Validation
 
@@ -41,7 +41,7 @@ existing one, update `schema_version` in the configuration file and document the
 | File | Content | Read by | Created by | Updated when |
 |---|---|---|---|---|
 | `project.yml` | Identity, template provenance, branches, versioning, technology, quality and agent flags | Bootstrap, validators, dashboard | Bootstrap | Stack, platform or policy changes |
-| `labels.yml` | Label names, colors, descriptions and groups | Label synchronization, issue validation | Template owner | Taxonomy changes |
+| `labels.yml` | Label names, colors, descriptions, aliases and groups | Label synchronization, issue validation | Template owner | Taxonomy changes |
 | `quality-gates.yml` | Required checks and the CI jobs that implement them | Quality-gate job in CI | Template owner | A CI job is added, renamed or removed |
 | `workflow.yml` | Branch model, pull request rules, release approval, issue policy | Pull request and issue validators, bootstrap | Template owner | Branch, review or issue rules change |
 | `bootstrap.yml` | Features to provision, safety defaults, template-only paths, profiles | Bootstrap | Template owner | Provisioning options change |
@@ -139,3 +139,4 @@ only when `is_template` is `false`. `--format json` prints the findings for othe
 |---|---|---|---|---|
 | `workflow.yml` | `1.0` | `1.1` | Adds the required fields `pull_requests.required_sections` and `pull_requests.automation_authors`, read by the pull request validator | Set `schema_version: "1.1"` and add both fields; the values in this template are the defaults. Until then the validator uses the defaults and `validate_project.py` still accepts `1.0`. |
 | `quality-gates.yml` | `1.0` | `1.1` | Adds `applies_when` per gate, mandatory except for `required` gates, and the required list `flaky_tests` | Set `schema_version: "1.1"`, add `applies_when` to each conditional gate and `flaky_tests: []`. `validate_project.py` still accepts `1.0`, but the quality-gate job rejects it. |
+| `labels.yml` | `1.0` | `1.1` | Adds the optional list `aliases` per label: existing label names that label synchronization renames to the configured name instead of creating a second label, so issues and pull requests keep their label | Set `schema_version: "1.1"` and add `aliases` where an existing label should be renamed. An alias must not equal another label's name or alias. `validate_project.py` still accepts `1.0` without `aliases`. |

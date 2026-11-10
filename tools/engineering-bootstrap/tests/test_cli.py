@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
+from conftest import FakeGitHub
 
 from engineering_bootstrap.cli import EXIT_FAILED, EXIT_OK, EXIT_USAGE, main
 
@@ -71,7 +72,6 @@ def test_apply_mode_is_reported(project_dir: Path, capsys: pytest.CaptureFixture
     [
         ["init", "--repo", "octo/new", "--profile", "python"],
         ["validate", "--repo", "octo/new"],
-        ["sync-labels", "--repo", "octo/new"],
         ["audit", "--owner", "octo"],
     ],
 )
@@ -82,3 +82,153 @@ def test_unimplemented_commands_exit_with_usage_error(
 
     assert code == EXIT_USAGE
     assert "not implemented yet" in capsys.readouterr().err
+
+
+LABELS_YML = """schema_version: "1.0"
+name: labels
+labels:
+  - name: "type:bug"
+    color: "d73a4a"
+    description: "Something is broken"
+    aliases: ["bug"]
+"""
+
+
+@pytest.fixture
+def label_project(project_dir: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Return a project whose labels.yml configures one label, with a token in the environment."""
+    (project_dir / "labels.yml").write_text(LABELS_YML, encoding="utf-8")
+    monkeypatch.setenv("GITHUB_TOKEN", "test-token")
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    return project_dir
+
+
+def sync(project: Path, fake: FakeGitHub, *options: str) -> int:
+    argv = ["sync-labels", f"--repo={fake.repo}", "--config", str(project), *options]
+    return main(argv, transport=fake.transport)
+
+
+def test_sync_labels_dry_run_reports_the_plan(
+    label_project: Path, fake_github: FakeGitHub, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fake_github.labels["bug"] = {"name": "bug", "color": "d73a4a", "description": ""}
+
+    code = sync(label_project, fake_github, "--format", "json")
+
+    report = json.loads(capsys.readouterr().out)
+    assert code == EXIT_OK
+    assert report["command"] == "sync-labels"
+    assert report["target"] == "octo/demo"
+    assert report["summary"]["update"] == 1
+    assert list(fake_github.labels) == ["bug"]
+
+
+def test_sync_labels_apply_then_dry_run_is_noop(
+    label_project: Path, fake_github: FakeGitHub, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert sync(label_project, fake_github, "--apply") == EXIT_OK
+    capsys.readouterr()
+
+    code = sync(label_project, fake_github, "--format", "json")
+
+    summary = json.loads(capsys.readouterr().out)["summary"]
+    assert code == EXIT_OK
+    assert summary["noop"] == 1
+    assert sum(summary.values()) == 1
+
+
+def test_sync_labels_failure_exits_with_1(
+    label_project: Path, fake_github: FakeGitHub, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fake_github.fail_post_with = 403
+
+    assert sync(label_project, fake_github, "--apply") == EXIT_FAILED
+
+
+def test_prune_requires_apply(
+    label_project: Path, fake_github: FakeGitHub, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code = sync(label_project, fake_github, "--prune")
+
+    assert code == EXIT_USAGE
+    assert "--prune requires --apply" in capsys.readouterr().err
+    assert fake_github.requests == []
+
+
+def test_prune_with_yes_deletes_unknown_labels(
+    label_project: Path, fake_github: FakeGitHub, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fake_github.labels["wontfix"] = {"name": "wontfix", "color": "ffffff", "description": ""}
+    fake_github.usage["wontfix"] = 2
+
+    code = sync(label_project, fake_github, "--apply", "--prune", "--yes")
+
+    assert code == EXIT_OK
+    assert "wontfix: not in labels.yml; used by 2 issue(s)" in capsys.readouterr().err
+    assert list(fake_github.labels) == ["type:bug"]
+
+
+def test_prune_without_confirmation_changes_nothing(
+    label_project: Path,
+    fake_github: FakeGitHub,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake_github.labels["wontfix"] = {"name": "wontfix", "color": "ffffff", "description": ""}
+    monkeypatch.setattr("sys.stdin.isatty", lambda: False)
+
+    code = sync(label_project, fake_github, "--apply", "--prune")
+
+    assert code == EXIT_USAGE
+    assert "prune not confirmed; nothing was changed" in capsys.readouterr().err
+    assert list(fake_github.labels) == ["wontfix"]
+
+
+@pytest.mark.parametrize(("answer", "deleted"), [("y", True), ("", False), ("no", False)])
+def test_prune_asks_on_a_terminal(
+    label_project: Path,
+    fake_github: FakeGitHub,
+    monkeypatch: pytest.MonkeyPatch,
+    answer: str,
+    deleted: bool,
+) -> None:
+    fake_github.labels["wontfix"] = {"name": "wontfix", "color": "ffffff", "description": ""}
+    monkeypatch.setattr("sys.stdin.isatty", lambda: True)
+    monkeypatch.setattr("builtins.input", lambda prompt: answer)
+
+    sync(label_project, fake_github, "--apply", "--prune")
+
+    assert ("wontfix" not in fake_github.labels) is deleted
+
+
+@pytest.mark.parametrize("repo", ["octo", "octo/demo/labels", "../x/y", "octo/de mo", "-octo/x"])
+def test_invalid_repo_is_a_usage_error(
+    label_project: Path, fake_github: FakeGitHub, repo: str
+) -> None:
+    fake_github.repo = repo
+
+    assert sync(label_project, fake_github) == EXIT_USAGE
+    assert fake_github.requests == []
+
+
+def test_missing_token_fails(
+    label_project: Path,
+    fake_github: FakeGitHub,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.delenv("GITHUB_TOKEN")
+    monkeypatch.setenv("PATH", "")
+
+    assert sync(label_project, fake_github) == EXIT_FAILED
+    assert fake_github.requests == []
+
+
+def test_invalid_config_fails_before_any_request(
+    label_project: Path, fake_github: FakeGitHub, capsys: pytest.CaptureFixture[str]
+) -> None:
+    (label_project / "labels.yml").write_text("name: x\n", encoding="utf-8")
+
+    assert sync(label_project, fake_github) == EXIT_FAILED
+    assert "invalid configuration: labels.yml" in capsys.readouterr().err
+    assert fake_github.requests == []

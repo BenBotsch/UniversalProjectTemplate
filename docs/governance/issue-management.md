@@ -63,7 +63,10 @@ Projects may add labels for their own needs, for example `area:desktop`, `area:m
 2. Follow the color logic of the group. All labels of a new group share one hue.
 3. Add the entry to `.project/labels.yml`, run the check, and synchronize the labels.
 4. Do not rename or delete a label that is in use without a migration of the affected issues and
-   pull requests.
+   pull requests. To rename a label, set the new name in `.project/labels.yml` and list the old
+   name under `aliases`; label synchronization then renames the existing label, and GitHub keeps
+   it on every issue and pull request. Label synchronization deletes labels that are not in
+   `.project/labels.yml` only on explicit request and after confirmation.
 
 ### Labels on pull requests
 

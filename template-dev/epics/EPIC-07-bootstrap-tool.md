@@ -32,7 +32,7 @@ Repeatable, idempotent GitHub setup: a phase A script with `gh`, then the `proje
 |---|---|---|---|---|---|
 | [FEAT-023](../features/FEAT-023-bootstrap-phase-a-script.md) | Provide Phase A Bootstrap Script with GitHub CLI | 2 | high | 008, 013 | implemented |
 | [FEAT-024](../features/FEAT-024-bootstrap-cli-core.md) | Build Bootstrap CLI Core with Plan, Apply and Reports | 2 | critical | 013, 014 | implemented |
-| [FEAT-025](../features/FEAT-025-sync-labels.md) | Implement Idempotent Label Synchronization | 2 | high | 008, 024 | planned |
+| [FEAT-025](../features/FEAT-025-sync-labels.md) | Implement Idempotent Label Synchronization | 2 | high | 008, 024 | implemented |
 | [FEAT-026](../features/FEAT-026-branches-and-repo-settings.md) | Configure Branches and Repository Settings | 2 | high | 024 | planned |
 | [FEAT-027](../features/FEAT-027-rulesets-and-plan-detection.md) | Apply Rulesets with Plan Detection and Solo Mode | 2 | high | 020, 026 | planned |
 | [FEAT-028](../features/FEAT-028-project-init.md) | Initialize Derived Project and Remove Template-Only Content | 2 | critical | 002, 007, 013, 015, 024 | planned |

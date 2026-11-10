@@ -1,13 +1,16 @@
 # Declarative label taxonomy: the single source for label synchronization.
+# aliases: existing label names, such as GitHub's default labels, that synchronization renames
+# to the label instead of creating it, so issues keep their label.
 # Naming, color logic and extension rules: docs/governance/issue-management.md
 # Check locally: python -I scripts/ci/check_labels.py .project/labels.yml
-schema_version: "1.0"
+schema_version: "1.1"
 labels:
   # type: exactly one per issue; colors from the specification example
   - name: "type:bug"
     color: "d73a4a"
     description: "Unexpected behavior or defect"
     group: "type"
+    aliases: ["bug"]
   - name: "type:task"
     color: "1d76db"
     description: "Actionable engineering task"
@@ -16,6 +19,7 @@ labels:
     color: "a2eeef"
     description: "New capability or functionality"
     group: "type"
+    aliases: ["enhancement"]
   - name: "type:epic"
     color: "5319e7"
     description: "Multi-issue initiative"
@@ -28,6 +32,7 @@ labels:
     color: "0075ca"
     description: "Documentation work"
     group: "type"
+    aliases: ["documentation"]
 
   # priority: red (urgent) to green (low)
   - name: "priority:critical"

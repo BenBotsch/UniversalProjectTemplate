@@ -164,6 +164,47 @@ def test_invalid_document_structure_fails(data):
     assert check_labels.check_document(data)
 
 
+# --- aliases (schema 1.1) -------------------------------------------------
+
+
+def aliased(name: str, group: str, *aliases: object) -> dict:
+    return {**label(name, group), "aliases": list(aliases)}
+
+
+def test_aliases_are_accepted():
+    data = {
+        "schema_version": "1.1",
+        "labels": [aliased("type:bug", "type", "bug"), aliased("type:feature", "type", "Enhancement")],
+    }
+    assert check_labels.check_document(data) == []
+
+
+def test_shipped_aliases_map_github_default_labels():
+    data = check_labels.yaml.safe_load(LABELS_FILE.read_text(encoding="utf-8"))
+    aliases = {alias: entry["name"] for entry in data["labels"] for alias in entry.get("aliases", [])}
+    assert aliases == {
+        "bug": "type:bug",
+        "enhancement": "type:feature",
+        "documentation": "type:documentation",
+    }
+
+
+@pytest.mark.parametrize(
+    ("labels", "message"),
+    [
+        ([aliased("type:bug", "type", "TYPE:TASK"), label("type:task", "type")], "equals the name of labels[1]"),
+        ([aliased("type:bug", "type", "bug"), aliased("type:task", "type", "Bug")], "already an alias of labels[0]"),
+        ([aliased("type:bug", "type", "")], "aliases must be non-empty strings"),
+        ([aliased("type:bug", "type", 3)], "aliases must be non-empty strings"),
+        ([aliased("type:bug", "type", "x" * 51)], "longer than 50 characters"),
+        ([{**label("type:bug", "type"), "aliases": "bug"}], "'aliases' must be a list"),
+    ],
+)
+def test_invalid_aliases_fail(labels, message):
+    errors = check_labels.check_document({"schema_version": "1.1", "labels": labels})
+    assert any(message in error for error in errors), errors
+
+
 # --- command line ---------------------------------------------------------
 
 

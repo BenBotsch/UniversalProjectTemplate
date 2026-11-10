@@ -10,8 +10,8 @@ projects do not contain it.
 ## Status
 
 The core is in place: configuration loading and validation, the plan and apply engine, the
-GitHub API client and the reports. Of the commands, only `validate` without `--repo` is
-implemented; it checks the local configuration. All other commands exit with code `2` and the
+GitHub API client and the reports. Implemented commands are `validate` without `--repo`, which
+checks the local configuration, and `sync-labels`. All other commands exit with code `2` and the
 message "not implemented yet".
 
 ## Installation
@@ -39,7 +39,7 @@ ruff format --check .
 ```text
 project-bootstrap init --repo OWNER/NAME --profile python [--dry-run | --apply]
 project-bootstrap validate [--repo OWNER/NAME]
-project-bootstrap sync-labels --repo OWNER/NAME [--dry-run | --apply]
+project-bootstrap sync-labels --repo OWNER/NAME [--dry-run | --apply [--prune [--yes]]]
 project-bootstrap audit --owner OWNER
 ```
 
@@ -54,8 +54,33 @@ Options of every command:
 | `--report-file PATH` | Also write the report as JSON to this file |
 | `-v`, `--verbose` | Log debug messages to standard error |
 
-Exit codes: `0` success, `1` a change failed or the configuration is invalid, `2` invalid usage
-or a command that is not implemented yet.
+Options of `sync-labels`:
+
+| Option | Meaning |
+|---|---|
+| `--repo OWNER/NAME` | Repository whose labels are synchronized; required |
+| `--prune` | Also delete labels that are not in `labels.yml`; requires `--apply` |
+| `--yes` | Confirm `--prune` without the interactive question, for example in CI |
+
+Exit codes: `0` success, `1` a change failed, the configuration is invalid or no token is
+available, `2` invalid usage, an unconfirmed `--prune` or a command that is not implemented yet.
+
+## Label Synchronization
+
+`sync-labels` makes the labels of a repository match `.project/labels.yml`:
+
+- A configured label is found by name, case-insensitively as on GitHub. If it differs in color,
+  description or the spelling of its name, it is updated; otherwise it is reported as `noop`.
+- If a configured label is missing but a label with one of its `aliases` exists, that label is
+  renamed. Issues and pull requests keep it, so for example GitHub's default `bug` becomes
+  `type:bug`. Without a matching alias the label is created.
+- A label that is not in `labels.yml` is reported as `skipped` and kept. With `--apply --prune`
+  it is deleted; the run first lists each such label with the number of issues and pull requests
+  that use it and asks for confirmation, or requires `--yes` when there is no terminal or the
+  output format is `json`. The usage count comes from the search API and can lag behind recent
+  changes.
+- `bootstrap.synchronize_labels` in `bootstrap.yml` does not affect this command; it is meant for
+  `init`.
 
 ## Behavior
 
@@ -65,7 +90,7 @@ or a command that is not implemented yet.
   already matches is reported as `noop`, so a second `--apply` with unchanged configuration
   changes nothing.
 - **No deletion by default.** Planned deletions are reported as `skipped` unless destructive
-  mode is enabled; the CLI has no option for it yet.
+  mode is enabled; for labels that is `--apply --prune` with confirmation.
 - **Partial failures.** If a resource fails, its changes are reported as `failed` and resources
   that depend on it as `skipped`; independent resources still run, and the exit code is `1`.
   Changes that were written have `"applied": true` in the report, so a partial run can be
@@ -139,6 +164,7 @@ credential-like values with `***`, also at debug level.
 | `engine.py` | `Resource` protocol, dependency order, dry run and apply |
 | `github.py` | Token resolution, HTTP client with pagination, rate limits, retries, typed errors and log redaction |
 | `report.py` | Text and JSON reports |
+| `resources/labels.py` | Label resource: compare, create, update, rename and delete labels |
 
 A resource implements `read_actual()`, `desired()`, `diff(actual, desired)` and `apply(change)`.
 The engine has no GitHub specifics, so every resource can be tested with fakes; GitHub access is

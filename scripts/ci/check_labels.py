@@ -4,6 +4,8 @@ Lightweight check until the JSON Schema validator exists. It verifies that
 label names are unique (case-insensitive, as on GitHub), colors are 6-digit
 hex without '#', descriptions fit the GitHub limit of 100 characters, and the
 name prefix matches the declared group. Labels in group "meta" carry no prefix.
+``aliases`` (schema 1.1) are non-empty strings of at most 50 characters; an alias must not
+equal a label name or another alias, compared case-insensitively.
 
 Usage: python -I scripts/ci/check_labels.py [path]   (default: .project/labels.yml)
 Exit codes: 0 valid, 1 invalid or unreadable file.
@@ -19,9 +21,11 @@ from typing import Any
 
 import yaml
 
-SUPPORTED_SCHEMA_VERSIONS = {"1.0"}
+SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1"}
 META_GROUP = "meta"
 MAX_DESCRIPTION_LENGTH = 100
+# GitHub limit for label names; aliases are existing label names.
+MAX_ALIAS_LENGTH = 50
 REQUIRED_KEYS = ("name", "color", "description", "group")
 # Closed issues use the native GitHub state; a status label for it is redundant.
 FORBIDDEN_NAMES = {"status:done"}
@@ -59,6 +63,35 @@ def check_document(data: Any) -> list[str]:
     seen: dict[str, int] = {}
     for index, label in enumerate(labels):
         errors.extend(_check_label(index, label, seen))
+    errors.extend(_check_aliases(labels, seen))
+    return errors
+
+
+def _check_aliases(labels: list[Any], names: dict[str, int]) -> list[str]:
+    """Check the optional ``aliases`` of every label against all names and other aliases."""
+    errors: list[str] = []
+    owners: dict[str, int] = {}
+    for index, label in enumerate(labels):
+        if not isinstance(label, dict) or "aliases" not in label:
+            continue
+        where = f"labels[{index}] ({label.get('name')})"
+        aliases = label["aliases"]
+        if not isinstance(aliases, list):
+            errors.append(f"{where}: 'aliases' must be a list")
+            continue
+        for alias in aliases:
+            if not isinstance(alias, str) or not alias.strip():
+                errors.append(f"{where}: aliases must be non-empty strings")
+                continue
+            if len(alias) > MAX_ALIAS_LENGTH:
+                errors.append(f"{where}: alias {alias!r} is longer than {MAX_ALIAS_LENGTH} characters")
+            key = alias.lower()
+            if key in names:
+                errors.append(f"{where}: alias {alias!r} equals the name of labels[{names[key]}]")
+            elif key in owners:
+                errors.append(f"{where}: alias {alias!r} is already an alias of labels[{owners[key]}]")
+            else:
+                owners[key] = index
     return errors
 
 

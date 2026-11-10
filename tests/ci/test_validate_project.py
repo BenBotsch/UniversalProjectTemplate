@@ -113,7 +113,22 @@ def test_unknown_schema_version_is_reported(project_copy: Path) -> None:
     problems = messages(project_copy)
     assert len(problems) == 1
     assert "labels.yml:schema_version: unsupported schema_version '9.9'" in problems[0]
-    assert "supported: ['1.0']" in problems[0]
+    assert "supported: ['1.0', '1.1']" in problems[0]
+
+
+def test_labels_schema_1_0_is_still_accepted(project_copy: Path) -> None:
+    def downgrade(data: dict) -> None:
+        data["schema_version"] = "1.0"
+        for entry in data["labels"]:
+            entry.pop("aliases", None)
+
+    edit(project_copy, "labels", downgrade)
+    assert messages(project_copy) == []
+
+
+def test_aliases_are_rejected_by_labels_schema_1_0(project_copy: Path) -> None:
+    edit(project_copy, "labels", lambda d: d.update(schema_version="1.0"))
+    assert any("aliases" in problem for problem in messages(project_copy))
 
 
 def test_numeric_schema_version_is_reported(project_copy: Path) -> None:
