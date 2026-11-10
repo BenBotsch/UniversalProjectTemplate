@@ -15,12 +15,15 @@
 #              that ci.yml calls
 #   job        CI job id that implements the gate
 #   status     "implemented" or "not_implemented"
+#   covers     optional; a language-independent gate that this gate implements for the
+#              languages in applies_when.languages. The covered gate does not apply once
+#              every language in project.yml has an implemented covering gate.
 #
 # A gate that applies passes only with the result "success"; "skipped", missing or
 # not_implemented fail it. A gate that does not apply passes with its reason in the job summary.
 # Review gates print a notice and never fail; reviewers enforce them.
 # In glob patterns, * also matches "/".
-schema_version: "1.1"
+schema_version: "1.2"
 quality_gates:
   repository_validation:
     required: true
@@ -129,6 +132,8 @@ quality_gates:
     workflow: "pr-validation.yml"
     job: "pr-validation"
     status: "not_implemented"
+  # Technology profiles insert their gates above this line.
+  # bootstrap:profile-gates
 
 # Quarantined flaky tests. A flaky test may be isolated from the required run only while an issue
 # tracks it; it is never skipped silently. Entry: {test: "<test id>", issue: "#<number>",

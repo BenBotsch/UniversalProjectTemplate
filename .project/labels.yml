@@ -159,3 +159,5 @@ labels:
     color: "d4d4d4"
     description: "Exclude this pull request from release notes"
     group: "meta"
+  # Technology profiles insert their labels above this line.
+  # bootstrap:profile-labels

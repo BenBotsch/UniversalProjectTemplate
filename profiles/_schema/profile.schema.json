@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-project-template:schema:profile:1.0",
+  "title": "profile.yml",
+  "description": "Technology profile applied by project-bootstrap: files, CI jobs, quality gates, Dependabot updates and labels. See docs/architecture/adr/0006-technology-profiles.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "version", "description"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "description": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "requires_profiles": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
+    },
+    "technology": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "languages": { "$ref": "#/$defs/identifier_list" },
+        "package_managers": { "$ref": "#/$defs/identifier_list" }
+      }
+    },
+    "files": {
+      "type": "array",
+      "description": "Paths below files/, which are copied to the same path in the project. Tokens such as PROJECT_PACKAGE are replaced in paths and content.",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[A-Za-z0-9_.][A-Za-z0-9_./-]*$" }
+    },
+    "ci_jobs": {
+      "type": "array",
+      "description": "Jobs that ci.yml gets; each calls a workflow of the profile.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "workflow"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "workflow": { "type": "string", "pattern": "^[a-z][a-z0-9-]*\\.ya?ml$" }
+        }
+      }
+    },
+    "quality_gates": {
+      "type": "object",
+      "description": "Gates that quality-gates.yml gets, in its format; workflow names a workflow of the profile.",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": { "$ref": "#/$defs/gate" }
+    },
+    "dependabot": {
+      "type": "array",
+      "description": "Entries of updates in dependabot.yml.",
+      "items": {
+        "type": "object",
+        "required": ["package-ecosystem", "directory", "schedule"],
+        "properties": {
+          "package-ecosystem": { "type": "string", "minLength": 1 },
+          "directory": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "labels": {
+      "type": "array",
+      "description": "Entries of labels in labels.yml.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "color", "description", "group"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^([a-z0-9]+(-[a-z0-9]+)*:)?[a-z0-9]+(-[a-z0-9]+)*$" },
+          "color": { "type": "string", "pattern": "^[0-9a-fA-F]{6}$" },
+          "description": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "group": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9+._-]*$" }
+    },
+    "strings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflow", "job", "status"],
+      "properties": {
+        "required": { "const": true },
+        "required_when_applicable": { "const": true },
+        "required_for_code_changes": { "const": true },
+        "review_required_for_relevant_changes": { "const": true },
+        "applies_when": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "events": { "$ref": "#/$defs/strings" },
+            "languages": { "$ref": "#/$defs/strings" },
+            "changed_paths": { "$ref": "#/$defs/strings" },
+            "ignored_paths": { "$ref": "#/$defs/strings" }
+          }
+        },
+        "workflow": { "type": "string", "pattern": "^[a-z][a-z0-9-]*\\.ya?ml$" },
+        "job": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$" },
+        "status": { "enum": ["implemented", "not_implemented"] },
+        "covers": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+      },
+      "oneOf": [
+        { "required": ["required"] },
+        { "required": ["required_when_applicable"] },
+        { "required": ["required_for_code_changes"] },
+        { "required": ["review_required_for_relevant_changes"] }
+      ],
+      "dependentRequired": {
+        "required_when_applicable": ["applies_when"],
+        "required_for_code_changes": ["applies_when"],
+        "review_required_for_relevant_changes": ["applies_when"],
+        "covers": ["applies_when"]
+      }
+    }
+  }
+}

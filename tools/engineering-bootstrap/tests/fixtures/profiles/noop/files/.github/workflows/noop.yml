@@ -1,0 +1,14 @@
+# Workflow of the noop test profile; called from ci.yml.
+name: "noop"
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  lint:
+    name: "lint"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Say hello"
+        run: echo "PROJECT_NAME"

@@ -33,7 +33,7 @@ from typing import Any, Protocol
 
 import yaml
 
-from engineering_bootstrap.engine import WRITE_ACTIONS, Action, Change, Engine
+from engineering_bootstrap.engine import WRITE_ACTIONS, Action, Change, Engine, Resource
 from engineering_bootstrap.git import Git, GitError
 from engineering_bootstrap.github import NotFoundError
 
@@ -430,16 +430,17 @@ def _split_value(rest: str) -> tuple[str, str]:
     return rest[:end], rest[end:]
 
 
-def _render_scalar(value: str | bool) -> str:
+def _render_scalar(value: str | bool | list[str]) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
     return json.dumps(value, ensure_ascii=False)
 
 
-def set_yaml_scalars(text: str, values: Mapping[tuple[str, str], str | bool]) -> str:
+def set_yaml_scalars(text: str, values: Mapping[tuple[str, str], str | bool | list[str]]) -> str:
     """Set ``section.key`` scalars of a two-level YAML file and keep comments and layout.
 
-    Only keys indented by two spaces directly below a top-level section are found.
+    Only keys indented by two spaces directly below a top-level section are found. A list is
+    written as a flow sequence such as ``["python"]``; the key must hold its value on one line.
 
     Raises:
         ValueError: If a key is missing or the result does not parse to the given values.
@@ -754,6 +755,7 @@ def run_init(
     issue: int | None,
     development_branch: str,
     validate: Callable[[Path], Change] = run_validation,
+    extra_resources: Callable[[], Sequence[Resource]] = tuple,
 ) -> list[Change]:
     """Plan the initialization and, with ``apply``, write, validate and commit it on a branch.
 
@@ -764,12 +766,14 @@ def run_init(
         issue: Issue number for the branch name and commit; required to write changes.
         development_branch: Branch the init branch starts from, from ``project.yml``.
         validate: Runs repository validation; injectable for tests.
+        extra_resources: Returns further resources that run after init in the same branch and
+            commit, such as a technology profile; they should depend on ``init``.
 
     Returns:
         The changes of the resource, followed by the validation and the Git step.
     """
     branch = BRANCH_FORMAT.format(issue=issue if issue is not None else "<issue>")
-    plan = Engine([resource_factory()], allow_destructive=True).run(apply=False)
+    plan = Engine([resource_factory(), *extra_resources()], allow_destructive=True).run(apply=False)
     writes = [change for change in plan if change.action in WRITE_ACTIONS]
     if any(change.action is Action.FAILED for change in plan):
         return [*plan, Change(GIT_RESOURCE, branch, Action.SKIPPED, "planning failed")]
@@ -801,7 +805,9 @@ def run_init(
         return [*plan, _git_failure(branch, str(exc))]
 
     # Plan again: the new branch may differ from the checkout that was planned first.
-    changes = Engine([resource_factory()], allow_destructive=True).run(apply=True)
+    changes = Engine([resource_factory(), *extra_resources()], allow_destructive=True).run(
+        apply=True
+    )
     if any(change.action is Action.FAILED for change in changes):
         return [*changes, _git_failure(branch, "not committed; inspect the branch")]
     try:

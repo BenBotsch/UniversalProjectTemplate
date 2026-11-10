@@ -24,6 +24,7 @@ bootstrap:
   template_only_paths:
     - "template-dev/"
     - "tools/engineering-bootstrap/"
+    - "profiles/"
 
   optional_profiles:
     - python

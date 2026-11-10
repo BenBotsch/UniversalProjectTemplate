@@ -1,0 +1,35 @@
+# Minimal profile for the tests of the profile mechanism; it adds no real tooling.
+schema_version: "1.0"
+id: "noop"
+version: "0.1.0"
+description: "Test profile with one job, one covering gate and one tokenized file"
+technology:
+  languages: ["noopscript"]
+  package_managers: ["noopget"]
+files:
+  - ".github/workflows/noop.yml"
+  - "src/PROJECT_PACKAGE/__init__.py"
+ci_jobs:
+  - id: "noop"
+    workflow: "noop.yml"
+quality_gates:
+  noop_lint:
+    required_when_applicable: true
+    covers: "lint"
+    applies_when:
+      languages: ["noopscript"]
+    workflow: "noop.yml"
+    job: "lint"
+    status: "implemented"
+dependabot:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "develop"
+    labels: ["area:noop", "type:task"]
+labels:
+  - name: "area:noop"
+    color: "c5def5"
+    description: "Noop test profile"
+    group: "area"

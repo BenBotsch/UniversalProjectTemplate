@@ -1,7 +1,9 @@
 # Universal base CI: validates repository structure and project configuration, runs the quality,
 # security and pull request workflows as reusable workflows, and evaluates all results in the
 # quality-gate job. quality-gate is the single required status check.
-# Stack-specific jobs (format, lint, test, build) are added by technology profiles.
+# Stack-specific jobs (format, lint, test, build) are added by technology profiles: each profile
+# calls its own workflow from a job above the profile-jobs line and adds it to the needs of
+# quality-gate. Both lines are anchors of project-bootstrap; keep them.
 name: "CI"
 
 on:
@@ -103,12 +105,20 @@ jobs:
       pull-requests: read
     uses: ./.github/workflows/pr-validation.yml # zizmor: ignore[self-repository]
 
+  # bootstrap:profile-jobs
+
   quality-gate:
     name: "quality-gate"
     # Runs even if a needed job failed or was skipped; the evaluator decides. Without always(),
     # a failed dependency would skip this job, and a skipped required check can count as passed.
     if: always()
-    needs: [repository-validation, bootstrap-tool, quality, security, pull-request]
+    needs:
+      - repository-validation
+      - bootstrap-tool
+      - quality
+      - security
+      - pull-request
+      # bootstrap:profile-needs
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

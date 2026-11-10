@@ -38,7 +38,8 @@ ruff format --check .
 ## Commands
 
 ```text
-project-bootstrap init --repo OWNER/NAME [--path DIR] [--dry-run | --apply --issue N]
+project-bootstrap init --repo OWNER/NAME [--path DIR] [--profile ID] [--dry-run | --apply --issue N]
+project-bootstrap apply-profile --profile ID [--path DIR] [--source DIR] [--dry-run | --apply] [--force]
 project-bootstrap validate [--repo OWNER/NAME]
 project-bootstrap sync-labels --repo OWNER/NAME [--dry-run | --apply [--prune [--yes]]]
 project-bootstrap configure-repo --repo OWNER/NAME [--dry-run | --apply]
@@ -77,7 +78,7 @@ Options of `init`:
 | `--license SPDX\|none` | License; default `init.license` |
 | `--copyright-holder TEXT` | Holder in `LICENSE`; default `init.copyright_holder`, else the owner's profile name |
 | `--template-source OWNER/NAME` | Template repository; default the repository's GitHub template |
-| `--profile NAME` | Technology profile; not implemented yet |
+| `--profile ID` | Technology profile applied in the same commit; see [Technology Profiles](#technology-profiles) |
 
 Without `--config`, `init` reads `.project/bootstrap.yml` of the clone given by `--path`.
 
@@ -85,6 +86,15 @@ Exit codes: `0` success, `1` a change failed, the configuration is invalid, no t
 available, `apply-rulesets` found an unprotected repository or `init` refused the target, `2`
 invalid usage, an invalid `init` value, an unconfirmed `--prune` or a command that is not
 implemented yet.
+
+Options of `apply-profile`:
+
+| Option | Meaning |
+|---|---|
+| `--profile ID` | Profile to apply; required |
+| `--path DIR` | Root of the project; default the current directory |
+| `--source DIR` | Directory with the profiles; default `profiles/` of the template checkout this tool is installed from |
+| `--force` | Replace files and blocks that the project has changed, and recreate removed files |
 
 ## Label Synchronization
 
@@ -135,6 +145,19 @@ If writing or validation fails, nothing is committed and the branch is left for 
 
 Install the tool from the template checkout without `--editable` before the first `--apply`,
 because initialization deletes `tools/`. A second run on the initialized clone plans no change.
+
+## Technology Profiles
+
+`apply-profile` copies the files of a profile into an initialized project and inserts its CI
+jobs, quality gates, Dependabot entries and labels above the anchors of the base files. It records
+the profile in `.project/project.yml`. It refuses the template's own checkout and does not commit.
+`init --profile ID` applies the profile in the initialization commit. It loads the profile before
+`profiles/` is deleted as a template-only path.
+
+An identical file or block is `noop`. A file or block that the project has changed is `skipped`
+as a conflict, and so is a file deleted after the profile was recorded. A missing anchor or
+required profile fails the run before anything is written. Format and rules are described in
+[Technology Profiles](../../profiles/README.md) and ADR-0006.
 
 ## Branches and Repository Settings
 

@@ -47,6 +47,7 @@ what the task needs:
 - [ADR-0003: Aggregate CI Results in a Single Quality Gate Job](architecture/adr/0003-aggregate-ci-in-one-quality-gate.md)
 - [ADR-0004: Squash into develop, Merge Commits into main](architecture/adr/0004-merge-policy.md)
 - [ADR-0005: Squash Hotfixes into main](architecture/adr/0005-squash-hotfixes.md)
+- [ADR-0006: Apply Technology Profiles as Anchored Blocks and Own Files](architecture/adr/0006-technology-profiles.md)
 
 ## Features
 

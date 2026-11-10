@@ -5,7 +5,7 @@ convention, not native GitHub configuration**: GitHub ignores them. They take ef
 the bootstrap tool, the CI validators and the dashboard. A field that no tool reads has no effect.
 
 Every file starts with `schema_version`. The current version is `"1.3"` for `bootstrap.yml`, `"1.2"`
-for `workflow.yml`, `"1.1"` for `quality-gates.yml` and `labels.yml`, and `"1.0"` for `project.yml`. A
+for `workflow.yml` and `quality-gates.yml`, and `"1.1"` for `labels.yml` and `project.yml`. A
 change to the structure of a file requires a new schema version and a migration note; see [Migrations](#migrations).
 
 ## Schemas and Validation
@@ -64,6 +64,7 @@ Label naming and color rules are documented in
 | `repository.versioning` | `semver` |
 | `repository.commit_convention` | `conventional-commits` |
 | `technology.*` | Lists of lowercase identifiers, for example `python`, `cmake`, `windows`, `uv`; empty means not yet decided |
+| `profiles[]` | `id` (lowercase profile id) and `version` (semantic version) of each applied technology profile; written by bootstrap, empty if none was applied |
 
 `template.source` is `OWNER/REPOSITORY` of the template a project was created from, and
 `template.version` is the template version used at creation. Projects are not synchronized
@@ -80,12 +81,18 @@ automatically with later template versions; upgrades run as reviewed migrations.
 | `workflow` | File name in `.github/workflows/`: `ci.yml` or a workflow that `ci.yml` calls |
 | `job` | Job id in that workflow |
 | `status` | `implemented`, `not_implemented` |
+| `covers` | Name of a language-independent gate that this gate implements for the languages in `applies_when.languages`; needs concrete languages, no `"*"` |
 | `flaky_tests[]` | `test` (test id), `issue` (`#<number>`), `reason` |
 
 `applies_when` is mandatory for every kind except `required`; all of its conditions must hold
 for the gate to apply. A gate that applies passes only if its job finished with `success`. A
 skipped, missing or `not_implemented` job fails the gate; it is never reported as green. See the
 [Quality Model](../docs/governance/quality-model.md#enforcement-in-ci).
+
+Technology profiles add gates with `covers`. A covered gate does not apply once every language in
+`technology.languages` has an implemented covering gate; the covering gates decide instead. While
+one language lacks one, the covered gate still applies and fails as `not_implemented`. See
+[ADR-0006](../docs/architecture/adr/0006-technology-profiles.md).
 
 ### `workflow.yml`
 
@@ -188,6 +195,8 @@ only when `is_template` is `false`. `--format json` prints the findings for othe
 | `workflow.yml` | `1.0` | `1.1` | Adds the required fields `pull_requests.required_sections` and `pull_requests.automation_authors`, read by the pull request validator | Set `schema_version: "1.1"` and add both fields; the values in this template are the defaults. Until then the validator uses the defaults and `validate_project.py` still accepts `1.0`. |
 | `workflow.yml` | `1.1` | `1.2` | Adds the required field `pull_requests.merge_strategy.hotfix_into_default_branch`, decided in [ADR-0005](../docs/architecture/adr/0005-squash-hotfixes.md) | Set `schema_version: "1.2"` and add `hotfix_into_default_branch: "squash"`. `validate_project.py` still accepts `1.0` and `1.1`. |
 | `quality-gates.yml` | `1.0` | `1.1` | Adds `applies_when` per gate, mandatory except for `required` gates, and the required list `flaky_tests` | Set `schema_version: "1.1"`, add `applies_when` to each conditional gate and `flaky_tests: []`. `validate_project.py` still accepts `1.0`, but the quality-gate job rejects it. |
+| `quality-gates.yml` | `1.1` | `1.2` | Adds the optional field `covers` per gate, which needs `applies_when`, for the gates of technology profiles ([ADR-0006](../docs/architecture/adr/0006-technology-profiles.md)) | Set `schema_version: "1.2"`. Without profiles nothing else changes. The quality-gate job accepts `1.1` and `1.2`. |
+| `project.yml` | `1.0` | `1.1` | Adds the required list `profiles` with `id` and `version` of each applied technology profile, written by `project-bootstrap` | Set `schema_version: "1.1"` and add `profiles: []`. `validate_project.py` still accepts `1.0`, but applying a profile requires `1.1`. |
 | `labels.yml` | `1.0` | `1.1` | Adds the optional list `aliases` per label: existing label names that label synchronization renames to the configured name instead of creating a second label, so issues and pull requests keep their label | Set `schema_version: "1.1"` and add `aliases` where an existing label should be renamed. An alias must not equal another label's name or alias. `validate_project.py` still accepts `1.0` without `aliases`. |
 | `bootstrap.yml` | `1.0` | `1.1` | Adds the required section `repository_settings` with wiki, auto-delete of head branches, optional topics, Actions permissions, workflow token and security features, read by `project-bootstrap configure-repo` | Set `schema_version: "1.1"` and copy the `repository_settings` section of this template; adjust `patterns_allowed` to the third-party actions the workflows use. `validate_project.py` still accepts `1.0`, but `configure-repo` rejects it. |
 | `bootstrap.yml` | `1.1` | `1.2` | Adds the required section `protection` with the review mode, the required status checks and the optional release tag pattern, read by `project-bootstrap apply-rulesets` | Set `schema_version: "1.2"` and copy the `protection` section of this template; use `mode: "team"` when more than one maintainer reviews. `validate_project.py` still accepts `1.0` and `1.1`, but `apply-rulesets` rejects them. |
