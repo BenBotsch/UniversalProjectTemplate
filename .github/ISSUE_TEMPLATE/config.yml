@@ -1,0 +1,16 @@
+# Issue template chooser configuration.
+#
+# OWNER and REPOSITORY are placeholders that bootstrap replaces.
+# - The security link works only if private vulnerability reporting is enabled for the repository
+#   (Settings > Security > Private vulnerability reporting).
+# - The support link works only if GitHub Discussions are enabled for the repository.
+# blank_issues_enabled: false hides blank issues in the web UI, but API and CLI can still create
+# issues without a form; issue validation checks them afterwards.
+blank_issues_enabled: false
+contact_links:
+  - name: "Security Vulnerability Report"
+    url: "https://github.com/OWNER/REPOSITORY/security/advisories/new"
+    about: "Privately report a suspected security vulnerability. Do not open a public issue."
+  - name: "Support"
+    url: "https://github.com/OWNER/REPOSITORY/discussions"
+    about: "Ask usage questions and discuss ideas."

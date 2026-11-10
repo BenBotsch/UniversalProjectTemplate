@@ -55,6 +55,7 @@ Run all applicable checks before you open a pull request, and report the actual 
 | Check | Command |
 |---|---|
 | Label configuration | `python -I scripts/ci/check_labels.py .project/labels.yml` |
+| Issue forms | `python -I scripts/ci/check_issue_forms.py` |
 | Repository script tests | `python -I -m pytest tests/ci` |
 | Format, lint, type check, build, tests | Defined by the technology profile; add the commands here when a profile is set up |
 

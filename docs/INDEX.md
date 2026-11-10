@@ -26,7 +26,7 @@ what the task needs:
 
 ## Governance
 
-- [Issue Management](governance/issue-management.md): label taxonomy and label rules.
+- [Issue Management](governance/issue-management.md): label taxonomy, issue forms and form field mapping.
 
 ## Architecture
 

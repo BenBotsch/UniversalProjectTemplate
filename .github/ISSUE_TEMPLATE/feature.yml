@@ -1,0 +1,42 @@
+name: "Feature Request"
+description: "Propose a new user-facing or technical capability."
+title: "[Feature]: "
+labels: ["type:feature", "status:triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem Statement"
+    validations:
+      required: true
+  - type: textarea
+    id: user_story
+    attributes:
+      label: "User Story"
+      placeholder: "As a <role>, I want <capability>, so that <benefit>."
+    validations:
+      required: true
+  - type: textarea
+    id: requirements
+    attributes:
+      label: "Functional Requirements"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance Criteria"
+      description: "Prefer testable Given/When/Then criteria where useful."
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: "Out of Scope"
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencies and Related Issues"
+      description: "Reference issues as #123. Write 'None' if there are none."
+    validations:
+      required: true
