@@ -1,6 +1,6 @@
 # Branch, pull request, release and issue rules. Read by the pull request and issue
 # validators and by bootstrap. Branch names must match .project/project.yml.
-schema_version: "1.0"
+schema_version: "1.1"
 
 branching:
   model: "gitflow-simplified"
@@ -38,6 +38,11 @@ pull_requests:
   merge_strategy:
     into_development_branch: "squash"
     release_into_default_branch: "merge"
+  # Headings of .github/PULL_REQUEST_TEMPLATE.md that must be filled in.
+  required_sections: ["Summary", "Related Issues", "Validation", "Tests Executed"]
+  # Pull requests of these bots skip the branch name, issue link and section checks; their title,
+  # target branch and commits are still checked.
+  automation_authors: ["dependabot[bot]"]
 
 releases:
   source_branch: "main"

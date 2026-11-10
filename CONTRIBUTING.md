@@ -63,7 +63,7 @@ Never disable, skip or weaken a check to make a pull request pass.
 
 - Target `develop`; only release and hotfix pull requests target `main`.
 - Use a Conventional Commit title and fill in every section of the pull request template.
-- Link the issue with `Refs: #<number>`, or state why there is none.
+- Link the issue with `Refs: #<number>`, or write `No-Issue: <reason>` if there is none.
 - Keep pull requests small and focused on one issue.
 - Changes to `.github/workflows/`, `.project/` or `SECURITY.md` need particularly careful review.
 - Where the team size allows, a reviewer other than the author approves before merge. Resolve all

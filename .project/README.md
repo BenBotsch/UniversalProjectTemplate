@@ -4,8 +4,9 @@ The files in `.project/` describe the project in machine-readable form. They are
 convention, not native GitHub configuration**: GitHub ignores them. They take effect only through
 the bootstrap tool, the CI validators and the dashboard. A field that no tool reads has no effect.
 
-Every file starts with `schema_version`. The current version of all files is `"1.0"`. A change to
-the structure of a file requires a new schema version and a migration note.
+Every file starts with `schema_version`. The current version is `"1.1"` for `workflow.yml` and
+`"1.0"` for all other files. A change to the structure of a file requires a new schema version
+and a migration note; see [Migrations](#migrations).
 
 ## Schemas and Validation
 
@@ -86,6 +87,8 @@ A required gate passes only if its job finished with `success`. A skipped, missi
 | `pull_requests.title_convention` | `conventional-commits` |
 | `pull_requests.allowed_types` | Conventional Commit types |
 | `pull_requests.merge_strategy.*` | `squash`, `merge`, `rebase` |
+| `pull_requests.required_sections` | Headings of `.github/PULL_REQUEST_TEMPLATE.md` that must be filled in |
+| `pull_requests.automation_authors` | Bot logins such as `dependabot[bot]`; their pull requests skip the branch name, issue link and section checks |
 | `issue_policy.initial_status` | A value from `issue_policy.supported_states` |
 | `issue_policy.*_label_groups`, `required_for_ready` | Group names from `labels.yml` |
 | `repository_validation.required_files`, `placeholder_allowlist` | Paths relative to the repository root; the allowlist takes glob patterns |
@@ -123,3 +126,9 @@ Repository validation (`python -I scripts/ci/validate_repository.py`) reports ea
 rule ID: `REPO-REQUIRED`, `REPO-PLACEHOLDER`, `REPO-TEMPLATE-ONLY`, `REPO-DEAD-LINK-TEMPLATE`,
 `REPO-DOCS-INDEX`, `REPO-ISSUE-FORMS` and `REPO-CONFIG`. Placeholder and template-only checks run
 only when `is_template` is `false`. `--format json` prints the findings for other tools.
+
+## Migrations
+
+| File | From | To | Change | Migration |
+|---|---|---|---|---|
+| `workflow.yml` | `1.0` | `1.1` | Adds the required fields `pull_requests.required_sections` and `pull_requests.automation_authors`, read by the pull request validator | Set `schema_version: "1.1"` and add both fields; the values in this template are the defaults. Until then the validator uses the defaults and `validate_project.py` still accepts `1.0`. |

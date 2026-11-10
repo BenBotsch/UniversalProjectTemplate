@@ -76,7 +76,7 @@ for a small task.
 
 The pull request template defines the sections. For agents, these sections must contain:
 
-- **Related Issues:** `Refs: #<number>`, or the reason why there is no issue.
+- **Related Issues:** `Refs: #<number>`, or `No-Issue: <reason>` if there is no issue.
 - **Implementation Details:** the changes made and the files affected, and decisions a reviewer
   must know about.
 - **Tests Executed:** the commands actually run and their actual output or result. Checks that

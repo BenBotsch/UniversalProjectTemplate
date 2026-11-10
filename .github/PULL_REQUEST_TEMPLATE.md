@@ -13,7 +13,7 @@ Describe the change and its purpose.
 Refs: #<issue-number>    links the issue without closing it (partial work, follow-ups).
 Closes #<issue-number>   closes the issue on merge, but only for pull requests into the default
                          branch (main). Pull requests into develop do not close issues automatically.
-No issue? Replace this line with the reason for the exception.
+No issue? Replace the line below with "No-Issue: <reason>".
 -->
 
 Refs: #<issue-number>

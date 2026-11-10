@@ -24,12 +24,12 @@ quality_gates:
     required: true
     workflow: "pr-validation.yml"
     job: "pr-validation"
-    status: "not_implemented"
+    status: "implemented"
   conventional_commits:
     required: true
     workflow: "pr-validation.yml"
     job: "commitlint"
-    status: "not_implemented"
+    status: "implemented"
   workflow_lint:
     required: true
     workflow: "quality.yml"

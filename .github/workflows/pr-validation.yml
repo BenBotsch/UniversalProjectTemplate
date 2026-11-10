@@ -1,0 +1,58 @@
+# Pull request validation: title, issue link, target branch, branch name, template sections and
+# Conventional Commits. The rules are read from .project/workflow.yml.
+# The pull request text is read by the validator from the event file; no run: script
+# interpolates event data.
+name: "PR Validation"
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: "pr-validation-${{ github.event.pull_request.number }}"
+  cancel-in-progress: true
+
+jobs:
+  pr-validation:
+    name: "pr-validation"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository with full history"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The changed files are computed from the base and head commits of the pull request.
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Set up Python"
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: "Install validator dependencies"
+        run: python -I -m pip install --disable-pip-version-check -r scripts/ci/requirements.txt
+      - name: "Validate pull request metadata"
+        run: python -I scripts/ci/pr_validation/validator.py pull-request --event "${GITHUB_EVENT_PATH}"
+
+  commitlint:
+    name: "commitlint"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository with full history"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The commits of the pull request are read from the base and head commits.
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Set up Python"
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: "Install validator dependencies"
+        run: python -I -m pip install --disable-pip-version-check -r scripts/ci/requirements.txt
+      - name: "Check commit messages"
+        run: python -I scripts/ci/pr_validation/validator.py commits --event "${GITHUB_EVENT_PATH}"
