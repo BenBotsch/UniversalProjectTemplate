@@ -6,7 +6,7 @@ schema_version: "1.0"
 project:
   name: "PROJECT_NAME"
   description: "PROJECT_DESCRIPTION"
-  status: "planning"
+  status: "unknown-status"
   visibility: "private"
   # true only in the template repository; bootstrap sets false in derived projects.
   is_template: true
