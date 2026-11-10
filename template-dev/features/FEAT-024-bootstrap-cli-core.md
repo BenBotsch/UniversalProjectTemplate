@@ -123,6 +123,7 @@ project-bootstrap validate --config .project/bootstrap.yml --dry-run --format js
   `project-bootstrap --help` lists the four commands and
   `project-bootstrap validate --config .project/bootstrap.yml --dry-run --format json` reports
   five `noop` entries with exit code 0. `tests/ci` (294 tests), both repository validators,
-  actionlint, zizmor, yamllint, markdownlint and gitleaks pass. The `bootstrap-tool` job has not
-  run on GitHub yet; it runs with the next push.
+  actionlint, zizmor, yamllint, markdownlint and gitleaks pass. On GitHub, CI run 42842134012
+  for f930904 on `develop` passed: `bootstrap-tool` ran the 65 tests and both ruff checks, and
+  `quality-gate` reported `bootstrap_tool` as passed.
 - No `--apply` against real GitHub was executed.
