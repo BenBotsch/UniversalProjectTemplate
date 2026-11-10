@@ -29,6 +29,9 @@ check it applies the label rules of `scripts/ci/check_labels.py` and these cross
 - Every branch named in `workflow.yml` is the default or development branch of `project.yml`, and
   releases come from the default branch.
 - `branch_name_pattern` and `tag_pattern` are valid regular expressions.
+- Every action that `.github/workflows/` and `.github/actions/` use is allowed by
+  `repository_settings.actions` in `bootstrap.yml`, so `configure-repo` cannot stop CI. Actions
+  of verified creators count only if `patterns_allowed` lists them.
 
 Unknown fields are rejected at every level. Project-specific data belongs under a top-level
 `x_extensions` mapping, which every schema allows and template tooling ignores.
