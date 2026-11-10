@@ -41,6 +41,7 @@ what the task needs:
 - [ADR Process](architecture/adr/README.md): when and how to record architecture decisions.
 - [ADR Template](architecture/adr/0000-adr-template.md): starting point for a new ADR.
 - [ADR-0001: Use GitHub Issues as the Operational Source of Truth](architecture/adr/0001-use-github-issues.md)
+- [ADR-0002: Implement the Bootstrap Tool as a Python CLI](architecture/adr/0002-python-bootstrap-cli.md)
 
 ## Features
 

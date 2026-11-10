@@ -9,8 +9,8 @@ effort: "l"
 target_repo: "engineering-bootstrap"
 spec_refs: ["§13.1", "§13.3", "§13.5", "§13.6", "§13.7", "§13.8"]
 dependencies: ["FEAT-013", "FEAT-014"]
-blocked_by_decisions: ["DEC-01"]
-agent_ready: false
+blocked_by_decisions: []
+agent_ready: true
 related_issues: []
 created_at: "2026-11-10"
 updated_at: "2026-11-10"
@@ -30,7 +30,8 @@ human-readable plus JSON reports.
 retry/rollback strategy. §13.5 configuration (`.project/bootstrap.yml`, own schema), §13.6
 idempotency (detect, compare, no destructive changes, dry-run default, machine-readable summary,
 clear permission errors), §13.7 proposed commands. §16.3 places the tool in its own repository.
-Blocked by `DEC-01` (implementation language and distribution).
+`DEC-01` is decided: Python 3.12+ CLI, distributed via `pipx`/`uv tool`
+([ADR-0002](../../docs/architecture/adr/0002-python-bootstrap-cli.md)).
 
 ## Scope
 
@@ -89,5 +90,5 @@ project-bootstrap validate --config .project/bootstrap.yml --dry-run --format js
 ## Agent Notes
 
 - **Allowed paths:** `tools/engineering-bootstrap/**`, this feature file, backlog status.
-- **Requires approval:** resolving `DEC-01`; any `--apply` against real GitHub.
+- **Requires approval:** any `--apply` against real GitHub.
 - **Pitfalls:** Keep the engine free of GitHub specifics so resources stay testable with fakes.

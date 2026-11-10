@@ -38,7 +38,7 @@ issue is authoritative.
 | 19 | [FEAT-019](features/FEAT-019-pr-validation-and-commitlint.md) | Implement Pull Request Validation and Commit Convention Checks | EPIC-06 | 2 | then | high | m | 011, 012, 014 | - | yes | planned |
 | 20 | [FEAT-020](features/FEAT-020-quality-gate-evaluator.md) | Enforce Quality Gates Without False Green Pipelines | EPIC-06 | 2 | then | high | m | 013, 016 | - | yes | planned |
 | 21 | [FEAT-021](features/FEAT-021-dependabot.md) | Configure Dependabot Baseline | EPIC-06 | 2 | then | high | xs | 008 | - | yes | planned |
-| 22 | [FEAT-024](features/FEAT-024-bootstrap-cli-core.md) | Build Bootstrap CLI Core with Plan, Apply and Reports | EPIC-07 | 2 | then | critical | l | 013, 014 | DEC-01 | no | planned |
+| 22 | [FEAT-024](features/FEAT-024-bootstrap-cli-core.md) | Build Bootstrap CLI Core with Plan, Apply and Reports | EPIC-07 | 2 | then | critical | l | 013, 014 | - | yes | planned |
 | 23 | [FEAT-025](features/FEAT-025-sync-labels.md) | Implement Idempotent Label Synchronization | EPIC-07 | 2 | then | high | s | 008, 024 | - | yes | planned |
 | 24 | [FEAT-026](features/FEAT-026-branches-and-repo-settings.md) | Configure Branches and Repository Settings | EPIC-07 | 2 | then | high | m | 024 | - | yes | planned |
 | 25 | [FEAT-027](features/FEAT-027-rulesets-and-plan-detection.md) | Apply Rulesets with Plan Detection and Solo Mode | EPIC-07 | 2 | then | high | l | 020, 026 | - | yes | planned |
