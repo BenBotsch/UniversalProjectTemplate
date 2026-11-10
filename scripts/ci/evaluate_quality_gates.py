@@ -349,8 +349,12 @@ def evaluate_gate(
         return GateResult(gate.name, expected, FAILED, "the job did not run")
     bad = [run for run in runs if run.result != "success"]
     if bad:
-        results = ", ".join(f"{run.name}: {run.result}" for run in bad)
-        return GateResult(gate.name, expected, FAILED, f"job result {results}")
+        # Matrix variants are named "<job> (<values>)"; only they need the name in the reason.
+        results = ", ".join(
+            run.result if run.name == expected else f"{run.name}: {run.result}"
+            for run in bad
+        )
+        return GateResult(gate.name, expected, FAILED, f"job result: {results}")
     return GateResult(gate.name, expected, PASSED, "success")
 
 

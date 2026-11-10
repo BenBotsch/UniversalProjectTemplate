@@ -3,7 +3,7 @@ id: "FEAT-020"
 title: "Enforce Quality Gates Without False Green Pipelines"
 epic: "EPIC-06"
 phase: 2
-status: "active"
+status: "implemented"
 priority: "high"
 effort: "m"
 target_repo: "universal-project-template"
@@ -63,8 +63,8 @@ without running them. §21.6: "required build not executed → CI failure".
 
 ## Acceptance Criteria
 
-- [ ] Required checks cannot silently succeed without executing required work (§17.4).
-- [ ] §21.6 "required build not executed" yields CI failure.
+- [x] Required checks cannot silently succeed without executing required work (§17.4).
+- [x] §21.6 "required build not executed" yields CI failure.
 
 ## Verification
 
@@ -99,6 +99,12 @@ python -I -m pytest tests/ci/test_evaluate_quality_gates.py
   action pinning were added for jobs that already existed.
 - `pr-validation.yml` now runs only for pull requests into `main` or `develop`, through `ci.yml`.
 - Local checks: `pytest tests/ci` (294 passed), ruff check and format, yamllint `--strict`,
-  actionlint, zizmor offline, markdownlint, validators, gitleaks. Pending: GitHub verification of
-  the acceptance criteria (CI run with `quality-gate` and a test pull request with a required
-  job disabled through `if: false`).
+  actionlint, zizmor offline, markdownlint, validators, gitleaks.
+- GitHub verification (2026-11-10): push run 42832904413 on `develop` passed; called jobs appear
+  as `quality / workflow-lint` etc., and non-applicable gates are listed with their reason.
+  Negative test pull request #5 (closed, not merged) disabled the required `yaml-lint` job:
+  run 42833894099 skipped only `quality / yaml-lint`, and `quality-gate` failed with
+  "job result: skipped". A first attempt with `if: false` also failed `workflow-lint`, because
+  actionlint rejects constant conditions; the final run used a non-constant condition.
+- The rulesets that make `quality-gate` the required check are not configured: this private
+  repository on GitHub Free has no rulesets or branch protection. Bootstrap sets them (`FEAT-027`).

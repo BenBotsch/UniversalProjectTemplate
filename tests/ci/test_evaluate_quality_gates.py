@@ -79,7 +79,7 @@ def test_required_gate_passes_only_with_success() -> None:
 def test_required_gate_fails_for_other_results(conclusion: str) -> None:
     outcome, reason = _outcome(_gate(), [Job("build", "completed", conclusion)])
     assert outcome == evaluator.FAILED
-    assert conclusion in reason
+    assert reason == f"job result: {conclusion}"
 
 
 def test_required_build_not_executed_fails() -> None:
@@ -369,7 +369,7 @@ def test_repository_gates_fail_when_a_required_job_is_skipped(
         ["--repo", str(ROOT), "--jobs", str(jobs), "--event-name", "push"]
     )
     assert code == 1
-    assert f"{items[0]['name']}: skipped" in capsys.readouterr().out
+    assert f"{items[0]['name']}: job result: skipped" in capsys.readouterr().out
 
 
 def test_repository_gates_fail_when_a_language_is_set(tmp_path: Path) -> None:
