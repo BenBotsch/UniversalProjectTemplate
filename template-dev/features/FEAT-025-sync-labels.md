@@ -98,7 +98,9 @@ project-bootstrap sync-labels --repo <test-owner>/upt-smoke --dry-run
   explicit command. The PowerShell bootstrap script ignores `aliases`.
 - **Verification (2026-11-10):** package tests 98 passed, `ruff check` and `ruff format --check`
   clean; `tests/ci` 305 passed; `validate_project.py`, `validate_repository.py`,
-  `check_labels.py`, yamllint, actionlint, markdownlint, gitleaks and the link check clean.
+  `check_labels.py`, yamllint, actionlint, markdownlint, gitleaks and the link check clean. On
+  GitHub, CI run 42845006858 for ba7ca1f on `develop` passed: `bootstrap-tool` ran the 98 tests
+  and both ruff checks, and `quality-gate` reported `bootstrap_tool` as passed.
 - **Live run against `BenBotsch/upt-smoke-2` (approved: `--apply` without `--prune`):** dry run,
   apply and second dry run each reported 34 `noop` and 10 `skipped` (GitHub default labels; `bug`,
   `enhancement` and `documentation` as aliases of existing labels), 0 `failed`, 0 changes
