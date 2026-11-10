@@ -38,6 +38,8 @@ single source of truth.
 ### Out of Scope
 
 - Automating `agent:*` labels (`FEAT-049`) and agentic workflows (`FEAT-050`).
+- The "Agent Adapter Files" section with "Verifying Adapter Pickup" in `agent-workflow.md`,
+  already written by `FEAT-005`; keep it and add the remaining content around it.
 
 ## Deliverables
 

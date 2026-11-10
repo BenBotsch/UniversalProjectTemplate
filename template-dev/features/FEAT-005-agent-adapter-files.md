@@ -3,7 +3,7 @@ id: "FEAT-005"
 title: "Add Thin Agent Adapter Files"
 epic: "EPIC-02"
 phase: 1
-status: "planned"
+status: "active"
 priority: "high"
 effort: "xs"
 target_repo: "universal-project-template"
@@ -53,7 +53,7 @@ examples for `CLAUDE.md` and `.github/copilot-instructions.md`.
 
 ## Tasks
 
-- [ ] **T1:** Write both adapter files.
+- [x] **T1:** Write both adapter files.
 - [ ] **T2:** Document and run the pickup test for Claude Code; record the result in the PR.
 
 ## Acceptance Criteria
