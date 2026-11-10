@@ -588,6 +588,7 @@ def test_bootstrap_1_0_skips_the_allow_list_check(project_copy: Path) -> None:
         (project_copy / "bootstrap.yml").read_text(encoding="utf-8")
     )
     del bootstrap["repository_settings"]
+    del bootstrap["protection"]
     bootstrap["schema_version"] = "1.0"
     (project_copy / "bootstrap.yml").write_text(
         yaml.safe_dump(bootstrap), encoding="utf-8"
