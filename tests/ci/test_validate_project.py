@@ -433,6 +433,70 @@ def test_gate_with_two_applicability_keys_is_reported(project_copy: Path) -> Non
     assert [p.path for p in problems] == ["quality_gates.lint"]
 
 
+# Covering gates of technology profiles (ADR-0006)
+
+
+def _add_python_lint(covers: str, languages: list[str]) -> Callable[[dict[str, Any]], None]:
+    def change(data: dict[str, Any]) -> None:
+        lint = data["quality_gates"]["lint"]
+        data["quality_gates"]["python_lint"] = {
+            **{key: value for key, value in lint.items() if key != "applies_when"},
+            "covers": covers,
+            "applies_when": {"languages": languages},
+        }
+
+    return change
+
+
+def test_covering_gate_is_accepted(project_copy: Path) -> None:
+    edit(project_copy, "quality-gates", _add_python_lint("lint", ["python"]))
+    assert messages(project_copy) == []
+
+
+def test_covering_an_unknown_gate_is_reported(project_copy: Path) -> None:
+    edit(project_copy, "quality-gates", _add_python_lint("linting", ["python"]))
+    assert_single_problem(
+        project_copy, "quality-gates.yml", "quality_gates.python_lint.covers", "unknown gate"
+    )
+
+
+def test_covering_gate_needs_concrete_languages(project_copy: Path) -> None:
+    edit(project_copy, "quality-gates", _add_python_lint("lint", ["*"]))
+    assert_single_problem(
+        project_copy,
+        "quality-gates.yml",
+        "quality_gates.python_lint.applies_when.languages",
+        "concrete languages",
+    )
+
+
+def test_chained_covering_gates_are_reported(project_copy: Path) -> None:
+    def change(data: dict[str, Any]) -> None:
+        _add_python_lint("lint", ["python"])(data)
+        data["quality_gates"]["strict_lint"] = {
+            **data["quality_gates"]["python_lint"],
+            "covers": "python_lint",
+        }
+
+    edit(project_copy, "quality-gates", change)
+    assert_single_problem(
+        project_copy, "quality-gates.yml", "quality_gates.strict_lint.covers", "chains"
+    )
+
+
+def test_covers_requires_applies_when(project_copy: Path) -> None:
+    def change(data: dict[str, Any]) -> None:
+        _add_python_lint("lint", ["python"])(data)
+        gate = data["quality_gates"]["python_lint"]
+        del gate["applies_when"]
+        gate.pop("required_when_applicable")
+        gate["required"] = True
+
+    edit(project_copy, "quality-gates", change)
+    problems = validate_project.validate_project(project_copy)
+    assert [p.path for p in problems] == ["quality_gates.python_lint"]
+
+
 # Cross-file checks (R3)
 
 

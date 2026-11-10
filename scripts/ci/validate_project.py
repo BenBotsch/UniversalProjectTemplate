@@ -9,6 +9,8 @@ label rules of check_labels.py and cross-file checks run:
 - branches in workflow.yml are the default or development branch of project.yml,
   and releases come from the default branch;
 - ``branch_name_pattern`` and ``tag_pattern`` are valid regular expressions;
+- a gate with ``covers`` in quality-gates.yml names another gate that covers nothing itself,
+  and limits ``applies_when.languages`` to concrete languages;
 - every action that the workflows in .github/ use is allowed by
   ``repository_settings.actions`` in bootstrap.yml, so applying the settings cannot stop CI.
 
@@ -208,6 +210,10 @@ def check_cross_file(
                 )
             )
 
+    gates = configs.get("quality-gates")
+    if gates is not None:
+        problems.extend(_check_covers(gates["quality_gates"], paths["quality-gates"]))
+
     bootstrap = configs.get("bootstrap")
     if (
         repository_root is not None
@@ -297,6 +303,38 @@ def check_allowed_actions(
                         "to patterns_allowed",
                     )
                 )
+    return problems
+
+
+def _check_covers(gates: dict[str, Any], path: Path) -> list[Problem]:
+    """Check that covering gates of technology profiles name a generic gate.
+
+    A covering gate replaces a language-independent gate for its languages, so it needs a
+    concrete language list, and the covered gate must exist and must not cover a third gate.
+    """
+    problems = []
+    for name, gate in gates.items():
+        target = gate.get("covers")
+        if target is None:
+            continue
+        location = f"quality_gates.{name}.covers"
+        if target == name:
+            problems.append(Problem(path, location, "a gate cannot cover itself"))
+        elif target not in gates:
+            problems.append(Problem(path, location, f"unknown gate {target!r}"))
+        elif "covers" in gates[target]:
+            problems.append(
+                Problem(path, location, f"{target!r} covers a gate itself; chains are not allowed")
+            )
+        languages = gate.get("applies_when", {}).get("languages")
+        if not languages or "*" in languages:
+            problems.append(
+                Problem(
+                    path,
+                    f"quality_gates.{name}.applies_when.languages",
+                    "a covering gate must list the concrete languages it covers",
+                )
+            )
     return problems
 
 

@@ -32,6 +32,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: zizmor --format=github .github/workflows/
+      - name: "Lint profile workflows"
+        # Profile workflows run only in derived projects (ADR-0006), so they are checked here.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          workflows=(profiles/*/files/.github/workflows/*.yml)
+          if [ "${#workflows[@]}" -eq 0 ]; then
+            echo "No profile workflows."
+            exit 0
+          fi
+          actionlint "${workflows[@]}"
+          zizmor --format=github profiles/*/files/
 
   yaml-lint:
     name: "yaml-lint"

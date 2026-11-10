@@ -71,7 +71,6 @@ def test_apply_mode_is_reported(project_dir: Path, capsys: pytest.CaptureFixture
 @pytest.mark.parametrize(
     "argv",
     [
-        ["init", "--repo", "octo/new", "--profile", "python"],
         ["validate", "--repo", "octo/new"],
         ["audit", "--owner", "octo"],
     ],

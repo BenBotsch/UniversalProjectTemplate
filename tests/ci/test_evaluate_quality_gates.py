@@ -216,6 +216,90 @@ def test_not_applicable_gate_not_implemented_passes() -> None:
     assert _outcome(gate, [])[0] == evaluator.NOT_APPLICABLE
 
 
+# Covering gates of technology profiles
+
+
+def _generic_lint() -> Gate:
+    return _gate(
+        name="lint",
+        kind="required_when_applicable",
+        job="lint",
+        implemented=False,
+        conditions=Conditions(languages=("*",)),
+    )
+
+
+def _python_lint(*, implemented: bool = True) -> Gate:
+    return _gate(
+        name="python_lint",
+        kind="required_when_applicable",
+        workflow="quality.yml",
+        job="lint",
+        implemented=implemented,
+        conditions=Conditions(languages=("python",)),
+        covers="lint",
+    )
+
+
+def _results(gates: list[Gate], context: Context, jobs: list[Job]) -> dict[str, str]:
+    return {
+        r.gate: r.outcome for r in evaluator.evaluate(gates, context, jobs, NAMES)
+    }
+
+
+def test_covered_gate_does_not_apply_and_the_covering_gate_decides() -> None:
+    gates = [_generic_lint(), _python_lint()]
+    passing = _results(gates, PULL_REQUEST, [_success("quality / lint")])
+    assert passing == {"lint": "not applicable", "python_lint": "passed"}
+    result = evaluator.evaluate_gate(gates[0], PULL_REQUEST, [], NAMES, gates)
+    assert result.reason == "covered by python_lint"
+    failing = _results(gates, PULL_REQUEST, [Job("quality / lint", "completed", "failure")])
+    assert failing == {"lint": "not applicable", "python_lint": "failed"}
+
+
+def test_gate_is_not_covered_for_a_language_without_covering_gate() -> None:
+    """A second language without a profile must not pass silently."""
+    context = Context("pull_request", ("python", "cpp"), ("src/app.py",))
+    gates = [_generic_lint(), _python_lint()]
+    results = _results(gates, context, [_success("quality / lint")])
+    assert results == {"lint": "failed", "python_lint": "passed"}
+
+
+def test_not_implemented_covering_gate_does_not_cover() -> None:
+    gates = [_generic_lint(), _python_lint(implemented=False)]
+    assert _results(gates, PULL_REQUEST, [])["lint"] == "failed"
+
+
+def test_covering_gate_of_another_language_leaves_the_gate_inapplicable() -> None:
+    gates = [_generic_lint(), _python_lint()]
+    context = Context("pull_request", (), ("README.md",))
+    assert _results(gates, context, []) == {
+        "lint": "not applicable",
+        "python_lint": "not applicable",
+    }
+
+
+def test_load_gates_reads_covers(tmp_path: Path) -> None:
+    data = {
+        "schema_version": "1.2",
+        "quality_gates": {
+            "a": {
+                "required_when_applicable": True,
+                "applies_when": {"languages": ["python"]},
+                "covers": "lint",
+                "workflow": "ci.yml",
+                "job": "a",
+                "status": "implemented",
+            }
+        },
+        "flaky_tests": [],
+    }
+    path = tmp_path / "quality-gates.yml"
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    gates, _ = evaluator.load_gates(path)
+    assert gates[0].covers == "lint"
+
+
 def test_review_gate_never_fails() -> None:
     gate = _gate(
         kind=evaluator.REVIEW_KIND,
@@ -302,7 +386,7 @@ def test_load_gates_rejects_schema_1_0(tmp_path: Path) -> None:
         '    workflow: "ci.yml"\n    job: "a"\n    status: "implemented"\n',
         encoding="utf-8",
     )
-    with pytest.raises(ValueError, match="migrate to '1.1'"):
+    with pytest.raises(ValueError, match="migrate to '1.2'"):
         evaluator.load_gates(path)
 
 
@@ -378,7 +462,9 @@ def test_repository_gates_fail_when_a_language_is_set(tmp_path: Path) -> None:
     shutil.copytree(ROOT / ".github" / "workflows", tmp_path / ".github" / "workflows")
     project = tmp_path / evaluator.PROJECT_PATH
     data = yaml.safe_load(project.read_text(encoding="utf-8"))
-    data["technology"]["languages"] = ["python"]
+    # A language that no profile of the project covers; in a derived project with the python
+    # profile, its gates replace the generic ones.
+    data["technology"]["languages"] = ["cobol"]
     project.write_text(yaml.safe_dump(data), encoding="utf-8")
     jobs = tmp_path / "jobs.json"
     jobs.write_text(json.dumps({"jobs": _repository_jobs()}), encoding="utf-8")

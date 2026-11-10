@@ -7,7 +7,8 @@ Every command runs as a dry run unless ``--apply`` is given. Exit codes:
   ``apply-rulesets`` found an unprotected repository without ``--allow-unprotected``.
 - ``2``: invalid usage, an unconfirmed prune, or a command that is not implemented yet.
 
-``init`` refuses to run against a template repository with exit code ``1``.
+``init`` refuses to run against a template repository with exit code ``1``, and so does
+``apply-profile`` in the template checkout itself.
 """
 
 from __future__ import annotations
@@ -42,6 +43,7 @@ from engineering_bootstrap.github import (
 )
 from engineering_bootstrap.report import Report, render_json, render_text
 from engineering_bootstrap.resources import init as project_init
+from engineering_bootstrap.resources import profiles
 from engineering_bootstrap.resources.branches import BranchResource, spec_from_config
 from engineering_bootstrap.resources.labels import LabelResource, specs_from_config
 from engineering_bootstrap.resources.repo_settings import (
@@ -57,6 +59,9 @@ DEFAULT_CONFIG = Path(".project/bootstrap.yml")
 CONFIG_RESOURCE = "config"
 # OWNER/NAME as GitHub allows them; also keeps the value from changing the API path.
 REPO_PATTERN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})/[A-Za-z0-9._-]{1,100}")
+PROFILES_DIR = "profiles"
+# The template checkout that contains this tool: tools/engineering-bootstrap/src/<package>/.
+TEMPLATE_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _common_options() -> argparse.ArgumentParser:
@@ -117,7 +122,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="template repository, if GitHub does not report it",
     )
     init.add_argument(
-        "--profile", metavar="PROFILE", help="technology profile, e.g. python (not implemented yet)"
+        "--profile",
+        metavar="PROFILE",
+        help="also apply this technology profile from profiles/ of the clone, e.g. python",
+    )
+
+    apply_profile = commands.add_parser(
+        "apply-profile",
+        parents=[common],
+        help="apply a technology profile to the working tree of a project",
+    )
+    apply_profile.add_argument("--profile", required=True, metavar="PROFILE")
+    apply_profile.add_argument(
+        "--path", type=Path, default=Path("."), help="root of the project (default: %(default)s)"
+    )
+    apply_profile.add_argument(
+        "--source",
+        type=Path,
+        help=f"directory of the profiles (default: {PROFILES_DIR}/ of the template with this tool)",
+    )
+    apply_profile.add_argument(
+        "--force",
+        action="store_true",
+        help="overwrite files and blocks that differ from the profile instead of skipping them",
     )
 
     validate = commands.add_parser(
@@ -322,10 +349,50 @@ def _apply_rulesets(
     )
 
 
-def _init(args: argparse.Namespace, transport: httpx.BaseTransport | None) -> Report | int:
-    if args.profile is not None:
-        print("init --profile is not implemented yet (FEAT-031)", file=sys.stderr)
+def _load_profile(source: Path, profile_id: str) -> profiles.Profile | int:
+    try:
+        return profiles.load_profile(source, profile_id)
+    except profiles.ProfileError as exc:
+        print(f"invalid profile: {exc}", file=sys.stderr)
+        return EXIT_FAILED
+
+
+def _apply_profile(args: argparse.Namespace) -> Report | int:
+    root = args.path.resolve()
+    if args.config == DEFAULT_CONFIG:
+        args.config = root / DEFAULT_CONFIG
+    try:
+        config = load_config(resolve_config_dir(args.config))
+    except ConfigError as exc:
+        for problem in exc.problems:
+            print(f"invalid configuration: {problem}", file=sys.stderr)
+        return EXIT_FAILED
+    project = config.files["project"]["project"]
+    if project["is_template"]:
+        print(
+            "apply-profile refused: project.yml marks this checkout as the template; apply "
+            "profiles to a derived project, or with init --profile",
+            file=sys.stderr,
+        )
+        return EXIT_FAILED
+    profile = _load_profile(args.source or TEMPLATE_ROOT / PROFILES_DIR, args.profile)
+    if isinstance(profile, int):
+        return profile
+    try:
+        replacements = profiles.replacements_for(project["name"], project["description"])
+    except ValueError as exc:
+        print(f"apply-profile: {exc}", file=sys.stderr)
         return EXIT_USAGE
+    resource = profiles.ProfileResource(root, profile, replacements, force=args.force)
+    return Report(
+        command=args.command,
+        mode="apply" if args.apply else "dry-run",
+        target=root.as_posix(),
+        changes=Engine([resource]).run(apply=args.apply),
+    )
+
+
+def _init(args: argparse.Namespace, transport: httpx.BaseTransport | None) -> Report | int:
     if args.issue is not None and args.issue < 1:
         print("--issue must be a positive issue number", file=sys.stderr)
         return EXIT_USAGE
@@ -344,6 +411,13 @@ def _init(args: argparse.Namespace, transport: httpx.BaseTransport | None) -> Re
     if isinstance(prepared, int):
         return prepared
     config, token = prepared
+    profile: profiles.Profile | None = None
+    if args.profile is not None:
+        # Loaded now: init deletes profiles/ as a template-only path before the profile runs.
+        loaded = _load_profile(root / PROFILES_DIR, args.profile)
+        if isinstance(loaded, int):
+            return loaded
+        profile = loaded
     try:
         settings = project_init.settings_from_config(config.files)
     except (KeyError, TypeError) as exc:
@@ -377,8 +451,21 @@ def _init(args: argparse.Namespace, transport: httpx.BaseTransport | None) -> Re
             print(f"init: {exc}", file=sys.stderr)
             return EXIT_USAGE
 
+    try:
+        replacements = profiles.replacements_for(values.name, values.description)
+    except ValueError as exc:
+        if profile is not None:
+            print(f"init: {exc}; pass --name", file=sys.stderr)
+            return EXIT_USAGE
+        replacements = {}
+
     def resource() -> project_init.InitResource:
         return project_init.InitResource(root, values, settings, git.tracked_files)
+
+    def profile_resources() -> list[profiles.ProfileResource]:
+        if profile is None:
+            return []
+        return [profiles.ProfileResource(root, profile, replacements, depends_on=["init"])]
 
     changes = project_init.run_init(
         git,
@@ -387,6 +474,7 @@ def _init(args: argparse.Namespace, transport: httpx.BaseTransport | None) -> Re
         issue=args.issue,
         development_branch=config.files["project"]["repository"]["development_branch"],
         validate=project_init.run_validation,
+        extra_resources=profile_resources,
     )
     for change in changes:
         for step in change.details.get("next_steps", ()):
@@ -428,6 +516,9 @@ def main(argv: Sequence[str] | None = None, *, transport: httpx.BaseTransport | 
     }
     if args.command in remote_commands:
         result = remote_commands[args.command](args, transport)
+        return result if isinstance(result, int) else _emit(result, args)
+    if args.command == "apply-profile":
+        result = _apply_profile(args)
         return result if isinstance(result, int) else _emit(result, args)
 
     if args.command != "validate" or args.repo is not None:

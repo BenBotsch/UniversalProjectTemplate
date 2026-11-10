@@ -20,3 +20,6 @@ rules:
     max: 120
   comments:
     min-spaces-from-content: 1
+  # The anchors for technology profiles (ADR-0006) stay at the indentation of the entries
+  # that profiles insert above them, also at the end of a file or list.
+  comments-indentation: disable

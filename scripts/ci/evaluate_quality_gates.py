@@ -10,6 +10,9 @@ Rules:
   cancelled, failed or missing job fails the gate.
 - A gate that applies but is ``not_implemented`` fails.
 - A gate that does not apply passes; the reason is printed.
+- A gate that other gates ``cover`` does not apply once every language of ``project.yml`` has
+  an implemented covering gate whose ``applies_when.languages`` names it. Technology profiles
+  implement the language-independent gates this way, for example ``lint`` for Python.
 - ``review_required_for_relevant_changes`` gates never fail the run. When they apply, they print
   a notice; the review policy enforces them.
 - A failed or cancelled job of the run fails the evaluation even if no gate lists it.
@@ -42,7 +45,7 @@ PROJECT_PATH = ".project/project.yml"
 WORKFLOWS_DIR = ".github/workflows"
 CI_WORKFLOW = "ci.yml"
 EVALUATOR_JOB = "quality-gate"
-SUPPORTED_SCHEMA = "1.1"
+SUPPORTED_SCHEMAS = ("1.1", "1.2")
 
 GATE_KINDS = (
     "required",
@@ -101,6 +104,7 @@ class Gate:
     job: str
     implemented: bool
     conditions: Conditions = Conditions()
+    covers: str | None = None
 
 
 @dataclass(frozen=True)
@@ -168,10 +172,10 @@ def load_gates(path: Path) -> tuple[list[Gate], list[FlakyTest]]:
     if not isinstance(data, dict):
         raise ValueError(f"{path}: top level must be a mapping")  # noqa: TRY004 - input error
     version = data.get("schema_version")
-    if version != SUPPORTED_SCHEMA:
+    if version not in SUPPORTED_SCHEMAS:
         raise ValueError(
             f"{path}: schema_version {version!r} is not supported; migrate to "
-            f"{SUPPORTED_SCHEMA!r} as described in .project/README.md#migrations"
+            f"{SUPPORTED_SCHEMAS[-1]!r} as described in .project/README.md#migrations"
         )
     gates = []
     for name, entry in data["quality_gates"].items():
@@ -194,6 +198,7 @@ def load_gates(path: Path) -> tuple[list[Gate], list[FlakyTest]]:
                     changed_paths=_strings(when.get("changed_paths")),
                     ignored_paths=_strings(when.get("ignored_paths")),
                 ),
+                covers=entry.get("covers"),
             )
         )
     flaky = [
@@ -314,15 +319,38 @@ def _job_runs(jobs: Sequence[Job], name: str) -> list[Job]:
     return [job for job in jobs if job.name == name or job.name.startswith(f"{name} (")]
 
 
+def covered_reason(gate: Gate, gates: Sequence[Gate], context: Context) -> str | None:
+    """Return why other gates take the place of ``gate``, or ``None`` if they do not.
+
+    A gate is covered when the project lists at least one language and each of them is named in
+    ``applies_when.languages`` of an implemented gate that ``covers`` it.
+    """
+    covering = [other for other in gates if other.covers == gate.name and other.implemented]
+    if not covering or not context.languages:
+        return None
+    names = {
+        language: other.name
+        for other in covering
+        for language in other.conditions.languages or ()
+    }
+    if not set(context.languages) <= set(names):
+        return None
+    by = sorted({names[language] for language in context.languages})
+    return f"covered by {', '.join(by)}"
+
+
 def evaluate_gate(
     gate: Gate,
     context: Context,
     jobs: Sequence[Job],
     names: Mapping[tuple[str, str], str],
+    gates: Sequence[Gate] = (),
 ) -> GateResult:
-    """Evaluate one gate."""
+    """Evaluate one gate; ``gates`` are all gates, to find the ones that cover it."""
     expected = names.get((gate.workflow, gate.job), gate.job)
-    reason = inapplicable_reason(gate.conditions, context)
+    reason = inapplicable_reason(gate.conditions, context) or covered_reason(
+        gate, gates, context
+    )
     if reason is not None:
         return GateResult(gate.name, expected, NOT_APPLICABLE, reason)
     if gate.kind == REVIEW_KIND:
@@ -365,7 +393,7 @@ def evaluate(
     names: Mapping[tuple[str, str], str],
 ) -> list[GateResult]:
     """Evaluate every gate, then add every failed job that no failed gate already reports."""
-    results = [evaluate_gate(gate, context, jobs, names) for gate in gates]
+    results = [evaluate_gate(gate, context, jobs, names, gates) for gate in gates]
     reported = {
         run.name
         for result in results
