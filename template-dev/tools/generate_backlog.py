@@ -71,6 +71,7 @@ RANK = [
     "050",
     "053",
     "054",
+    "055",
 ]
 FIRST_END = RANK.index("023")
 THEN_END = RANK.index("044")
@@ -299,7 +300,7 @@ EPICS = {
         ],
         ["Cross-owner audit (`FEAT-051`)", "Template upgrades (`FEAT-046`)"],
         [
-            "`DEC-01` blocks the CLI core",
+            "`DEC-01` is decided: Python CLI (ADR-0002)",
             "Plan-dependent features (rulesets on private Free repos) must degrade with a clear report, not fail silently",
             "Writes to real repositories need approval",
         ],

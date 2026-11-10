@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-project-template:schema:labels:1.0",
+  "title": "labels.yml",
+  "description": "Declarative label taxonomy. Name prefixes and duplicates are checked by the validator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "labels"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "x_extensions": { "type": "object", "description": "Project-specific fields; ignored by template tooling." },
+    "labels": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "color", "description", "group"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^([a-z0-9]+(-[a-z0-9]+)*:)?[a-z0-9]+(-[a-z0-9]+)*$" },
+          "color": { "type": "string", "pattern": "^[0-9a-fA-F]{6}$" },
+          "description": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "group": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }
+        }
+      }
+    }
+  }
+}

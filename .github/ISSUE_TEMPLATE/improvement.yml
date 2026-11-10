@@ -1,0 +1,30 @@
+name: "Improvement"
+description: "Improve an existing behavior, process or implementation."
+title: "[Improvement]: "
+labels: ["type:improvement", "status:triage"]
+body:
+  - type: textarea
+    id: current
+    attributes:
+      label: "Current Situation"
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Proposed Improvement"
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: "Expected Benefits and Impact"
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: "Acceptance Criteria"
+      description: "How will the improvement be measured?"
+    validations:
+      required: true

@@ -1,0 +1,25 @@
+name: "Documentation"
+description: "Request a documentation change."
+title: "[Docs]: "
+labels: ["type:documentation", "status:triage", "area:docs"]
+body:
+  - type: textarea
+    id: affected
+    attributes:
+      label: "Affected Documentation"
+      description: "Paths, headings, or URLs to update."
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: "Required Change"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance Criteria"
+      description: "How will the change be validated?"
+    validations:
+      required: true

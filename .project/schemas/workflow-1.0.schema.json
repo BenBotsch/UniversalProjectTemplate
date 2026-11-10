@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-project-template:schema:workflow:1.0",
+  "title": "workflow.yml",
+  "description": "Branch model, pull request rules, release approval and issue policy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "branching", "pull_requests", "releases", "issue_policy"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "x_extensions": { "type": "object", "description": "Project-specific fields; ignored by template tooling." },
+    "branching": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "branch_name_pattern", "branch_types"],
+      "properties": {
+        "model": { "enum": ["gitflow-simplified"] },
+        "branch_name_pattern": { "type": "string", "minLength": 1 },
+        "branch_types": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "pattern": "^[a-z][a-z0-9-]*$" },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "targets"],
+            "properties": {
+              "source": { "$ref": "#/$defs/branch_name" },
+              "targets": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/branch_name" }
+              },
+              "back_merge_to": { "$ref": "#/$defs/branch_name" }
+            }
+          }
+        }
+      }
+    },
+    "pull_requests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title_convention", "allowed_types", "issue_link", "elevated_review_paths", "merge_strategy"],
+      "properties": {
+        "title_convention": { "enum": ["conventional-commits"] },
+        "allowed_types": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z]+$" }
+        },
+        "issue_link": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "exception_requires_reason"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "exception_requires_reason": { "type": "boolean" }
+          }
+        },
+        "elevated_review_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "merge_strategy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["into_development_branch", "release_into_default_branch"],
+          "properties": {
+            "into_development_branch": { "$ref": "#/$defs/merge_method" },
+            "release_into_default_branch": { "$ref": "#/$defs/merge_method" }
+          }
+        }
+      }
+    },
+    "releases": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_branch", "tag_pattern", "require_human_approval"],
+      "properties": {
+        "source_branch": { "$ref": "#/$defs/branch_name" },
+        "tag_pattern": { "type": "string", "minLength": 1 },
+        "require_human_approval": { "type": "boolean" }
+      }
+    },
+    "repository_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Settings of scripts/ci/validate_repository.py; omitted fields use its defaults.",
+      "properties": {
+        "required_files": { "$ref": "#/$defs/string_list" },
+        "placeholder_tokens": { "$ref": "#/$defs/string_list" },
+        "placeholder_allowlist": { "$ref": "#/$defs/string_list" },
+        "docs_index_severity": { "enum": ["error", "warning"] }
+      }
+    },
+    "issue_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial_status",
+        "required_single_label_groups",
+        "required_for_ready",
+        "optional_single_label_groups",
+        "supported_types",
+        "supported_states",
+        "agent_ready_requires"
+      ],
+      "properties": {
+        "initial_status": { "$ref": "#/$defs/label_value" },
+        "required_single_label_groups": { "$ref": "#/$defs/label_value_list" },
+        "required_for_ready": { "$ref": "#/$defs/label_value_list" },
+        "optional_single_label_groups": { "$ref": "#/$defs/label_value_list" },
+        "supported_types": { "$ref": "#/$defs/label_value_list" },
+        "supported_states": { "$ref": "#/$defs/label_value_list" },
+        "agent_ready_requires": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["acceptance_criteria", "scope", "no_unresolved_blockers", "approved_permissions"]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "string_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "branch_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._/-]*$" },
+    "merge_method": { "enum": ["squash", "merge", "rebase"] },
+    "label_value": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "label_value_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/label_value" }
+    }
+  }
+}

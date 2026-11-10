@@ -3,7 +3,7 @@ id: "FEAT-003"
 title: "Create Documentation Scaffold, Index and ADR Process"
 epic: "EPIC-01"
 phase: 1
-status: "planned"
+status: "implemented"
 priority: "high"
 effort: "m"
 target_repo: "universal-project-template"
@@ -32,7 +32,7 @@ bootstrap; `docs/` is what derived projects keep.
 
 ## Scope
 
-- `docs/INDEX.md` listing only directories that contain files.
+- `docs/INDEX.md` listing only directories that contain files. `docs/governance/issue-management.md` already exists (label taxonomy from `FEAT-008`) and must be listed. Root `AGENTS.md` (`FEAT-004`) must be listed as the first entry of the agent reading order.
 - Minimal, real content per area that is meaningful for every project.
 - ADR template and `ADR-0001` (GitHub Issues as operational source of truth).
 - Feature-spec template and a planning README for derived projects.
@@ -64,16 +64,16 @@ bootstrap; `docs/` is what derived projects keep.
 
 ## Tasks
 
-- [ ] **T1:** Write `docs/INDEX.md` with a "How to read this repository" section for agents.
-- [ ] **T2:** Write ADR README, ADR template and ADR-0001.
-- [ ] **T3:** Write `docs/features/README.md`, `docs/features/_template.md`, `docs/planning/README.md`.
+- [x] **T1:** Write `docs/INDEX.md` with a "How to read this repository" section for agents.
+- [x] **T2:** Write ADR README, ADR template and ADR-0001.
+- [x] **T3:** Write `docs/features/README.md`, `docs/features/_template.md`, `docs/planning/README.md`.
 
 ## Acceptance Criteria
 
-- [ ] Project documentation can be found via a short index (§17.3).
-- [ ] Significant architectural changes use ADRs: the process and template exist (§17.3).
-- [ ] `docs/planning/` and `docs/features/` contain only README and template files, no template tasks.
-- [ ] All relative links in `docs/` resolve.
+- [x] Project documentation can be found via a short index (§17.3).
+- [x] Significant architectural changes use ADRs: the process and template exist (§17.3).
+- [x] `docs/planning/` and `docs/features/` contain only README and template files, no template tasks.
+- [x] All relative links in `docs/` resolve.
 
 ## Verification
 

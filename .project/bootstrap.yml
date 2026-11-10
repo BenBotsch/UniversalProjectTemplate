@@ -1,0 +1,33 @@
+# What bootstrap provisions when a project is created or updated from the template.
+# Project convention, not a native GitHub file: only the bootstrap tool reads it.
+schema_version: "1.0"
+bootstrap:
+  create_develop_branch: true
+  synchronize_labels: true
+  configure_issue_templates: true
+  configure_pull_request_templates: true
+  configure_rulesets: true
+  enable_issues: true
+  enable_discussions: false
+  initialize_technology_profile: true
+  configure_dependabot: true
+  configure_security: true
+  validate_after_setup: true
+
+  # Show planned changes only unless apply is requested explicitly.
+  dry_run_default: true
+  # Never overwrite files or settings a project has changed.
+  overwrite_user_changes: false
+
+  # Paths that exist only in the template repository. Bootstrap removes them during init;
+  # repository validation fails if one exists while project.is_template is false.
+  template_only_paths:
+    - "template-dev/"
+
+  optional_profiles:
+    - python
+    - cpp
+    - node
+    - flutter
+    - docker
+    - hybrid

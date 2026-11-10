@@ -3,7 +3,7 @@ id: "FEAT-012"
 title: "Document Branching, Commit and Release Conventions"
 epic: "EPIC-04"
 phase: 1
-status: "planned"
+status: "implemented"
 priority: "high"
 effort: "m"
 target_repo: "universal-project-template"
@@ -51,6 +51,9 @@ open (`DEC-02`); documents describe it as "to be decided" with the proposed defa
 ## Requirements
 
 1. **R1:** Branch name regex is given and identical to what `FEAT-019` will enforce: `^(feature|fix|hotfix|release|chore|docs|refactor|ci)/[0-9]+-[a-z0-9-]+$` plus `release/X.Y.Z` exception.
+   *Implementation note:* the docs quote `branching.branch_name_pattern` from `.project/workflow.yml`
+   (`FEAT-013`) verbatim, which allows `feature|fix|hotfix|chore` plus `release/X.Y.Z` and strict
+   kebab-case. That file is the single source `FEAT-019` reads; widen it there if more prefixes are needed.
 2. **R2:** The commit types list equals `AGENTS.md` (`FEAT-004`).
 3. **R3:** The merge policy section references `DEC-02` and marks the default as provisional.
 4. **R4:** Release criteria list all eight items of §9.6.
@@ -58,14 +61,14 @@ open (`DEC-02`); documents describe it as "to be decided" with the proposed defa
 
 ## Tasks
 
-- [ ] **T1:** Write `commit-conventions.md`.
-- [ ] **T2:** Write `branching-and-releases.md`.
-- [ ] **T3:** Write `development-workflow.md` and `review-policy.md`; update `docs/INDEX.md`.
+- [x] **T1:** Write `commit-conventions.md`.
+- [x] **T2:** Write `branching-and-releases.md`.
+- [x] **T3:** Write `development-workflow.md` and `review-policy.md`; update `docs/INDEX.md`.
 
 ## Acceptance Criteria
 
-- [ ] A contributor can derive the branch name, commit message and PR target from the docs for a feature, a bugfix and a hotfix.
-- [ ] Docs and `AGENTS.md` agree on commit types and branch rules (manual cross-check recorded in the PR).
+- [x] A contributor can derive the branch name, commit message and PR target from the docs for a feature, a bugfix and a hotfix.
+- [x] Docs and `AGENTS.md` agree on commit types and branch rules (manual cross-check recorded in the PR).
 
 ## Verification
 

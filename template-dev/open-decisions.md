@@ -11,7 +11,7 @@ record a decision themselves. Once decided, record it as an ADR under `docs/arch
 
 | ID | Question | Blocks | Proposed default | Status |
 |---|---|---|---|---|
-| DEC-01 | Implementation language and distribution of the bootstrap tool (Python package, PowerShell module, both) | FEAT-024 | Python 3.12+ CLI distributed via `pipx`/`uv tool`; PowerShell only for phase A (`FEAT-023`) | open |
+| DEC-01 | Implementation language and distribution of the bootstrap tool (Python package, PowerShell module, both) | FEAT-024 | Python 3.12+ CLI distributed via `pipx`/`uv tool`; PowerShell only for phase A (`FEAT-023`) | decided 2026-11-10: default accepted, [ADR-0002](../docs/architecture/adr/0002-python-bootstrap-cli.md) |
 | DEC-02 | Merge policy: squash vs. merge commits (drives Conventional-Commit changelog) | FEAT-040 | Squash merge into `develop`, PR title is the commit message; merge commit for release PRs `develop` → `main` | open |
 | DEC-03 | Is GitHub Projects a mandatory planning standard? | FEAT-010 | Optional, provisioned when `bootstrap.yml` enables it | open |
 | DEC-04 | Are native GitHub Issue Types synchronized in addition to `type:*` labels? | non-blocking (FEAT-018, FEAT-028) | Labels are authoritative; native types optional later | open |
@@ -28,6 +28,6 @@ These are not architecture decisions but need a human before the affected task c
 
 | Choice | Affected | Note |
 |---|---|---|
-| License of the template repository itself | FEAT-002/T4 | §1.3, §19: a license is selected explicitly; agents must not pick one |
-| Owner/team handle for CODEOWNERS in the template | FEAT-011 | Placeholder `@OWNER_OR_TEAM` stays in the template; replaced by `FEAT-028` |
+| License of the template repository itself | FEAT-002/T4 | Decided 2026-11-10: MIT License |
+| Owner/team handle for CODEOWNERS in the template | FEAT-011 | Decided 2026-11-10: `@BenBotsch`; derived projects inherit it, `FEAT-028` changes it |
 | Creating the GitHub repository and marking it as template | FEAT-048, FEAT-026 | Outward-facing action; requires explicit approval |

@@ -1,0 +1,5 @@
+# Python dependencies of the CI scripts in scripts/ci/ and their tests in tests/ci/.
+# Install: python -I -m pip install -r scripts/ci/requirements.txt
+jsonschema==4.26.0
+pytest==9.2.0
+pyyaml==6.0.3

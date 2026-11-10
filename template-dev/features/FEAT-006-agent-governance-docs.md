@@ -3,7 +3,7 @@ id: "FEAT-006"
 title: "Write Agent Workflow, Permissions and Documentation Policy"
 epic: "EPIC-02"
 phase: 1
-status: "planned"
+status: "implemented"
 priority: "high"
 effort: "m"
 target_repo: "universal-project-template"
@@ -38,6 +38,8 @@ single source of truth.
 ### Out of Scope
 
 - Automating `agent:*` labels (`FEAT-049`) and agentic workflows (`FEAT-050`).
+- The "Agent Adapter Files" section with "Verifying Adapter Pickup" in `agent-workflow.md`,
+  already written by `FEAT-005`; keep it and add the remaining content around it.
 
 ## Deliverables
 
@@ -57,15 +59,15 @@ single source of truth.
 
 ## Tasks
 
-- [ ] **T1:** Write `agent-workflow.md`.
-- [ ] **T2:** Write `agent-permissions.md`.
-- [ ] **T3:** Write `documentation-policy.md` and update `docs/INDEX.md`.
+- [x] **T1:** Write `agent-workflow.md`.
+- [x] **T2:** Write `agent-permissions.md`.
+- [x] **T3:** Write `documentation-policy.md` and update `docs/INDEX.md`.
 
 ## Acceptance Criteria
 
-- [ ] Agent write, merge, release and destructive operations are permission-controlled, and the controls are documented (§17.3).
-- [ ] Relevant documentation is updated for behavior changes: the policy defines when (§17.3).
-- [ ] `AGENTS.md` links resolve to these files.
+- [x] Agent write, merge, release and destructive operations are permission-controlled, and the controls are documented (§17.3).
+- [x] Relevant documentation is updated for behavior changes: the policy defines when (§17.3).
+- [x] `AGENTS.md` links resolve to these files.
 
 ## Verification
 

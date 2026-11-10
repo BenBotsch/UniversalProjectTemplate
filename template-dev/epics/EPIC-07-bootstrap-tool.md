@@ -30,7 +30,7 @@ Repeatable, idempotent GitHub setup: a phase A script with `gh`, then the `proje
 
 | ID | Title | Phase | Priority | Depends on | Status |
 |---|---|---|---|---|---|
-| [FEAT-023](../features/FEAT-023-bootstrap-phase-a-script.md) | Provide Phase A Bootstrap Script with GitHub CLI | 2 | high | 008, 013 | planned |
+| [FEAT-023](../features/FEAT-023-bootstrap-phase-a-script.md) | Provide Phase A Bootstrap Script with GitHub CLI | 2 | high | 008, 013 | implemented |
 | [FEAT-024](../features/FEAT-024-bootstrap-cli-core.md) | Build Bootstrap CLI Core with Plan, Apply and Reports | 2 | critical | 013, 014 | planned |
 | [FEAT-025](../features/FEAT-025-sync-labels.md) | Implement Idempotent Label Synchronization | 2 | high | 008, 024 | planned |
 | [FEAT-026](../features/FEAT-026-branches-and-repo-settings.md) | Configure Branches and Repository Settings | 2 | high | 024 | planned |
@@ -41,11 +41,11 @@ Repeatable, idempotent GitHub setup: a phase A script with `gh`, then the `proje
 
 ## Risks and Dependencies
 
-- `DEC-01` blocks the CLI core
+- `DEC-01` is decided: Python CLI (ADR-0002)
 - Plan-dependent features (rulesets on private Free repos) must degrade with a clear report, not fail silently
 - Writes to real repositories need approval
 - External feature dependencies: `FEAT-002`, `FEAT-007`, `FEAT-008`, `FEAT-013`, `FEAT-014`, `FEAT-015`, `FEAT-020`
-- Blocking decisions: `DEC-01` (see [open-decisions.md](../open-decisions.md))
+- Blocking decisions: none (see [open-decisions.md](../open-decisions.md))
 
 ## Success Criteria
 

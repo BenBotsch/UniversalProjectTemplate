@@ -1,0 +1,14 @@
+# markdownlint rules for the whole repository. Subdirectories extend this file.
+default: true
+# A front-matter title does not count as the first heading.
+MD025:
+  front_matter_title: ""
+MD041:
+  front_matter_title: ""
+# Prose is wrapped at about 100 characters; tables, code and links may be longer.
+MD013: false
+# Tables use the compact "|---|" delimiter row throughout the repository.
+MD060: false
+# The same heading text may repeat in different sections, for example "Out of Scope".
+MD024:
+  siblings_only: true

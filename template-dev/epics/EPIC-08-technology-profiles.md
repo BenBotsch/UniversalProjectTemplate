@@ -36,6 +36,7 @@ Add optional per-stack profiles on top of the universal base, and later extract 
 | [FEAT-036](../features/FEAT-036-profile-docker.md) | Add Docker and Container Profile | 3 | medium | 031 | planned |
 | [FEAT-037](../features/FEAT-037-profile-hybrid-monorepo.md) | Support Hybrid and Monorepo Profile Composition | 3 | low | 032, 033 | planned |
 | [FEAT-038](../features/FEAT-038-reusable-workflows.md) | Extract Versioned Reusable Workflows | 3 | medium | 031, 032 | planned |
+| [FEAT-055](../features/FEAT-055-shared-figure-style.md) | Offer the Shared Figure Style in the Python Profile | 3 | low | 032 | planned |
 
 ## Risks and Dependencies
 

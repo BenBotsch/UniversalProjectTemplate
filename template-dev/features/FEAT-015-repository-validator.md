@@ -3,7 +3,7 @@ id: "FEAT-015"
 title: "Implement Repository Validator with Placeholder and Template-Only Checks"
 epic: "EPIC-06"
 phase: 2
-status: "planned"
+status: "implemented"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -58,19 +58,19 @@ absence of template-only paths in derived repositories.
 
 ## Tasks
 
-- [ ] **T1:** Required-file and template-only checks with tests.
-- [ ] **T2:** Placeholder and dead-link checks with tests.
-- [ ] **T3:** JSON output mode for later use by `FEAT-029` and the dashboard.
-- [ ] **T4:** Docs-index check with tests.
+- [x] **T1:** Required-file and template-only checks with tests.
+- [x] **T2:** Placeholder and dead-link checks with tests.
+- [x] **T3:** JSON output mode for later use by `FEAT-029` and the dashboard.
+- [x] **T4:** Docs-index check with tests.
 
 ## Acceptance Criteria
 
-- [ ] Template repository (`is_template: true`) passes.
-- [ ] Fixture "derived repo still contains `template-dev/`" fails with `REPO-TEMPLATE-ONLY`.
-- [ ] Fixture "derived repo with `PROJECT_NAME` in README" fails with `REPO-PLACEHOLDER`.
-- [ ] Fixture "README links to `template-dev/backlog.md`" fails with `REPO-DEAD-LINK-TEMPLATE`.
-- [ ] Fixture "new `docs/governance/x.md` not in `docs/INDEX.md`" fails with `REPO-DOCS-INDEX`.
-- [ ] Template placeholders are replaced before production use: enforced by this check (§17.1).
+- [x] Template repository (`is_template: true`) passes.
+- [x] Fixture "derived repo still contains `template-dev/`" fails with `REPO-TEMPLATE-ONLY`.
+- [x] Fixture "derived repo with `PROJECT_NAME` in README" fails with `REPO-PLACEHOLDER`.
+- [x] Fixture "README links to `template-dev/backlog.md`" fails with `REPO-DEAD-LINK-TEMPLATE`.
+- [x] Fixture "new `docs/governance/x.md` not in `docs/INDEX.md`" fails with `REPO-DOCS-INDEX`.
+- [x] Template placeholders are replaced before production use: enforced by this check (§17.1).
 
 ## Verification
 
@@ -84,3 +84,12 @@ python -I -m pytest tests/ci/test_validate_repository.py
 - **Allowed paths:** `scripts/ci/validate_repository.py`, `tests/ci/**`, the `workflow.yml` section and its schema in `.project/schemas/`, this feature file, backlog status.
 - **Requires approval:** none.
 - **Pitfalls:** `OWNER/` also occurs in legitimate docs examples; use the allowlist rather than weakening the token list.
+
+## Implementation Notes
+
+- `repository_validation.placeholder_allowlist` (glob patterns) holds the allowlist from R2; it
+  covers files that document or test the tokens themselves.
+- The `repository_validation` section was added to the existing `workflow-1.0` schema as an
+  optional property, so existing configuration files stay valid.
+- CI enforcement of the check follows with `FEAT-016`.
+- `CONTRIBUTING.md` and `.project/README.md` were updated per the documentation policy.

@@ -1,0 +1,89 @@
+# Universal quality checks for workflows, YAML, Markdown and links.
+name: "Quality"
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "quality-${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  workflow-lint:
+    name: "workflow-lint"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up Python"
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: "Install lint tools"
+        run: python -I -m pip install --disable-pip-version-check -r scripts/ci/requirements-lint.txt
+      - name: "Run actionlint"
+        run: actionlint
+      - name: "Run zizmor"
+        # The read-only job token enables zizmor's online audits, such as known-vulnerable actions.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: zizmor --format=github .github/workflows/
+
+  yaml-lint:
+    name: "yaml-lint"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up Python"
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: "Install lint tools"
+        run: python -I -m pip install --disable-pip-version-check -r scripts/ci/requirements-lint.txt
+      - name: "Run yamllint"
+        run: yamllint --strict .
+
+  markdown-lint:
+    name: "markdown-lint"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Run markdownlint-cli2"
+        uses: DavidAnson/markdownlint-cli2-action@696eb3f2509270d7b882d2aa68347bc676e7af34 # v25.0.0
+        with:
+          globs: "**/*.md"
+
+  link-check:
+    name: "link-check"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Check local links"
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          lycheeVersion: "v0.24.2"
+          # Offline: only links to files in the repository and their anchors are checked, so
+          # external sites cannot make the job flaky.
+          args: "--offline --include-fragments --no-progress './**/*.md'"
+          fail: true

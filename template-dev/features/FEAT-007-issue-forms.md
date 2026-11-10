@@ -3,7 +3,7 @@ id: "FEAT-007"
 title: "Add Issue Forms and Issue Template Configuration"
 epic: "EPIC-03"
 phase: 1
-status: "planned"
+status: "active"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -64,16 +64,16 @@ Initial labels follow `DEC-05` default: `type:*` + `status:triage`, no priority.
 
 ## Tasks
 
-- [ ] **T1:** Add Bug, Task and Feature forms.
-- [ ] **T2:** Add Epic, Improvement and Documentation forms.
-- [ ] **T3:** Add `config.yml`.
-- [ ] **T4:** Add a test (script or CI step from `FEAT-016`) that checks every form label exists in `labels.yml` and every form parses as YAML.
+- [x] **T1:** Add Bug, Task and Feature forms.
+- [x] **T2:** Add Epic, Improvement and Documentation forms.
+- [x] **T3:** Add `config.yml`.
+- [x] **T4:** Add a test (script or CI step from `FEAT-016`) that checks every form label exists in `labels.yml` and every form parses as YAML.
 
 ## Acceptance Criteria
 
-- [ ] Bug, Task, Feature and Epic issue forms are available (§17.2).
-- [ ] Improvement and Documentation forms are available (§17.2).
-- [ ] A test fails when a form references a label missing from `labels.yml`.
+- [x] Bug, Task, Feature and Epic issue forms are available (§17.2).
+- [x] Improvement and Documentation forms are available (§17.2).
+- [x] A test fails when a form references a label missing from `labels.yml`.
 - [ ] In a test repository with synchronized labels, each form creates an issue with the expected labels (manual check after `FEAT-023`).
 
 ## Verification

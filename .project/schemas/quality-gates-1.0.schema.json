@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-project-template:schema:quality-gates:1.0",
+  "title": "quality-gates.yml",
+  "description": "Quality gates and the CI jobs that implement them.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "quality_gates"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "x_extensions": { "type": "object", "description": "Project-specific fields; ignored by template tooling." },
+    "quality_gates": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": { "$ref": "#/$defs/gate" }
+    }
+  },
+  "$defs": {
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflow", "job", "status"],
+      "properties": {
+        "required": { "const": true },
+        "required_when_applicable": { "const": true },
+        "required_for_code_changes": { "const": true },
+        "review_required_for_relevant_changes": { "const": true },
+        "workflow": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+\\.ya?ml$" },
+        "job": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$" },
+        "status": { "enum": ["implemented", "not_implemented"] }
+      },
+      "oneOf": [
+        { "required": ["required"] },
+        { "required": ["required_when_applicable"] },
+        { "required": ["required_for_code_changes"] },
+        { "required": ["review_required_for_relevant_changes"] }
+      ]
+    }
+  }
+}

@@ -1,0 +1,48 @@
+name: "Epic"
+description: "Plan a multi-issue initiative."
+title: "[Epic]: "
+labels: ["type:epic", "status:triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        An epic groups several issues. Create the child issues separately and attach them as
+        native GitHub sub-issues; do not maintain the hierarchy as a list in this description.
+  - type: textarea
+    id: goal
+    attributes:
+      label: "Goal and Business Value"
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: "Scope and Deliverables"
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: "Non-Goals"
+    validations:
+      required: true
+  - type: textarea
+    id: milestones
+    attributes:
+      label: "Milestones and Sub-Issues"
+      description: "Use native GitHub sub-issues for the actual hierarchy."
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: "Risks and Dependencies"
+      description: "Write 'None' if there are none."
+    validations:
+      required: true
+  - type: textarea
+    id: success
+    attributes:
+      label: "Success Criteria"
+    validations:
+      required: true

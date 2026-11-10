@@ -1,0 +1,18 @@
+# Code owners are requested automatically as reviewers for matching paths.
+# The last matching pattern wins.
+#
+# The template names its maintainer. A project created from the template
+# inherits this owner; change it to a user or team with write access to the
+# project. An owner without write access shows as an error on GitHub.
+#
+# CODEOWNERS alone does not enforce reviews. Mandatory code owner review needs
+# a branch ruleset. For a solo account, do not require code owner approval:
+# authors cannot approve their own pull requests, so every merge would block.
+
+*                   @BenBotsch
+
+# Changes here need elevated review attention.
+/.github/           @BenBotsch
+/.project/          @BenBotsch
+/SECURITY.md        @BenBotsch
+/docs/architecture/ @BenBotsch

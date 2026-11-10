@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-project-template:schema:bootstrap:1.0",
+  "title": "bootstrap.yml",
+  "description": "What bootstrap provisions, its safety defaults, template-only paths and profiles.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "bootstrap"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "x_extensions": { "type": "object", "description": "Project-specific fields; ignored by template tooling." },
+    "bootstrap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "create_develop_branch",
+        "synchronize_labels",
+        "configure_issue_templates",
+        "configure_pull_request_templates",
+        "configure_rulesets",
+        "enable_issues",
+        "enable_discussions",
+        "initialize_technology_profile",
+        "configure_dependabot",
+        "configure_security",
+        "validate_after_setup",
+        "dry_run_default",
+        "overwrite_user_changes",
+        "template_only_paths",
+        "optional_profiles"
+      ],
+      "properties": {
+        "create_develop_branch": { "type": "boolean" },
+        "synchronize_labels": { "type": "boolean" },
+        "configure_issue_templates": { "type": "boolean" },
+        "configure_pull_request_templates": { "type": "boolean" },
+        "configure_rulesets": { "type": "boolean" },
+        "enable_issues": { "type": "boolean" },
+        "enable_discussions": { "type": "boolean" },
+        "initialize_technology_profile": { "type": "boolean" },
+        "configure_dependabot": { "type": "boolean" },
+        "configure_security": { "type": "boolean" },
+        "validate_after_setup": { "type": "boolean" },
+        "dry_run_default": { "type": "boolean" },
+        "overwrite_user_changes": { "type": "boolean" },
+        "template_only_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "description": "Path relative to the repository root, without leading slash or '..' segments.",
+            "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[^\\\\:*?\"<>|]+$"
+          }
+        },
+        "optional_profiles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["python", "cpp", "node", "flutter", "docker", "hybrid"] }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Lint tools used by .github/workflows/quality.yml.
+# Install: python -I -m pip install -r scripts/ci/requirements-lint.txt
+actionlint-py==1.7.12.25
+yamllint==1.38.0
+zizmor==1.31.1

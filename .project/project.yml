@@ -1,0 +1,40 @@
+# Project identity and policy flags. Project convention, not a native GitHub file:
+# it takes effect only through bootstrap, validators and the dashboard.
+# Field reference and allowed values: .project/README.md
+schema_version: "1.0"
+
+project:
+  name: "PROJECT_NAME"
+  description: "PROJECT_DESCRIPTION"
+  status: "planning"
+  visibility: "private"
+  # true only in the template repository; bootstrap sets false in derived projects.
+  is_template: true
+
+# Provenance for later upgrades; bootstrap records the template version a project started from.
+template:
+  source: "OWNER/UniversalProjectTemplate"
+  version: "0.1.0"
+
+repository:
+  default_branch: "main"
+  development_branch: "develop"
+  versioning: "semver"
+  commit_convention: "conventional-commits"
+
+technology:
+  languages: []
+  frameworks: []
+  platforms: []
+  package_managers: []
+
+quality:
+  require_tests: true
+  require_lint: true
+  require_security_checks: true
+
+agents:
+  enabled: true
+  instructions: "AGENTS.md"
+  issue_driven: true
+  human_release_approval: true

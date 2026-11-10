@@ -1,0 +1,107 @@
+# Branch, pull request, release and issue rules. Read by the pull request and issue
+# validators and by bootstrap. Branch names must match .project/project.yml.
+schema_version: "1.1"
+
+branching:
+  model: "gitflow-simplified"
+  # <purpose>/<issue-number>-<short-kebab-case-summary>; release branches use release/X.Y.Z.
+  branch_name_pattern: "^((feature|fix|hotfix|chore)/[0-9]+-[a-z0-9]+(-[a-z0-9]+)*|release/[0-9]+\\.[0-9]+\\.[0-9]+)$"
+  branch_types:
+    feature:
+      source: "develop"
+      targets: ["develop"]
+    fix:
+      source: "develop"
+      targets: ["develop"]
+    chore:
+      source: "develop"
+      targets: ["develop"]
+    hotfix:
+      source: "main"
+      targets: ["main"]
+      back_merge_to: "develop"
+    release:
+      source: "develop"
+      targets: ["main"]
+      back_merge_to: "develop"
+
+pull_requests:
+  title_convention: "conventional-commits"
+  allowed_types: ["feat", "fix", "refactor", "perf", "docs", "test", "build", "ci", "chore"]
+  issue_link:
+    required: true
+    # A pull request without an issue link must state the reason in its description.
+    exception_requires_reason: true
+  # Changes below these paths need elevated review attention.
+  elevated_review_paths: [".github/workflows/", ".project/", "SECURITY.md"]
+  # Provisional default; record the project's merge policy as an ADR before changing it.
+  merge_strategy:
+    into_development_branch: "squash"
+    release_into_default_branch: "merge"
+  # Headings of .github/PULL_REQUEST_TEMPLATE.md that must be filled in.
+  required_sections: ["Summary", "Related Issues", "Validation", "Tests Executed"]
+  # Pull requests of these bots skip the branch name, issue link and section checks; their title,
+  # target branch and commits are still checked.
+  automation_authors: ["dependabot[bot]"]
+
+releases:
+  source_branch: "main"
+  tag_pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+  require_human_approval: true
+
+# Read by scripts/ci/validate_repository.py.
+repository_validation:
+  required_files:
+    - "README.md"
+    - "AGENTS.md"
+    - "CONTRIBUTING.md"
+    - "SECURITY.md"
+    - "CHANGELOG.md"
+    - ".project/project.yml"
+    - ".github/PULL_REQUEST_TEMPLATE.md"
+    - ".github/ISSUE_TEMPLATE/config.yml"
+  # Checked only when project.is_template is false. A token must not continue a longer name.
+  placeholder_tokens:
+    - "PROJECT_NAME"
+    - "PROJECT_DESCRIPTION"
+    - "OWNER/REPOSITORY"
+    - "@OWNER_OR_TEAM"
+    - "OWNER/"
+  # Glob patterns of files that name the tokens on purpose, for example to document them.
+  placeholder_allowlist:
+    - ".project/README.md"
+    - ".project/workflow.yml"
+    - "scripts/ci/validate_repository.py"
+    - "tests/ci/*"
+  docs_index_severity: "error"
+
+issue_policy:
+  # Provisional default: new issues start in triage; priority is required from status:ready on.
+  initial_status: "triage"
+  required_single_label_groups:
+    - type
+    - status
+  required_for_ready:
+    - priority
+    - area
+  optional_single_label_groups:
+    - effort
+  supported_types:
+    - bug
+    - task
+    - feature
+    - epic
+    - improvement
+    - documentation
+  supported_states:
+    - triage
+    - needs-info
+    - ready
+    - in-progress
+    - blocked
+    - review
+  agent_ready_requires:
+    - acceptance_criteria
+    - scope
+    - no_unresolved_blockers
+    - approved_permissions

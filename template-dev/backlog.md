@@ -18,27 +18,27 @@ issue is authoritative.
 | Rank | ID | Title | Epic | Phase | Tier | Priority | Effort | Depends on | Decisions | Agent-ready | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | [FEAT-001](features/FEAT-001-repository-skeleton.md) | Create Repository Skeleton and Hygiene Files | EPIC-01 | 1 | first | critical | s | - | - | yes | implemented |
-| 2 | [FEAT-008](features/FEAT-008-label-taxonomy.md) | Define Complete Label Taxonomy in labels.yml | EPIC-03 | 1 | first | critical | s | 001 | - | yes | planned |
-| 3 | [FEAT-013](features/FEAT-013-project-configuration-files.md) | Create Machine-Readable Project Configuration Files | EPIC-05 | 1 | first | critical | m | 001 | - | yes | planned |
-| 4 | [FEAT-004](features/FEAT-004-agents-md.md) | Write Root AGENTS.md | EPIC-02 | 1 | first | critical | s | 001 | - | yes | planned |
-| 5 | [FEAT-011](features/FEAT-011-pr-template-and-codeowners.md) | Add Pull Request Template and CODEOWNERS Convention | EPIC-04 | 1 | first | critical | xs | 001 | - | yes | planned |
-| 6 | [FEAT-002](features/FEAT-002-root-community-files.md) | Write Root Community and Policy Files | EPIC-01 | 1 | first | critical | m | 001 | - | yes | planned |
-| 7 | [FEAT-003](features/FEAT-003-docs-scaffold-and-adr.md) | Create Documentation Scaffold, Index and ADR Process | EPIC-01 | 1 | first | high | m | 001 | - | yes | planned |
-| 8 | [FEAT-007](features/FEAT-007-issue-forms.md) | Add Issue Forms and Issue Template Configuration | EPIC-03 | 1 | first | critical | m | 008 | - | yes | planned |
-| 9 | [FEAT-014](features/FEAT-014-config-schemas-and-validator.md) | Add JSON Schemas and Project Configuration Validator | EPIC-05 | 1 | first | critical | m | 008, 013 | - | yes | planned |
-| 10 | [FEAT-005](features/FEAT-005-agent-adapter-files.md) | Add Thin Agent Adapter Files | EPIC-02 | 1 | first | high | xs | 004 | - | yes | planned |
-| 11 | [FEAT-009](features/FEAT-009-issue-management-governance.md) | Document Issue Management Rules and Lifecycle | EPIC-03 | 1 | first | high | s | 003, 008 | - | yes | planned |
-| 12 | [FEAT-012](features/FEAT-012-branching-commit-release-docs.md) | Document Branching, Commit and Release Conventions | EPIC-04 | 1 | first | high | m | 003 | - | yes | planned |
-| 13 | [FEAT-006](features/FEAT-006-agent-governance-docs.md) | Write Agent Workflow, Permissions and Documentation Policy | EPIC-02 | 1 | first | high | m | 003, 004 | - | yes | planned |
-| 14 | [FEAT-015](features/FEAT-015-repository-validator.md) | Implement Repository Validator with Placeholder and Template-Only Checks | EPIC-06 | 2 | first | critical | m | 014 | - | yes | planned |
-| 15 | [FEAT-016](features/FEAT-016-base-ci-workflows.md) | Add Universal Base CI and Quality Workflows | EPIC-06 | 2 | first | critical | m | 014, 015 | - | yes | planned |
-| 16 | [FEAT-017](features/FEAT-017-security-baseline-workflow.md) | Add Security Baseline Workflow and Secret Scanning | EPIC-06 | 2 | first | critical | m | 016 | - | yes | planned |
-| 17 | [FEAT-023](features/FEAT-023-bootstrap-phase-a-script.md) | Provide Phase A Bootstrap Script with GitHub CLI | EPIC-07 | 2 | first | high | m | 008, 013 | - | yes | planned |
+| 2 | [FEAT-008](features/FEAT-008-label-taxonomy.md) | Define Complete Label Taxonomy in labels.yml | EPIC-03 | 1 | first | critical | s | 001 | - | yes | implemented |
+| 3 | [FEAT-013](features/FEAT-013-project-configuration-files.md) | Create Machine-Readable Project Configuration Files | EPIC-05 | 1 | first | critical | m | 001 | - | yes | implemented |
+| 4 | [FEAT-004](features/FEAT-004-agents-md.md) | Write Root AGENTS.md | EPIC-02 | 1 | first | critical | s | 001 | - | yes | implemented |
+| 5 | [FEAT-011](features/FEAT-011-pr-template-and-codeowners.md) | Add Pull Request Template and CODEOWNERS Convention | EPIC-04 | 1 | first | critical | xs | 001 | - | yes | active |
+| 6 | [FEAT-002](features/FEAT-002-root-community-files.md) | Write Root Community and Policy Files | EPIC-01 | 1 | first | critical | m | 001 | - | yes | active |
+| 7 | [FEAT-003](features/FEAT-003-docs-scaffold-and-adr.md) | Create Documentation Scaffold, Index and ADR Process | EPIC-01 | 1 | first | high | m | 001 | - | yes | implemented |
+| 8 | [FEAT-007](features/FEAT-007-issue-forms.md) | Add Issue Forms and Issue Template Configuration | EPIC-03 | 1 | first | critical | m | 008 | - | yes | active |
+| 9 | [FEAT-014](features/FEAT-014-config-schemas-and-validator.md) | Add JSON Schemas and Project Configuration Validator | EPIC-05 | 1 | first | critical | m | 008, 013 | - | yes | implemented |
+| 10 | [FEAT-005](features/FEAT-005-agent-adapter-files.md) | Add Thin Agent Adapter Files | EPIC-02 | 1 | first | high | xs | 004 | - | yes | active |
+| 11 | [FEAT-009](features/FEAT-009-issue-management-governance.md) | Document Issue Management Rules and Lifecycle | EPIC-03 | 1 | first | high | s | 003, 008 | - | yes | implemented |
+| 12 | [FEAT-012](features/FEAT-012-branching-commit-release-docs.md) | Document Branching, Commit and Release Conventions | EPIC-04 | 1 | first | high | m | 003 | - | yes | implemented |
+| 13 | [FEAT-006](features/FEAT-006-agent-governance-docs.md) | Write Agent Workflow, Permissions and Documentation Policy | EPIC-02 | 1 | first | high | m | 003, 004 | - | yes | implemented |
+| 14 | [FEAT-015](features/FEAT-015-repository-validator.md) | Implement Repository Validator with Placeholder and Template-Only Checks | EPIC-06 | 2 | first | critical | m | 014 | - | yes | implemented |
+| 15 | [FEAT-016](features/FEAT-016-base-ci-workflows.md) | Add Universal Base CI and Quality Workflows | EPIC-06 | 2 | first | critical | m | 014, 015 | - | yes | implemented |
+| 16 | [FEAT-017](features/FEAT-017-security-baseline-workflow.md) | Add Security Baseline Workflow and Secret Scanning | EPIC-06 | 2 | first | critical | m | 016 | - | yes | implemented |
+| 17 | [FEAT-023](features/FEAT-023-bootstrap-phase-a-script.md) | Provide Phase A Bootstrap Script with GitHub CLI | EPIC-07 | 2 | first | high | m | 008, 013 | - | yes | implemented |
 | 18 | [FEAT-018](features/FEAT-018-issue-validation.md) | Implement Issue Validator and Issue Validation Workflow | EPIC-06 | 2 | then | high | l | 007, 008, 009, 014 | - | yes | planned |
-| 19 | [FEAT-019](features/FEAT-019-pr-validation-and-commitlint.md) | Implement Pull Request Validation and Commit Convention Checks | EPIC-06 | 2 | then | high | m | 011, 012, 014 | - | yes | planned |
+| 19 | [FEAT-019](features/FEAT-019-pr-validation-and-commitlint.md) | Implement Pull Request Validation and Commit Convention Checks | EPIC-06 | 2 | then | high | m | 011, 012, 014 | - | yes | implemented |
 | 20 | [FEAT-020](features/FEAT-020-quality-gate-evaluator.md) | Enforce Quality Gates Without False Green Pipelines | EPIC-06 | 2 | then | high | m | 013, 016 | - | yes | planned |
-| 21 | [FEAT-021](features/FEAT-021-dependabot.md) | Configure Dependabot Baseline | EPIC-06 | 2 | then | high | xs | 008 | - | yes | planned |
-| 22 | [FEAT-024](features/FEAT-024-bootstrap-cli-core.md) | Build Bootstrap CLI Core with Plan, Apply and Reports | EPIC-07 | 2 | then | critical | l | 013, 014 | DEC-01 | no | planned |
+| 21 | [FEAT-021](features/FEAT-021-dependabot.md) | Configure Dependabot Baseline | EPIC-06 | 2 | then | high | xs | 008 | - | yes | active |
+| 22 | [FEAT-024](features/FEAT-024-bootstrap-cli-core.md) | Build Bootstrap CLI Core with Plan, Apply and Reports | EPIC-07 | 2 | then | critical | l | 013, 014 | - | yes | planned |
 | 23 | [FEAT-025](features/FEAT-025-sync-labels.md) | Implement Idempotent Label Synchronization | EPIC-07 | 2 | then | high | s | 008, 024 | - | yes | planned |
 | 24 | [FEAT-026](features/FEAT-026-branches-and-repo-settings.md) | Configure Branches and Repository Settings | EPIC-07 | 2 | then | high | m | 024 | - | yes | planned |
 | 25 | [FEAT-027](features/FEAT-027-rulesets-and-plan-detection.md) | Apply Rulesets with Plan Detection and Solo Mode | EPIC-07 | 2 | then | high | l | 020, 026 | - | yes | planned |
@@ -71,6 +71,7 @@ issue is authoritative.
 | 52 | [FEAT-050](features/FEAT-050-agentic-workflows.md) | Add Low-Risk Agentic Workflows | EPIC-11 | 5 | later | low | l | 018, 049 | DEC-10 | no | planned |
 | 53 | [FEAT-053](features/FEAT-053-dashboard-mvp.md) | Build Read-Only Dashboard MVP | EPIC-11 | 5 | later | low | l | 052 | DEC-09 | no | planned |
 | 54 | [FEAT-054](features/FEAT-054-controlled-script-execution.md) | Allow Controlled Execution of Declared Scripts | EPIC-11 | 5 | later | low | xl | 053 | DEC-10 | no | planned |
+| 55 | [FEAT-055](features/FEAT-055-shared-figure-style.md) | Offer the Shared Figure Style in the Python Profile | EPIC-08 | 3 | later | low | s | 032 | - | no | planned |
 
 ## Summary
 
@@ -78,8 +79,8 @@ issue is authoritative.
 |---|---|
 | first | 17 |
 | then | 24 |
-| later | 13 |
-| **total** | **54** |
+| later | 14 |
+| **total** | **55** |
 
 Features with `agent_ready: no` wait for a decision in [open-decisions.md](open-decisions.md) or
 contain an outward-facing step that needs human approval (`FEAT-048`).

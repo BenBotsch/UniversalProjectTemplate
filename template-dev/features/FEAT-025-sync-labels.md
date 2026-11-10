@@ -20,7 +20,7 @@ updated_at: "2026-11-10"
 
 ## Objective
 
-`project-bootstrap sync-labels` makes the repository labels match `.github/labels.yml`:
+`project-bootstrap sync-labels` makes the repository labels match `.project/labels.yml`:
 create missing, update color/description, report (and optionally delete) unknown labels.
 
 ## Background

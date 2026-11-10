@@ -3,7 +3,7 @@ id: "FEAT-004"
 title: "Write Root AGENTS.md"
 epic: "EPIC-02"
 phase: 1
-status: "planned"
+status: "implemented"
 priority: "critical"
 effort: "s"
 target_repo: "universal-project-template"
@@ -57,15 +57,15 @@ point to it (`FEAT-005`). §7.4 requires token efficiency.
 
 ## Tasks
 
-- [ ] **T1:** Write `AGENTS.md`.
-- [ ] **T2:** Add the `AGENTS.md` line to `docs/INDEX.md` if `FEAT-003` is merged; otherwise note it in the PR for `FEAT-003`.
+- [x] **T1:** Write `AGENTS.md`.
+- [x] **T2:** Add the `AGENTS.md` line to `docs/INDEX.md` if `FEAT-003` is merged; otherwise note it in the PR for `FEAT-003`.
 
 ## Acceptance Criteria
 
-- [ ] `AGENTS.md` contains repository-wide development rules (§17.3).
-- [ ] Agents can identify the relevant issue and acceptance criteria from the "Before Starting Work" section (§17.3).
-- [ ] Agents report actual tests, changes, remaining risks and references (Reporting section, §17.3).
-- [ ] Linked governance files exist or are tracked by `FEAT-006` (link check passes once both are merged).
+- [x] `AGENTS.md` contains repository-wide development rules (§17.3).
+- [x] Agents can identify the relevant issue and acceptance criteria from the "Before Starting Work" section (§17.3).
+- [x] Agents report actual tests, changes, remaining risks and references (Reporting section, §17.3).
+- [x] Linked governance files exist or are tracked by `FEAT-006` (link check passes once both are merged).
 
 ## Verification
 

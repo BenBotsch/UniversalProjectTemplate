@@ -1,0 +1,52 @@
+name: "Task"
+description: "Create an actionable engineering task."
+title: "[Task]: "
+labels: ["type:task", "status:triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for planned security hardening as well, and add the `area:security` label.
+        Report security vulnerabilities privately as described in SECURITY.md, not in this form.
+  - type: textarea
+    id: objective
+    attributes:
+      label: "Objective"
+      description: "What outcome should this task achieve?"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: "Context and Motivation"
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: "Scope"
+      description: "Include relevant files, systems and explicit non-goals."
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: "Implementation Notes"
+      description: "Constraints and suggestions, not necessarily a prescription. Write 'None' if there are none."
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencies and Blockers"
+      placeholder: "Blocked by #123; related to #124"
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance Criteria"
+      value: |
+        - [ ] The requested behavior is implemented.
+        - [ ] Relevant tests and documentation are updated.
+        - [ ] Applicable CI checks pass.
+    validations:
+      required: true
