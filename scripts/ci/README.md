@@ -38,6 +38,7 @@ other projects.
 | `pr-validation.yml` | `pr-validation` | See [Pull Request Checks](#pull-request-checks) |
 | `pr-validation.yml` | `commitlint` | `python -I scripts/ci/pr_validation/validator.py commits --range develop..HEAD` |
 | `ci.yml` | `quality-gate` | See [Quality Gate Evaluation](#quality-gate-evaluation) |
+| `issue-validation.yml` | `issue-validation` | See [Issue Validation](#issue-validation); not a pull request check |
 
 Additional checks for single files:
 
@@ -80,6 +81,45 @@ python -I scripts/ci/pr_validation/validator.py commits --range develop..HEAD
 
 The exit code is `0` if every rule passed, `1` if a rule failed and `2` for invalid input.
 
+## Issue Validation
+
+`.github/workflows/issue-validation.yml` runs [issue_validation/run.py](issue_validation/run.py)
+for every `issues` event (`opened`, `edited`, `labeled`, `unlabeled`, `reopened`). It is not part
+of `ci.yml` and has no quality gate. The rules are in
+[issue_validation/validator.py](issue_validation/validator.py) and are described with their IDs in
+[Issue Management](../../docs/governance/issue-management.md#automated-validation). They are
+read from `issue_policy` in `.project/workflow.yml`, from the groups in `.project/labels.yml` and
+from the required fields of the issue forms.
+
+The runner reads the current issue, its comments and, for `agent:ready` or `status:blocked`, its
+"blocked by" dependencies through the REST API. It then:
+
+- Writes one comment, marked `<!-- issue-validation -->`, with every finding. It updates that
+  comment on later events and marks it as resolved when every rule passes. Only a comment written
+  by the workflow's own account counts.
+- Replaces `status:triage`, or a missing status, with `status:needs-info` when a rule fails, and
+  restores `status:triage` when every rule passes. The comment records that the validator set the
+  label; it never removes a `status:needs-info` label that a person set.
+- Gives an open issue without any status label but with no other finding `status:triage`.
+- Skips pull requests, closed issues and events sent by its own account. Label changes made with
+  the job token do not start new runs, so the validator cannot loop.
+
+The job needs `issues: write`. It fails only when the GitHub API or the input fails, so a failed
+read is never reported as a valid issue; rule findings are reported in the comment and the job
+summary. To check an issue locally without changing it, use either command:
+
+```text
+gh api repos/OWNER/REPOSITORY/issues/NUMBER > issue.json
+python -I scripts/ci/issue_validation/validator.py issue.json
+python -I scripts/ci/issue_validation/run.py --event event.json --dry-run
+```
+
+`validator.py` checks every rule except the blockers. `run.py --dry-run` reads the issue through
+the API with the token in `GITHUB_TOKEN` and prints the planned comment and label changes; the
+event file needs `issue.number`, `repository.full_name` and `sender.login`. The exit code of
+`validator.py` is `0` without findings, `1` with findings and `2` for invalid input. `run.py`
+returns `0` after a run, also with findings, `1` for an API error and `2` for invalid input.
+
 ## Quality Gate Evaluation
 
 [evaluate_quality_gates.py](evaluate_quality_gates.py) compares the job results of a CI run with
@@ -103,6 +143,7 @@ invalid input.
 |---|---|
 | [.project/workflow.yml](../../.project/workflow.yml) `repository_validation` | `validate_repository.py` |
 | [.project/workflow.yml](../../.project/workflow.yml) `branching`, `pull_requests` | `pr_validation/validator.py` |
+| [.project/workflow.yml](../../.project/workflow.yml) `issue_policy`, [.project/labels.yml](../../.project/labels.yml), [.github/ISSUE_TEMPLATE/](../../.github/ISSUE_TEMPLATE/) | `issue_validation/validator.py` |
 | [.project/quality-gates.yml](../../.project/quality-gates.yml), [.project/project.yml](../../.project/project.yml) `technology.languages` | `evaluate_quality_gates.py` |
 | [.yamllint.yml](../../.yamllint.yml) | `yamllint` |
 | [.markdownlint.yaml](../../.markdownlint.yaml), [.markdownlint-cli2.yaml](../../.markdownlint-cli2.yaml) | `markdownlint-cli2` |

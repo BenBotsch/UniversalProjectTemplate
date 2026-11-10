@@ -34,7 +34,7 @@ issue is authoritative.
 | 15 | [FEAT-016](features/FEAT-016-base-ci-workflows.md) | Add Universal Base CI and Quality Workflows | EPIC-06 | 2 | first | critical | m | 014, 015 | - | yes | implemented |
 | 16 | [FEAT-017](features/FEAT-017-security-baseline-workflow.md) | Add Security Baseline Workflow and Secret Scanning | EPIC-06 | 2 | first | critical | m | 016 | - | yes | implemented |
 | 17 | [FEAT-023](features/FEAT-023-bootstrap-phase-a-script.md) | Provide Phase A Bootstrap Script with GitHub CLI | EPIC-07 | 2 | first | high | m | 008, 013 | - | yes | implemented |
-| 18 | [FEAT-018](features/FEAT-018-issue-validation.md) | Implement Issue Validator and Issue Validation Workflow | EPIC-06 | 2 | then | high | l | 007, 008, 009, 014 | - | yes | planned |
+| 18 | [FEAT-018](features/FEAT-018-issue-validation.md) | Implement Issue Validator and Issue Validation Workflow | EPIC-06 | 2 | then | high | l | 007, 008, 009, 014 | - | yes | active |
 | 19 | [FEAT-019](features/FEAT-019-pr-validation-and-commitlint.md) | Implement Pull Request Validation and Commit Convention Checks | EPIC-06 | 2 | then | high | m | 011, 012, 014 | - | yes | implemented |
 | 20 | [FEAT-020](features/FEAT-020-quality-gate-evaluator.md) | Enforce Quality Gates Without False Green Pipelines | EPIC-06 | 2 | then | high | m | 013, 016 | - | yes | implemented |
 | 21 | [FEAT-021](features/FEAT-021-dependabot.md) | Configure Dependabot Baseline | EPIC-06 | 2 | then | high | xs | 008 | - | yes | implemented |
