@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -56,11 +57,16 @@ def make_repo(root: Path, files: dict[str, str], is_template: bool = False) -> P
     forms = root / ".github/ISSUE_TEMPLATE"
     shutil.copytree(ROOT / ".github/ISSUE_TEMPLATE", forms)
     config = forms / "config.yml"
-    # Replace the placeholders as bootstrap does in a derived repository.
+    # Drop the template-only blocks and replace the placeholders, as init does in a derived
+    # repository.
+    derived = re.sub(
+        r"^[^\n]*template-only:start.*?template-only:end[^\n]*\n",
+        "",
+        config.read_text(encoding="utf-8"),
+        flags=re.DOTALL | re.MULTILINE,
+    )
     config.write_text(
-        config.read_text(encoding="utf-8").replace(
-            "OWNER/REPOSITORY", "example/project"
-        ),
+        derived.replace("OWNER/REPOSITORY", "example/project"),
         encoding="utf-8",
         newline="\n",
     )
@@ -89,9 +95,15 @@ def rules(findings: list) -> set[str]:
     return {finding.rule for finding in findings}
 
 
-def test_template_repository_itself_passes(capsys: pytest.CaptureFixture[str]) -> None:
+def test_repository_itself_passes(capsys: pytest.CaptureFixture[str]) -> None:
+    # Runs in the template and, after project-bootstrap init, in every derived project.
+    project = (ROOT / ".project/project.yml").read_text(encoding="utf-8")
+    is_template = (
+        re.search(r"^\s*is_template:\s*true\b", project, re.MULTILINE) is not None
+    )
     assert validate_repository.main([str(ROOT)]) == 0
-    assert validate_repository.TEMPLATE_MESSAGE in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert (validate_repository.TEMPLATE_MESSAGE in out) is is_template
 
 
 def test_clean_derived_repository_passes(tmp_path: Path) -> None:
@@ -213,6 +225,37 @@ def test_binary_files_are_skipped(tmp_path: Path) -> None:
     (repo / "image.bin").write_bytes(b"\0PROJECT_NAME\0")
     subprocess.run(["git", "-C", str(repo), "add", "image.bin"], check=True)
     assert run(repo) == []
+
+
+# REPO-TEMPLATE-MARKER
+
+
+def test_leftover_template_marker_is_reported(tmp_path: Path) -> None:
+    text = (
+        "intro\n<!-- template-only:start -->\nonly here\n<!-- template-only:end -->\n"
+    )
+    findings = run(make_repo(tmp_path, {"notes.md": text}))
+    assert [(item.rule, item.file, item.line) for item in findings] == [
+        ("REPO-TEMPLATE-MARKER", "notes.md", 2),
+        ("REPO-TEMPLATE-MARKER", "notes.md", 4),
+    ]
+
+
+def test_template_markers_are_allowed_in_the_template(tmp_path: Path) -> None:
+    files = {"notes.md": "# template-only:start\nx\n# template-only:end\n"}
+    assert run(make_repo(tmp_path, files, is_template=True)) == []
+
+
+def test_template_markers_in_allowlist_and_template_only_paths_are_skipped(
+    tmp_path: Path,
+) -> None:
+    workflow = 'repository_validation:\n  placeholder_allowlist: ["notes/*"]\n'
+    files = {
+        ".project/workflow.yml": workflow,
+        "notes/markers.md": "template-only:start\n",
+        "template-dev/x.md": "template-only:end\n",
+    }
+    assert rules(run(make_repo(tmp_path, files))) == {"REPO-TEMPLATE-ONLY"}
 
 
 # REPO-DEAD-LINK-TEMPLATE

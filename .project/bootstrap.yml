@@ -1,6 +1,6 @@
 # What bootstrap provisions when a project is created or updated from the template.
 # Project convention, not a native GitHub file: only the bootstrap tool reads it.
-schema_version: "1.2"
+schema_version: "1.3"
 bootstrap:
   create_develop_branch: true
   synchronize_labels: true
@@ -73,3 +73,16 @@ protection:
   required_status_checks: ["quality-gate"]
   # Release tags that cannot be moved or deleted.
   release_tag_pattern: "v*"
+
+# Defaults of "project-bootstrap init" (spec section 13.2), which turns a repository created from
+# the template into a project. Name, owner and description come from the GitHub repository;
+# command line options override every value here.
+init:
+  # SPDX id of a license that GitHub offers (GET /licenses), or "none": no LICENSE file, and the
+  # README states "All rights reserved". Choosing the license is the project's decision.
+  license: "MIT"
+  # Optional: user or team ("org/team") without "@" that replaces the template's code owner in
+  # .github/CODEOWNERS. Default: the repository owner; an organization needs a team here.
+  # code_owner: "example-org/maintainers"
+  # Optional: copyright holder in LICENSE. Default: the profile name of the repository owner.
+  # copyright_holder: "Example Ltd."

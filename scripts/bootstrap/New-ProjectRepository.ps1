@@ -7,7 +7,7 @@
     Phase A bootstrap with the GitHub CLI (gh). The script:
 
     1. Checks that gh is installed and authenticated, and that the template repository exists.
-    2. Creates OWNER/NAME from the template, unless the repository already exists.
+    2. Creates <owner>/<name> from the template, unless the repository already exists.
     3. Waits until the default branch of the new repository exists.
     4. Creates or updates every label from .project/labels.yml. Labels are never deleted.
     5. Creates the development branch from the default branch, unless it already exists.
@@ -30,7 +30,7 @@
     Repository description. Double quotes are not allowed.
 
 .PARAMETER Template
-    Template repository as OWNER/REPOSITORY. Default: <Owner>/UniversalProjectTemplate.
+    Template repository as <owner>/<repository>. Default: <Owner>/UniversalProjectTemplate.
 
 .PARAMETER LabelsFile
     Label definitions. Default: .project/labels.yml of this template checkout.

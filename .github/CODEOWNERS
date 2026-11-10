@@ -1,9 +1,12 @@
 # Code owners are requested automatically as reviewers for matching paths.
 # The last matching pattern wins.
 #
-# The template names its maintainer. A project created from the template
-# inherits this owner; change it to a user or team with write access to the
-# project. An owner without write access shows as an error on GitHub.
+# template-only:start
+# The template names its maintainer. "project-bootstrap init" replaces this
+# owner in a project created from the template with the project's code owner.
+# template-only:end
+# A code owner needs write access to the repository; an owner without it shows
+# as an error on GitHub.
 #
 # CODEOWNERS alone does not enforce reviews. Mandatory code owner review needs
 # a branch ruleset. For a solo account, do not require code owner approval:

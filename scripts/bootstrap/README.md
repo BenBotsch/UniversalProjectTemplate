@@ -8,7 +8,7 @@ but does not yet configure rules or project files; see [Limits](#limits).
 
 1. Checks that `gh` is installed and authenticated, and that the template repository is marked as
    a template.
-2. Creates `OWNER/NAME` from the template, unless the repository already exists.
+2. Creates `<owner>/<name>` from the template, unless the repository already exists.
 3. Waits until the default branch of the new repository exists. GitHub copies the template
    asynchronously.
 4. Creates or updates every label from [.project/labels.yml](../../.project/labels.yml) with
@@ -66,7 +66,7 @@ Check the planned calls, then run the same command with `-Apply`:
 | `-Name` | required | Name of the new repository |
 | `-Visibility` | `private` | `private`, `public` or `internal` |
 | `-Description` | empty | Repository description; double quotes are not allowed |
-| `-Template` | `<Owner>/UniversalProjectTemplate` | Template repository as `OWNER/REPOSITORY` |
+| `-Template` | `<Owner>/UniversalProjectTemplate` | Template repository as `<owner>/<repository>` |
 | `-LabelsFile` | `.project/labels.yml` | Label definitions |
 | `-DefaultBranch` | `main` | Default branch of the template |
 | `-DevelopmentBranch` | `develop` | Integration branch to create |
