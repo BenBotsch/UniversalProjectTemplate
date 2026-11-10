@@ -39,8 +39,10 @@ These paths are listed in `pull_requests.elevated_review_paths` in
 ## Changes by Agents
 
 Pull requests prepared by coding agents follow the same review rules as any other. An agent never
-approves or merges its own potentially sensitive changes; a human reviews them. The boundaries are
-defined in [AGENTS.md](../../AGENTS.md#agent-boundaries).
+approves its own potentially sensitive changes. It merges its own pull requests only under a
+[standing merge approval](agent-permissions.md#standing-merge-approval); unless its scope
+includes the elevated review paths above, a human reviews and merges changes to them. The
+boundaries are defined in [AGENTS.md](../../AGENTS.md#agent-boundaries).
 
 ## Solo Development
 

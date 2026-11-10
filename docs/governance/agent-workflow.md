@@ -51,9 +51,12 @@ Merge and update issue status
 8. **Open a pull request** against `develop` with the [evidence](#pull-request-evidence) below.
 9. **Review and CI gates.** A human or an authorized reviewer reviews the pull request; required
    checks must pass. See the [Review Policy](review-policy.md).
-10. **Merge and update the issue.** An authorized person merges. The issue status is updated
-    as described in the [status lifecycle](issue-management.md#status-lifecycle). An agent
-    merges only with explicit authorization; see [Agent Permissions](agent-permissions.md).
+10. **Merge and update the issue.** An authorized person merges, or the agent merges under a
+    [standing merge approval](agent-permissions.md#standing-merge-approval) once every required
+    check passes. The issue status is updated as described in the
+    [status lifecycle](issue-management.md#status-lifecycle); the issues the pull request
+    completes are closed. Without a standing approval an agent merges only with explicit
+    authorization for that pull request; see [Agent Permissions](agent-permissions.md).
 
 If work cannot continue, set `status:blocked`, name the blocker and stop instead of working
 around it.

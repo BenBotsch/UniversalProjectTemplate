@@ -103,7 +103,10 @@ Agents must not, without explicit authorization:
 - Execute unrelated refactors or migrations.
 - Approve their own potentially sensitive changes.
 
-Which operations need approval is defined in
+A standing merge approval recorded under
+[Project-Specific Instructions](#project-specific-instructions) authorizes agents to merge their
+own pull requests within its scope; it never covers tags or releases. Which operations need
+approval is defined in
 [docs/governance/agent-permissions.md](docs/governance/agent-permissions.md).
 
 ## Reporting
@@ -125,3 +128,17 @@ Every pull request description and final agent message summarizes:
 - Local rules: `AGENTS.md` files in subdirectories
 
 Use the project-defined build and test commands rather than guessing.
+
+<!-- template-only:start -->
+### Standing Merge Approval
+
+This repository has a
+[standing merge approval](docs/governance/agent-permissions.md#standing-merge-approval):
+
+- Granted by: the repository maintainer, BenBotsch, on 2026-11-10.
+- Scope: every pull request that an agent opens into `develop`, including pull requests that
+  change the elevated review paths. Pull requests into `main`, tags and releases are excluded.
+- After the merge, the agent closes the issues that the pull request completes.
+
+`project-bootstrap init` removes this section; a derived project records its own approval here.
+<!-- template-only:end -->
