@@ -34,7 +34,7 @@ pull_requests:
     exception_requires_reason: true
   # Changes below these paths need elevated review attention.
   elevated_review_paths: [".github/workflows/", ".project/", "SECURITY.md"]
-  # Provisional default; record the project's merge policy as an ADR before changing it.
+  # Decided in docs/architecture/adr/0004-merge-policy.md; record a new ADR before changing it.
   merge_strategy:
     into_development_branch: "squash"
     release_into_default_branch: "merge"

@@ -44,7 +44,7 @@ Traceable, verified, reproducible releases with changelog, SemVer, protected rel
 - Security features unavailable on private Free repositories (`DEC-07`)
 - Release credentials exposed to untrusted runs
 - External feature dependencies: `FEAT-008`, `FEAT-012`, `FEAT-017`, `FEAT-019`, `FEAT-020`
-- Blocking decisions: `DEC-02`, `DEC-06`, `DEC-07` (see [open-decisions.md](../open-decisions.md))
+- Blocking decisions: `DEC-06`, `DEC-07` (see [open-decisions.md](../open-decisions.md))
 
 ## Success Criteria
 

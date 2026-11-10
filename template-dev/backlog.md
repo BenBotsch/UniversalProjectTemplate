@@ -54,7 +54,7 @@ issue is authoritative.
 | 35 | [FEAT-033](features/FEAT-033-profile-cpp-cmake-conan.md) | Add C++ Profile with CMake and Conan | EPIC-08 | 3 | then | medium | l | 031 | - | yes | planned |
 | 36 | [FEAT-036](features/FEAT-036-profile-docker.md) | Add Docker and Container Profile | EPIC-08 | 3 | then | medium | m | 031 | - | yes | planned |
 | 37 | [FEAT-039](features/FEAT-039-release-notes-and-changelog.md) | Configure Release Notes Categories and Changelog Process | EPIC-09 | 4 | then | high | s | 008, 012 | - | yes | planned |
-| 38 | [FEAT-040](features/FEAT-040-semver-automation.md) | Automate Semantic Version and Changelog Proposals | EPIC-09 | 4 | then | medium | m | 019, 039 | DEC-02, DEC-06 | no | planned |
+| 38 | [FEAT-040](features/FEAT-040-semver-automation.md) | Automate Semantic Version and Changelog Proposals | EPIC-09 | 4 | then | medium | m | 019, 039 | DEC-06 | no | planned |
 | 39 | [FEAT-041](features/FEAT-041-protected-release-workflow.md) | Add Protected Release Workflow with Environment Approval | EPIC-09 | 4 | then | high | m | 017, 020, 040 | - | yes | planned |
 | 40 | [FEAT-043](features/FEAT-043-extended-security-scanning.md) | Add CodeQL, Dependency Review and OpenSSF Scorecard | EPIC-09 | 4 | then | medium | m | 017 | DEC-07 | no | planned |
 | 41 | [FEAT-044](features/FEAT-044-hotfix-and-rollback.md) | Define Hotfix, Back-Merge and Rollback Process | EPIC-09 | 4 | then | medium | s | 012, 041 | - | yes | planned |

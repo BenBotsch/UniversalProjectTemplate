@@ -66,11 +66,12 @@ in the pull request.
 | Release into `main` | Merge commit | Keeps the commits of `develop` in the history of `main` |
 | Synchronization of `main` into `develop` | Merge commit | `develop` must contain every commit of `main`; a squash would make the branches diverge |
 
-This is a **provisional default** (`pull_requests.merge_strategy` in `workflow.yml`). Before a
-project changes it, record the decision as an ADR in
-[`docs/architecture/adr/`](../architecture/adr/README.md) and update the configuration and this
-section together. The strategy for hotfix pull requests into `main` is not configured yet; decide
-it in the same ADR.
+The strategy is decided in
+[ADR-0004](../architecture/adr/0004-merge-policy.md) and configured in
+`pull_requests.merge_strategy` in `workflow.yml`. Rebase merges are disabled. Before a project
+changes the strategy, record a new ADR in [`docs/architecture/adr/`](../architecture/adr/README.md)
+and update the configuration and this section together. The strategy for hotfix pull requests into
+`main` is not decided yet; until then both squash and merge commits are allowed.
 
 ## Synchronizing `main` into `develop`
 

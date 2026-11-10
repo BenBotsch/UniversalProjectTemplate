@@ -12,7 +12,7 @@ record a decision themselves. Once decided, record it as an ADR under `docs/arch
 | ID | Question | Blocks | Proposed default | Status |
 |---|---|---|---|---|
 | DEC-01 | Implementation language and distribution of the bootstrap tool (Python package, PowerShell module, both) | FEAT-024 | Python 3.12+ CLI distributed via `pipx`/`uv tool`; PowerShell only for phase A (`FEAT-023`) | decided 2026-11-10: default accepted, [ADR-0002](../docs/architecture/adr/0002-python-bootstrap-cli.md) |
-| DEC-02 | Merge policy: squash vs. merge commits (drives Conventional-Commit changelog) | FEAT-040 | Squash merge into `develop`, PR title is the commit message; merge commit for release PRs `develop` → `main` | open |
+| DEC-02 | Merge policy: squash vs. merge commits (drives Conventional-Commit changelog) | FEAT-040 | Squash merge into `develop`, PR title is the commit message; merge commit for release PRs `develop` → `main` | decided 2026-11-10: default accepted, [ADR-0004](../docs/architecture/adr/0004-merge-policy.md) |
 | DEC-03 | Is GitHub Projects a mandatory planning standard? | FEAT-010 | Optional, provisioned when `bootstrap.yml` enables it | open |
 | DEC-04 | Are native GitHub Issue Types synchronized in addition to `type:*` labels? | non-blocking (FEAT-018, FEAT-028) | Labels are authoritative; native types optional later | open |
 | DEC-05 | How are `priority:*` and `status:*` set initially on issue creation? | non-blocking (FEAT-007, FEAT-018) | Forms set `status:triage`; `priority:*` is required only from `status:ready` on | open |
