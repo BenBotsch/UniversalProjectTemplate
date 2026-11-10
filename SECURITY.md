@@ -18,9 +18,9 @@ Report them privately through GitHub private vulnerability reporting:
 [Report a vulnerability](https://github.com/OWNER/REPOSITORY/security/advisories/new).
 
 Maintainers must enable private vulnerability reporting in the repository settings
-(**Security > Private vulnerability reporting**). If the link above does not work, contact the
-maintainers listed in `.github/CODEOWNERS` privately and ask for a secure channel before you share
-any details.
+(**Security > Private vulnerability reporting**); GitHub offers it only for public repositories.
+If the link above does not work, contact the maintainers listed in `.github/CODEOWNERS` privately
+and ask for a secure channel before you share any details.
 
 Please include:
 

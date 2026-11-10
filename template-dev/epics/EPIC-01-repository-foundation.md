@@ -29,7 +29,7 @@ Provide the language-agnostic skeleton every derived project starts from: hygien
 | ID | Title | Phase | Priority | Depends on | Status |
 |---|---|---|---|---|---|
 | [FEAT-001](../features/FEAT-001-repository-skeleton.md) | Create Repository Skeleton and Hygiene Files | 1 | critical | - | implemented |
-| [FEAT-002](../features/FEAT-002-root-community-files.md) | Write Root Community and Policy Files | 1 | critical | 001 | active |
+| [FEAT-002](../features/FEAT-002-root-community-files.md) | Write Root Community and Policy Files | 1 | critical | 001 | implemented |
 | [FEAT-003](../features/FEAT-003-docs-scaffold-and-adr.md) | Create Documentation Scaffold, Index and ADR Process | 1 | high | 001 | implemented |
 
 ## Risks and Dependencies

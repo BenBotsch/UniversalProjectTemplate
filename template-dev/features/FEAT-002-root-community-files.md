@@ -3,7 +3,7 @@ id: "FEAT-002"
 title: "Write Root Community and Policy Files"
 epic: "EPIC-01"
 phase: 1
-status: "active"
+status: "implemented"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -71,7 +71,7 @@ explicitly per project (§3.1, §19); the template must not silently impose one.
 
 - [x] A consistent README and project entry point are available (§17.1).
 - [x] The selected project license is explicit and appropriate (§17.1), documented as a bootstrap choice for derived projects.
-- [ ] Confidential security vulnerabilities have a private reporting channel (§17.2).
+- [x] Confidential security vulnerabilities have a private reporting channel (§17.2).
 - [x] `CHANGELOG.md` validates against the Keep a Changelog structure (headings `## [Unreleased]`).
 
 ## Verification
@@ -95,3 +95,9 @@ markdownlint-cli2 "*.md"   # once FEAT-016 provides the config
   `README.md` License section asks each project to keep or replace it explicitly. `LICENSE` is not
   in `template_only_paths`, because removing it would leave derived projects without any license
   file to decide on.
+- Private reporting channel, accepted deviation (maintainer decision, 2026-11-10): the template
+  repository is private on GitHub Free, where private vulnerability reporting is unavailable
+  (`PUT /repos/{owner}/{repo}/private-vulnerability-reporting` returns 404). The fallback in
+  `SECURITY.md` applies: contact the maintainers from `.github/CODEOWNERS` privately and agree on a
+  secure channel. Public derived projects enable private vulnerability reporting through bootstrap
+  (`FEAT-026`).
