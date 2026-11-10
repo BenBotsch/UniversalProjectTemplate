@@ -3,7 +3,7 @@ id: "FEAT-008"
 title: "Define Complete Label Taxonomy in labels.yml"
 epic: "EPIC-03"
 phase: 1
-status: "planned"
+status: "implemented"
 priority: "critical"
 effort: "s"
 target_repo: "universal-project-template"
@@ -66,15 +66,15 @@ needs `skip-changelog`.
 
 ## Tasks
 
-- [ ] **T1:** Write `.project/labels.yml`.
-- [ ] **T2:** Document taxonomy and color logic.
-- [ ] **T3:** Add a lightweight check (until `FEAT-014`): unique names, valid hex, description length, name prefix matches `group`.
+- [x] **T1:** Write `.project/labels.yml`.
+- [x] **T2:** Document taxonomy and color logic.
+- [x] **T3:** Add a lightweight check (until `FEAT-014`): unique names, valid hex, description length, name prefix matches `group`.
 
 ## Acceptance Criteria
 
-- [ ] All labels of §6.1 are present with group, color and description.
-- [ ] The check from T3 passes and fails on a duplicate name or invalid color.
-- [ ] `labels.yml` is usable as the source for `gh label create` loops in `FEAT-023`.
+- [x] All labels of §6.1 are present with group, color and description.
+- [x] The check from T3 passes and fails on a duplicate name or invalid color.
+- [x] `labels.yml` is usable as the source for `gh label create` loops in `FEAT-023`.
 
 ## Verification
 
