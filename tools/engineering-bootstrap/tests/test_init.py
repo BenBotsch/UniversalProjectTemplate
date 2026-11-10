@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -605,6 +606,48 @@ def test_template_checkout_initializes_to_a_valid_project(
     assert changes[project_init.VALIDATOR]["details"]["errors"] == []
     assert changes["chore/1-project-init"]["applied"] is True
     assert not [key for key in changes if key.startswith("placeholder:")]
+    assert broken_local_links(root) == []
+
+
+LINK = re.compile(r"\]\(\s*<?([^)\s>]+)>?(?:\s+[\"'][^)]*)?\)")
+HEADING = re.compile(r"^#{1,6}\s+(.+?)\s*#*\s*$", re.MULTILINE)
+FENCE = re.compile(r"^\s*(```|~~~).*?^\s*\1", re.MULTILINE | re.DOTALL)
+
+
+def anchors(path: Path) -> set[str]:
+    """Return the anchors GitHub generates for the headings of a Markdown file."""
+    text = FENCE.sub("", read(path.parent, path.name))
+    return {
+        re.sub(r"[^\w\- ]", "", heading.strip().lower()).replace(" ", "-")
+        for heading in HEADING.findall(text)
+    }
+
+
+def broken_local_links(root: Path) -> list[str]:
+    """Return the relative Markdown links below ``root`` whose file or heading is missing.
+
+    The same offline check as the CI link check: a link to another file in the repository must
+    resolve, and its anchor must match a heading of the target.
+    """
+    broken = []
+    for source in sorted(root.rglob("*.md")):
+        if ".git" in source.relative_to(root).parts:
+            continue
+        text = FENCE.sub("", read(source.parent, source.name))
+        for target in LINK.findall(text):
+            if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:|//", target):
+                continue
+            path, _, fragment = target.split("?", 1)[0].partition("#")
+            resolved = (source.parent / path).resolve() if path else source
+            missing_anchor = (
+                fragment
+                and resolved.suffix == ".md"
+                and resolved.exists()
+                and fragment not in anchors(resolved)
+            )
+            if not resolved.exists() or missing_anchor:
+                broken.append(f"{source.relative_to(root).as_posix()}: {target}")
+    return broken
 
 
 # Validation runner

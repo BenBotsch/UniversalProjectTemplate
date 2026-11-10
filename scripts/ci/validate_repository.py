@@ -12,7 +12,8 @@ Rules, each reported with its ID:
   template-only paths and the placeholder allowlist contains a ``template-only:start`` or
   ``template-only:end`` marker; ``project-bootstrap init`` removes these blocks.
 - ``REPO-DEAD-LINK-TEMPLATE``: no Markdown file outside the template-only paths links to a
-  template-only path, in both template and derived repositories.
+  template-only path or to a heading inside a template-only block, in both template and derived
+  repositories. Links inside a template-only block are exempt, because init removes them too.
 - ``REPO-DOCS-INDEX``: every Markdown file under ``docs/`` except ``README.md`` and
   ``_template.md`` is linked from ``docs/INDEX.md``, and every relative link in the index
   resolves. Severity follows ``repository_validation.docs_index_severity``.
@@ -77,6 +78,7 @@ TEMPLATE_MESSAGE = "template repository: template-only paths allowed"
 _INLINE_LINK = re.compile(r"\]\(\s*<?([^)\s>]+)>?(?:\s+[\"'][^)]*)?\)")
 _REFERENCE_LINK = re.compile(r"^\s{0,3}\[[^\]]+\]:\s*<?(\S+?)>?(?:\s|$)", re.MULTILINE)
 _EXTERNAL = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:|^//")
+_HEADING = re.compile(r"^#{1,6}\s+(.+?)\s*#*\s*$")
 
 
 @dataclass(frozen=True)
@@ -364,11 +366,8 @@ def check_template_markers(
     return findings
 
 
-def markdown_links(text: str) -> list[tuple[int, str]]:
-    """Return the link targets in Markdown text with their 1-based line numbers.
-
-    Fenced code blocks are skipped. Anchors and query strings are removed from the targets.
-    """
+def _raw_markdown_links(text: str) -> list[tuple[int, str]]:
+    """Return the unmodified link targets in Markdown text, skipping fenced code blocks."""
     links: list[tuple[int, str]] = []
     in_fence = False
     fence = ""
@@ -384,11 +383,51 @@ def markdown_links(text: str) -> list[tuple[int, str]]:
         if in_fence:
             continue
         targets = _INLINE_LINK.findall(line) + _REFERENCE_LINK.findall(line)
-        for target in targets:
-            cleaned = target.split("#", 1)[0].split("?", 1)[0]
-            if cleaned:
-                links.append((number, cleaned))
+        links.extend((number, target) for target in targets)
     return links
+
+
+def markdown_links(text: str) -> list[tuple[int, str]]:
+    """Return the link targets in Markdown text with their 1-based line numbers.
+
+    Fenced code blocks are skipped. Anchors and query strings are removed from the targets.
+    """
+    links = []
+    for number, target in _raw_markdown_links(text):
+        cleaned = target.split("#", 1)[0].split("?", 1)[0]
+        if cleaned:
+            links.append((number, cleaned))
+    return links
+
+
+def template_block_lines(text: str) -> set[int]:
+    """Return the 1-based numbers of the lines inside template-only blocks, markers included."""
+    lines: set[int] = set()
+    start = None
+    for number, line in enumerate(text.splitlines(), start=1):
+        if "template-only:start" in line:
+            start = number
+        elif "template-only:end" in line and start is not None:
+            lines.update(range(start, number + 1))
+            start = None
+    return lines
+
+
+def heading_anchor(heading: str) -> str:
+    """Return the anchor GitHub generates for a Markdown heading text."""
+    text = re.sub(r"[^\w\- ]", "", heading.strip().lower())
+    return text.replace(" ", "-")
+
+
+def template_only_anchors(text: str) -> set[str]:
+    """Return the anchors of the headings that lie inside template-only blocks."""
+    inside = template_block_lines(text)
+    anchors = set()
+    for number, line in enumerate(text.splitlines(), start=1):
+        match = _HEADING.match(line)
+        if match and number in inside:
+            anchors.add(heading_anchor(match.group(1)))
+    return anchors
 
 
 def resolve_link(source: str, target: str) -> str | None:
@@ -416,30 +455,51 @@ def resolve_link(source: str, target: str) -> str | None:
 def check_template_links(
     repo: Path, files: list[str], settings: Settings
 ) -> list[Finding]:
-    """Report links from regular files to template-only paths (``REPO-DEAD-LINK-TEMPLATE``)."""
-    if not settings.template_only_paths:
-        return []
+    """Report links that a derived repository would lose (``REPO-DEAD-LINK-TEMPLATE``).
+
+    A link from a regular Markdown file is dead after init if it points to a template-only path
+    or to a heading inside a template-only block. Links inside a template-only block are removed
+    with it and are not reported.
+    """
+    markdown = [
+        relative
+        for relative in files
+        if relative.endswith(".md")
+        and not _is_below(relative, settings.template_only_paths)
+    ]
+    texts = {relative: _read_text(repo, relative) for relative in markdown}
+    anchors = {
+        relative: template_only_anchors(text)
+        for relative, text in texts.items()
+        if text is not None
+    }
     findings = []
-    for relative in files:
-        if not relative.endswith(".md") or _is_below(
-            relative, settings.template_only_paths
-        ):
-            continue
-        text = _read_text(repo, relative)
+    for relative, text in texts.items():
         if text is None:
             continue
-        for number, target in markdown_links(text):
-            resolved = resolve_link(relative, target)
-            if resolved and _is_below(resolved, settings.template_only_paths):
-                findings.append(
-                    Finding(
-                        "REPO-DEAD-LINK-TEMPLATE",
-                        relative,
-                        f"links to template-only path {target!r}, which derived repositories "
-                        "do not contain",
-                        line=number,
-                    )
+        removed = template_block_lines(text)
+        for number, raw in _raw_markdown_links(text):
+            if number in removed:
+                continue
+            path, _, fragment = raw.split("?", 1)[0].partition("#")
+            resolved = resolve_link(relative, path) if path else relative
+            if not resolved:
+                continue
+            if path and _is_below(resolved, settings.template_only_paths):
+                message = (
+                    f"links to template-only path {path!r}, which derived repositories "
+                    "do not contain"
                 )
+            elif fragment and fragment.lower() in anchors.get(resolved, set()):
+                message = (
+                    f"links to '#{fragment}' in a template-only block of {resolved}, which "
+                    "init removes"
+                )
+            else:
+                continue
+            findings.append(
+                Finding("REPO-DEAD-LINK-TEMPLATE", relative, message, line=number)
+            )
     return findings
 
 

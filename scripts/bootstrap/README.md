@@ -87,8 +87,14 @@ This first stage does not:
 - Audit the repository settings.
 - Delete labels that are not in `labels.yml`.
 
-These steps follow in the next stage of the bootstrap. Until then, follow the manual steps in
-[Using this template](../../README.md#using-this-template) after creating a repository.
+The bootstrap tool `project-bootstrap` covers these steps except the audit: `init` initializes the
+project files in a clone of the new repository, `apply-rulesets` configures the rulesets and
+`sync-labels --prune` deletes labels that are not in `labels.yml`.
+
+<!-- template-only:start -->
+After creating a repository, continue with
+[Using this template](../../README.md#using-this-template).
+<!-- template-only:end -->
 
 ## Tests
 
