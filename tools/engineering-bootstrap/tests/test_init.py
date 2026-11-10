@@ -197,6 +197,26 @@ def test_removed_block_leaves_no_double_blank_line() -> None:
 
 
 @pytest.mark.parametrize(
+    "text",
+    [
+        "a\n\n<!-- template-only:start -->\nb\n<!-- template-only:end -->\n",
+        "a\n\n<!-- template-only:start -->\nb\n<!-- template-only:end -->\n\n",
+        "a\n\n\n<!-- template-only:start -->\nb\n<!-- template-only:end -->\n\n\n",
+    ],
+)
+def test_block_at_end_of_text_leaves_no_trailing_blank_line(text: str) -> None:
+    # Regression: a block at the end of AGENTS.md left "a\n\n", which markdownlint reports as
+    # MD012 in every derived project.
+    assert project_init.remove_template_blocks(text) == ("a\n", 1)
+
+
+def test_blank_lines_before_text_after_the_last_block_are_kept() -> None:
+    text = "a\n<!-- template-only:start -->\nb\n<!-- template-only:end -->\n\nc\n\n"
+
+    assert project_init.remove_template_blocks(text) == ("a\n\nc\n\n", 1)
+
+
+@pytest.mark.parametrize(
     ("text", "message"),
     [
         ("template-only:start\n", "without template-only:end"),
