@@ -167,4 +167,6 @@ Branch protection and rulesets are available for public repositories on GitHub F
 unavailable for private repositories on the same plan. Where a rule cannot be enforced
 technically, it is an organizational rule that every contributor follows; do not report it as
 enforced. Check the current plan conditions before setting up protection. Review rules for small
-teams are described in the [Review Policy](review-policy.md).
+teams are described in the [Review Policy](review-policy.md). How `project-bootstrap
+apply-rulesets` enforces these rules, and what it reports where it cannot, is described in
+[Branch Protection](branch-protection.md).

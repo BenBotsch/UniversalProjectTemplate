@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import shutil
 from pathlib import Path
@@ -143,6 +144,10 @@ class FakeRepository:
         empty: The repository has no commits; git endpoints answer 409.
         actions, selected_actions, workflow: Bodies of the Actions permission endpoints.
         vulnerability_alerts, security_fixes, vulnerability_reporting: Security switches.
+        rulesets_available: False answers the rulesets endpoints like GitHub Free does for a
+            private repository.
+        rulesets: Rulesets by ID, as ``GET /rulesets/{id}`` returns them.
+        check_runs: GitHub App ID of the latest run per ``(branch, check name)``.
         requests: ``(method, path)`` of every request, for assertions.
     """
 
@@ -184,6 +189,9 @@ class FakeRepository:
         self.vulnerability_alerts = False
         self.security_fixes = False
         self.vulnerability_reporting = False
+        self.rulesets_available = True
+        self.rulesets: dict[int, dict[str, Any]] = {}
+        self.check_runs: dict[tuple[str, str], int] = {}
         self.requests: list[tuple[str, str]] = []
 
     def make_private(self) -> None:
@@ -244,6 +252,53 @@ class FakeRepository:
                 return httpx.Response(200, json={"enabled": self.vulnerability_reporting})
             self.vulnerability_reporting = method == "PUT"
             return httpx.Response(204)
+        if sub == "/rulesets" or sub.startswith("/rulesets/"):
+            return self._rulesets(method, sub, body)
+        if sub.startswith("/commits/") and sub.endswith("/check-runs"):
+            branch = sub[len("/commits/") : -len("/check-runs")]
+            if branch not in self.refs:
+                return httpx.Response(422, json={"message": f"No commit found for SHA: {branch}"})
+            app_id = self.check_runs.get((branch, request.url.params["check_name"]))
+            runs = [] if app_id is None else [{"name": "x", "app": {"id": app_id}}]
+            return httpx.Response(200, json={"total_count": len(runs), "check_runs": runs})
+        return _not_found()
+
+    def add_ruleset(self, ruleset: dict[str, Any]) -> int:
+        """Store a ruleset as GitHub would and return its ID.
+
+        GitHub adds parameters with default values, which a comparison must ignore.
+        """
+        stored = copy.deepcopy(ruleset)
+        for rule in stored.get("rules", []):
+            if rule["type"] == "pull_request":
+                rule["parameters"].setdefault("automatic_copilot_code_review_enabled", False)
+        ruleset_id = stored.get("id") or max(self.rulesets, default=0) + 1
+        stored.update(id=ruleset_id, source_type="Repository", source=self.repo)
+        self.rulesets[ruleset_id] = stored
+        return ruleset_id
+
+    def _rulesets(self, method: str, sub: str, body: dict[str, Any]) -> httpx.Response:
+        if not self.rulesets_available:
+            message = "Upgrade to GitHub Pro or make this repository public to enable this feature."
+            return httpx.Response(403, json={"message": message})
+        if sub == "/rulesets" and method == "GET":
+            summaries = [
+                {key: r[key] for key in ("id", "name", "target", "source_type", "enforcement")}
+                for r in self.rulesets.values()
+            ]
+            return httpx.Response(200, json=summaries)
+        if sub == "/rulesets" and method == "POST":
+            if any(r["name"] == body["name"] for r in self.rulesets.values()):
+                return httpx.Response(422, json={"message": "Name must be unique"})
+            return httpx.Response(201, json=self.rulesets[self.add_ruleset(body)])
+        ruleset_id = int(sub[len("/rulesets/") :])
+        if ruleset_id not in self.rulesets:
+            return _not_found()
+        if method == "GET":
+            return httpx.Response(200, json=self.rulesets[ruleset_id])
+        if method == "PUT":
+            self.add_ruleset({**body, "id": ruleset_id})
+            return httpx.Response(200, json=self.rulesets[ruleset_id])
         return _not_found()
 
     def _patch(self, body: dict[str, Any]) -> httpx.Response:

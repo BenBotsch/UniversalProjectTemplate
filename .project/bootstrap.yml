@@ -1,6 +1,6 @@
 # What bootstrap provisions when a project is created or updated from the template.
 # Project convention, not a native GitHub file: only the bootstrap tool reads it.
-schema_version: "1.1"
+schema_version: "1.2"
 bootstrap:
   create_develop_branch: true
   synchronize_labels: true
@@ -59,3 +59,16 @@ repository_settings:
     secret_scanning: true
     secret_scanning_push_protection: true
     private_vulnerability_reporting: true
+
+# Rulesets applied by "project-bootstrap apply-rulesets" (spec sections 8.7 and 14.2) to the
+# default and development branch of project.yml: no deletion, no force push, changes only through
+# pull requests with resolved conversations, merge methods from workflow.yml. No bypass actors.
+# See docs/governance/branch-protection.md for what each GitHub plan enforces.
+protection:
+  # solo: no approval required, because authors cannot approve their own pull requests.
+  # team: one approval, code owner review, approvals dismissed on new pushes.
+  mode: "solo"
+  # Required only after the check has reported once on the branch; until then it is skipped.
+  required_status_checks: ["quality-gate"]
+  # Release tags that cannot be moved or deleted.
+  release_tag_pattern: "v*"

@@ -135,9 +135,31 @@ def test_bootstrap_schema_1_0_is_still_accepted(project_copy: Path) -> None:
     def downgrade(data: dict) -> None:
         data["schema_version"] = "1.0"
         del data["repository_settings"]
+        del data["protection"]
 
     edit(project_copy, "bootstrap", downgrade)
     assert messages(project_copy) == []
+
+
+def test_bootstrap_schema_1_1_is_still_accepted(project_copy: Path) -> None:
+    def downgrade(data: dict) -> None:
+        data["schema_version"] = "1.1"
+        del data["protection"]
+
+    edit(project_copy, "bootstrap", downgrade)
+    assert messages(project_copy) == []
+
+
+def test_protection_is_required_by_bootstrap_schema_1_2(project_copy: Path) -> None:
+    edit(project_copy, "bootstrap", lambda d: d.pop("protection"))
+    assert_single_problem(
+        project_copy, "bootstrap.yml", "(root)", "'protection' is a required property"
+    )
+
+
+def test_protection_mode_must_be_solo_or_team(project_copy: Path) -> None:
+    edit(project_copy, "bootstrap", lambda d: d["protection"].update(mode="none"))
+    assert any("protection.mode" in problem for problem in messages(project_copy))
 
 
 def test_repository_settings_are_required_by_bootstrap_schema_1_1(project_copy: Path) -> None:
