@@ -71,6 +71,7 @@ RANK = [
     "050",
     "053",
     "054",
+    "055",
 ]
 FIRST_END = RANK.index("023")
 THEN_END = RANK.index("044")

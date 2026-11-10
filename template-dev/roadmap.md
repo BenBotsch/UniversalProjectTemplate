@@ -36,7 +36,7 @@ base; bootstrap is idempotent.
 
 | Epic | Features |
 |---|---|
-| [EPIC-08 Technology Profiles](epics/EPIC-08-technology-profiles.md) | FEAT-031 to FEAT-038 |
+| [EPIC-08 Technology Profiles](epics/EPIC-08-technology-profiles.md) | FEAT-031 to FEAT-038, FEAT-055 |
 
 **Exit gate:** Each profile has at least one example project with verified lint, test and build jobs.
 

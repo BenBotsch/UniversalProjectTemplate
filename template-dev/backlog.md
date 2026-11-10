@@ -71,6 +71,7 @@ issue is authoritative.
 | 52 | [FEAT-050](features/FEAT-050-agentic-workflows.md) | Add Low-Risk Agentic Workflows | EPIC-11 | 5 | later | low | l | 018, 049 | DEC-10 | no | planned |
 | 53 | [FEAT-053](features/FEAT-053-dashboard-mvp.md) | Build Read-Only Dashboard MVP | EPIC-11 | 5 | later | low | l | 052 | DEC-09 | no | planned |
 | 54 | [FEAT-054](features/FEAT-054-controlled-script-execution.md) | Allow Controlled Execution of Declared Scripts | EPIC-11 | 5 | later | low | xl | 053 | DEC-10 | no | planned |
+| 55 | [FEAT-055](features/FEAT-055-shared-figure-style.md) | Offer the Shared Figure Style in the Python Profile | EPIC-08 | 3 | later | low | s | 032 | - | no | planned |
 
 ## Summary
 
@@ -78,8 +79,8 @@ issue is authoritative.
 |---|---|
 | first | 17 |
 | then | 24 |
-| later | 13 |
-| **total** | **54** |
+| later | 14 |
+| **total** | **55** |
 
 Features with `agent_ready: no` wait for a decision in [open-decisions.md](open-decisions.md) or
 contain an outward-facing step that needs human approval (`FEAT-048`).
