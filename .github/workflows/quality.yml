@@ -35,6 +35,8 @@ jobs:
 
   yaml-lint:
     name: "yaml-lint"
+    # Negative test: a disabled required job must fail quality-gate. Do not merge.
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
