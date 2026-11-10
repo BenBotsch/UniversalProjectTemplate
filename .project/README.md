@@ -4,9 +4,9 @@ The files in `.project/` describe the project in machine-readable form. They are
 convention, not native GitHub configuration**: GitHub ignores them. They take effect only through
 the bootstrap tool, the CI validators and the dashboard. A field that no tool reads has no effect.
 
-Every file starts with `schema_version`. The current version is `"1.2"` for `bootstrap.yml`,
-`"1.1"` for `workflow.yml`, `quality-gates.yml` and `labels.yml`, and `"1.0"` for `project.yml`. A change to the structure of
-a file requires a new schema version and a migration note; see [Migrations](#migrations).
+Every file starts with `schema_version`. The current version is `"1.2"` for `bootstrap.yml` and
+`workflow.yml`, `"1.1"` for `quality-gates.yml` and `labels.yml`, and `"1.0"` for `project.yml`. A
+change to the structure of a file requires a new schema version and a migration note; see [Migrations](#migrations).
 
 ## Schemas and Validation
 
@@ -159,6 +159,7 @@ only when `is_template` is `false`. `--format json` prints the findings for othe
 | File | From | To | Change | Migration |
 |---|---|---|---|---|
 | `workflow.yml` | `1.0` | `1.1` | Adds the required fields `pull_requests.required_sections` and `pull_requests.automation_authors`, read by the pull request validator | Set `schema_version: "1.1"` and add both fields; the values in this template are the defaults. Until then the validator uses the defaults and `validate_project.py` still accepts `1.0`. |
+| `workflow.yml` | `1.1` | `1.2` | Adds the required field `pull_requests.merge_strategy.hotfix_into_default_branch`, decided in [ADR-0005](../docs/architecture/adr/0005-squash-hotfixes.md) | Set `schema_version: "1.2"` and add `hotfix_into_default_branch: "squash"`. `validate_project.py` still accepts `1.0` and `1.1`. |
 | `quality-gates.yml` | `1.0` | `1.1` | Adds `applies_when` per gate, mandatory except for `required` gates, and the required list `flaky_tests` | Set `schema_version: "1.1"`, add `applies_when` to each conditional gate and `flaky_tests: []`. `validate_project.py` still accepts `1.0`, but the quality-gate job rejects it. |
 | `labels.yml` | `1.0` | `1.1` | Adds the optional list `aliases` per label: existing label names that label synchronization renames to the configured name instead of creating a second label, so issues and pull requests keep their label | Set `schema_version: "1.1"` and add `aliases` where an existing label should be renamed. An alias must not equal another label's name or alias. `validate_project.py` still accepts `1.0` without `aliases`. |
 | `bootstrap.yml` | `1.0` | `1.1` | Adds the required section `repository_settings` with wiki, auto-delete of head branches, optional topics, Actions permissions, workflow token and security features, read by `project-bootstrap configure-repo` | Set `schema_version: "1.1"` and copy the `repository_settings` section of this template; adjust `patterns_allowed` to the third-party actions the workflows use. `validate_project.py` still accepts `1.0`, but `configure-repo` rejects it. |

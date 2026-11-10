@@ -1,6 +1,6 @@
 # Branch, pull request, release and issue rules. Read by the pull request and issue
 # validators and by bootstrap. Branch names must match .project/project.yml.
-schema_version: "1.1"
+schema_version: "1.2"
 
 branching:
   model: "gitflow-simplified"
@@ -34,10 +34,12 @@ pull_requests:
     exception_requires_reason: true
   # Changes below these paths need elevated review attention.
   elevated_review_paths: [".github/workflows/", ".project/", "SECURITY.md"]
-  # Decided in docs/architecture/adr/0004-merge-policy.md; record a new ADR before changing it.
+  # Decided in docs/architecture/adr/0004-merge-policy.md and 0005-squash-hotfixes.md; record a
+  # new ADR before changing it.
   merge_strategy:
     into_development_branch: "squash"
     release_into_default_branch: "merge"
+    hotfix_into_default_branch: "squash"
   # Headings of .github/PULL_REQUEST_TEMPLATE.md that must be filled in.
   required_sections: ["Summary", "Related Issues", "Validation", "Tests Executed"]
   # Pull requests of these bots skip the branch name, issue link and section checks; their title,

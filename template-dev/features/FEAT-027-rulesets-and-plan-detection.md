@@ -108,8 +108,15 @@ project-bootstrap apply-rulesets --repo <test-owner>/upt-smoke-public --dry-run
   (public, created from the template): dry run plans 3 `create` and 2 `skipped` checks; `--apply`
   creates the rulesets; a second run reports 3 `noop`. `gh api` shows the rules as configured
   with no bypass actors, and a direct push to `main` is rejected with "Changes must be made
-  through a pull request". The required-check path is not tested live: the template's `main`
-  predates the `quality-gate` job, so the check never reports there.
+  through a pull request". Required-check path: after the template's `develop` state reached
+  `main` of `upt-smoke-public` through a pull request and `develop` was created, `quality-gate`
+  reported `success` on both branches; the next dry run planned 2 `update`, `--apply` added
+  `quality-gate` with App ID `15368` to both branch rulesets, and a second run reported 3 `noop`.
+  A pull request into `develop` with a failing `quality-gate` is then refused with "the base
+  branch policy prohibits the merge".
+- **Template repository (2026-11-10):** `BenBotsch/UniversalProjectTemplate` was made public;
+  `--apply` created the three rulesets with `quality-gate` required on `develop` and skipped on
+  `main`, where the check has not reported yet.
 - **Limits:** R5 is checked against GitHub, not against `ci.yml`: a misspelled name never reports
   and stays `skipped`. Private repositories on paid plans are not tested yet. Org rulesets are out
   of scope.

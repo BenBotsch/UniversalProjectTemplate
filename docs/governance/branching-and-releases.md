@@ -64,14 +64,16 @@ in the pull request.
 |---|---|---|
 | Work branch into `develop` | Squash merge | One conventional commit per pull request; the title becomes the commit message |
 | Release into `main` | Merge commit | Keeps the commits of `develop` in the history of `main` |
+| Hotfix into `main` | Squash merge | One conventional commit per hotfix, like work branches into `develop` |
 | Synchronization of `main` into `develop` | Merge commit | `develop` must contain every commit of `main`; a squash would make the branches diverge |
 
 The strategy is decided in
-[ADR-0004](../architecture/adr/0004-merge-policy.md) and configured in
+[ADR-0004](../architecture/adr/0004-merge-policy.md) and
+[ADR-0005](../architecture/adr/0005-squash-hotfixes.md); it is configured in
 `pull_requests.merge_strategy` in `workflow.yml`. Rebase merges are disabled. Before a project
 changes the strategy, record a new ADR in [`docs/architecture/adr/`](../architecture/adr/README.md)
-and update the configuration and this section together. The strategy for hotfix pull requests into
-`main` is not decided yet; until then both squash and merge commits are allowed.
+and update the configuration and this section together. GitHub cannot enforce a merge method per
+source branch, so the person who merges picks the method from this table.
 
 ## Synchronizing `main` into `develop`
 

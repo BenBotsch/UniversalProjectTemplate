@@ -16,8 +16,10 @@ merge methods from `pull_requests.merge_strategy` in `workflow.yml` and everythi
 | `bootstrap-development-branch` | `refs/heads/<development_branch>` | Same as the default branch |
 | `bootstrap-release-tags` | `refs/tags/<release_tag_pattern>`, for example `v*` | Release tags cannot be moved or deleted |
 
-Both branch rulesets allow every merge method that `merge_strategy` uses, because hotfix and
-back-merge pull requests can target either branch with a merge commit.
+Both branch rulesets allow every merge method that `merge_strategy` uses, because each branch
+receives pull requests of both kinds: `main` gets merge commits from releases and squash merges
+from hotfixes, `develop` gets squash merges from work branches and merge commits from the
+synchronization of `main`.
 
 The rulesets have **no bypass actors**: the rules also apply to repository administrators and
 to agents with an administrator token. The tool owns the rulesets with these names and replaces
