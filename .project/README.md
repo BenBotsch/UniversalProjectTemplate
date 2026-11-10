@@ -7,6 +7,34 @@ the bootstrap tool, the CI validators and the dashboard. A field that no tool re
 Every file starts with `schema_version`. The current version of all files is `"1.0"`. A change to
 the structure of a file requires a new schema version and a migration note.
 
+## Schemas and Validation
+
+Each file has a JSON Schema (draft 2020-12) in [`schemas/`](schemas/), named
+`<file>-<schema_version>.schema.json`, for example `project-1.0.schema.json`. The validator
+selects the schema by the `schema_version` of each file:
+
+```text
+python -I -m pip install -r scripts/ci/requirements.txt
+python -I scripts/ci/validate_project.py
+```
+
+It reports each problem as `<file>:<path>: <message>` and exits with 1 if any file is missing,
+has invalid YAML syntax, an unsupported `schema_version` or a schema violation. After the schema
+check it applies the label rules of `scripts/ci/check_labels.py` and these cross-file checks:
+
+- Every label group and every type and status value in `workflow.yml` `issue_policy` exists in
+  `labels.yml`, and `initial_status` is one of `supported_states`.
+- `development_branch` differs from `default_branch`.
+- Every branch named in `workflow.yml` is the default or development branch of `project.yml`, and
+  releases come from the default branch.
+- `branch_name_pattern` and `tag_pattern` are valid regular expressions.
+
+Unknown fields are rejected at every level. Project-specific data belongs under a top-level
+`x_extensions` mapping, which every schema allows and template tooling ignores.
+
+To change a structure, add a new schema file with the next version instead of editing the
+existing one, update `schema_version` in the configuration file and document the migration.
+
 ## Files
 
 | File | Content | Read by | Created by | Updated when |

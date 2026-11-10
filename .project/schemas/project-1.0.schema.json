@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-project-template:schema:project:1.0",
+  "title": "project.yml",
+  "description": "Project identity, template provenance, branches, technology, quality and agent flags.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project", "template", "repository", "technology", "quality", "agents"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "x_extensions": { "type": "object", "description": "Project-specific fields; ignored by template tooling." },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "status", "visibility", "is_template"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["planning", "active", "maintenance", "archived"] },
+        "visibility": { "enum": ["private", "internal", "public"] },
+        "is_template": { "type": "boolean" }
+      }
+    },
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "version"],
+      "properties": {
+        "source": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" }
+      }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_branch", "development_branch", "versioning", "commit_convention"],
+      "properties": {
+        "default_branch": { "$ref": "#/$defs/branch_name" },
+        "development_branch": { "$ref": "#/$defs/branch_name" },
+        "versioning": { "enum": ["semver"] },
+        "commit_convention": { "enum": ["conventional-commits"] }
+      }
+    },
+    "technology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["languages", "frameworks", "platforms", "package_managers"],
+      "properties": {
+        "languages": { "$ref": "#/$defs/identifier_list" },
+        "frameworks": { "$ref": "#/$defs/identifier_list" },
+        "platforms": { "$ref": "#/$defs/identifier_list" },
+        "package_managers": { "$ref": "#/$defs/identifier_list" }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["require_tests", "require_lint", "require_security_checks"],
+      "properties": {
+        "require_tests": { "type": "boolean" },
+        "require_lint": { "type": "boolean" },
+        "require_security_checks": { "type": "boolean" }
+      }
+    },
+    "agents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "instructions", "issue_driven", "human_release_approval"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "instructions": { "type": "string", "minLength": 1 },
+        "issue_driven": { "type": "boolean" },
+        "human_release_approval": { "type": "boolean" }
+      }
+    }
+  },
+  "$defs": {
+    "branch_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._/-]*$" },
+    "identifier_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9+._-]*$" }
+    }
+  }
+}

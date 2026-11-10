@@ -54,6 +54,7 @@ Run all applicable checks before you open a pull request, and report the actual 
 
 | Check | Command |
 |---|---|
+| Project configuration | `python -I scripts/ci/validate_project.py` |
 | Label configuration | `python -I scripts/ci/check_labels.py .project/labels.yml` |
 | Issue forms | `python -I scripts/ci/check_issue_forms.py` |
 | Repository script tests | `python -I -m pytest tests/ci` |

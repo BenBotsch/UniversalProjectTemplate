@@ -3,7 +3,7 @@ id: "FEAT-014"
 title: "Add JSON Schemas and Project Configuration Validator"
 epic: "EPIC-05"
 phase: 1
-status: "planned"
+status: "active"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -58,15 +58,15 @@ migrations. §10.6 names `scripts/ci/validate_project.py` as a planned implement
 
 ## Tasks
 
-- [ ] **T1:** Write schemas for all five files.
-- [ ] **T2:** Implement `validate_project.py` with cross-file checks.
-- [ ] **T3:** Add tests and fixtures (valid, unknown field, bad enum, missing file, bad version).
+- [x] **T1:** Write schemas for all five files.
+- [x] **T2:** Implement `validate_project.py` with cross-file checks.
+- [x] **T3:** Add tests and fixtures (valid, unknown field, bad enum, missing file, bad version).
 
 ## Acceptance Criteria
 
-- [ ] Default project metadata is schema-validated (§17.1).
+- [x] Default project metadata is schema-validated (§17.1).
 - [ ] CI fails with a clear error on invalid metadata (§17.6).
-- [ ] All tests pass.
+- [x] All tests pass.
 
 ## Verification
 

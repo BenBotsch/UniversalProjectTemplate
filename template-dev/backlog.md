@@ -25,7 +25,7 @@ issue is authoritative.
 | 6 | [FEAT-002](features/FEAT-002-root-community-files.md) | Write Root Community and Policy Files | EPIC-01 | 1 | first | critical | m | 001 | - | yes | active |
 | 7 | [FEAT-003](features/FEAT-003-docs-scaffold-and-adr.md) | Create Documentation Scaffold, Index and ADR Process | EPIC-01 | 1 | first | high | m | 001 | - | yes | implemented |
 | 8 | [FEAT-007](features/FEAT-007-issue-forms.md) | Add Issue Forms and Issue Template Configuration | EPIC-03 | 1 | first | critical | m | 008 | - | yes | active |
-| 9 | [FEAT-014](features/FEAT-014-config-schemas-and-validator.md) | Add JSON Schemas and Project Configuration Validator | EPIC-05 | 1 | first | critical | m | 008, 013 | - | yes | planned |
+| 9 | [FEAT-014](features/FEAT-014-config-schemas-and-validator.md) | Add JSON Schemas and Project Configuration Validator | EPIC-05 | 1 | first | critical | m | 008, 013 | - | yes | active |
 | 10 | [FEAT-005](features/FEAT-005-agent-adapter-files.md) | Add Thin Agent Adapter Files | EPIC-02 | 1 | first | high | xs | 004 | - | yes | planned |
 | 11 | [FEAT-009](features/FEAT-009-issue-management-governance.md) | Document Issue Management Rules and Lifecycle | EPIC-03 | 1 | first | high | s | 003, 008 | - | yes | planned |
 | 12 | [FEAT-012](features/FEAT-012-branching-commit-release-docs.md) | Document Branching, Commit and Release Conventions | EPIC-04 | 1 | first | high | m | 003 | - | yes | planned |
