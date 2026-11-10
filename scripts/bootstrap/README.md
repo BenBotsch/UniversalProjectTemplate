@@ -66,7 +66,7 @@ Check the planned calls, then run the same command with `-Apply`:
 | `-Name` | required | Name of the new repository |
 | `-Visibility` | `private` | `private`, `public` or `internal` |
 | `-Description` | empty | Repository description; double quotes are not allowed |
-| `-Template` | `<Owner>/universal-project-template` | Template repository as `OWNER/REPOSITORY` |
+| `-Template` | `<Owner>/UniversalProjectTemplate` | Template repository as `OWNER/REPOSITORY` |
 | `-LabelsFile` | `.project/labels.yml` | Label definitions |
 | `-DefaultBranch` | `main` | Default branch of the template |
 | `-DevelopmentBranch` | `develop` | Integration branch to create |

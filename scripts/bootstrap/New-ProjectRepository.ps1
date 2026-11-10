@@ -30,7 +30,7 @@
     Repository description. Double quotes are not allowed.
 
 .PARAMETER Template
-    Template repository as OWNER/REPOSITORY. Default: <Owner>/universal-project-template.
+    Template repository as OWNER/REPOSITORY. Default: <Owner>/UniversalProjectTemplate.
 
 .PARAMETER LabelsFile
     Label definitions. Default: .project/labels.yml of this template checkout.
@@ -102,7 +102,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $Repository = "$Owner/$Name"
-if (-not $Template) { $Template = "$Owner/universal-project-template" }
+if (-not $Template) { $Template = "$Owner/UniversalProjectTemplate" }
 $IsDryRun = -not $Apply
 $Steps = New-Object System.Collections.Generic.List[object]
 

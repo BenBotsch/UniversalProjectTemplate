@@ -13,7 +13,7 @@ project:
 
 # Provenance for later upgrades; bootstrap records the template version a project started from.
 template:
-  source: "OWNER/universal-project-template"
+  source: "OWNER/UniversalProjectTemplate"
   version: "0.1.0"
 
 repository:

@@ -16,7 +16,7 @@ BeforeAll {
         $global:LASTEXITCODE = 0
         switch -Regex ($joined) {
             '^auth status' { if (-not $state.Authenticated) { $global:LASTEXITCODE = 1; 'not logged in' }; return }
-            '^repo view octo/universal-project-template ' { if ($state.TemplateIsTemplate) { 'true' } else { 'false' }; return }
+            '^repo view octo/UniversalProjectTemplate ' { if ($state.TemplateIsTemplate) { 'true' } else { 'false' }; return }
             '^repo view octo/demo ' { if (-not $state.RepoExists) { $global:LASTEXITCODE = 1; 'Could not resolve' }; return }
             '^repo create ' {
                 if ($state.CreateFails) { $global:LASTEXITCODE = 1; 'create failed'; return }
@@ -95,7 +95,7 @@ Describe 'New-ProjectRepository.ps1' {
         It 'creates the repository, all labels and develop' {
             $result = Invoke-Bootstrap -Extra @('Apply')
             $result.ExitCode | Should -Be 0
-            $result.Calls | Should -Contain 'repo create octo/demo --private --template octo/universal-project-template'
+            $result.Calls | Should -Contain 'repo create octo/demo --private --template octo/UniversalProjectTemplate'
             @($result.Calls | Where-Object { $_ -match '^label create .* --force$' }).Count | Should -Be $script:LabelCount
             $result.Calls | Should -Contain ('api --method POST repos/octo/demo/git/refs -f ref=refs/heads/develop -f sha=' + ('a' * 40) + ' --silent')
             @($result.Steps | Where-Object Status -eq 'done').Count | Should -Be 7
@@ -121,7 +121,7 @@ Describe 'New-ProjectRepository.ps1' {
             $global:GhState.Branches = @{ main = $true; develop = $true }
             $result = Invoke-Bootstrap -Extra @('Apply')
             $result.ExitCode | Should -Be 0
-            $result.Calls | Should -Not -Contain 'repo create octo/demo --private --template octo/universal-project-template'
+            $result.Calls | Should -Not -Contain 'repo create octo/demo --private --template octo/UniversalProjectTemplate'
             @($result.Calls | Where-Object { $_ -match '^api --method POST' }) | Should -BeNullOrEmpty
             ($result.Steps | Where-Object Step -eq 'create repository').Status | Should -Be 'skipped'
             ($result.Steps | Where-Object Step -eq 'create develop').Status | Should -Be 'skipped'

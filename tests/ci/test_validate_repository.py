@@ -171,7 +171,7 @@ def test_derived_repository_with_project_name_in_readme_fails(tmp_path: Path) ->
         "PROJECT_DESCRIPTION\n",
         "See https://github.com/OWNER/REPOSITORY/issues\n",
         "* @OWNER_OR_TEAM\n",
-        "source: OWNER/universal-project-template\n",
+        "source: OWNER/UniversalProjectTemplate\n",
     ],
 )
 def test_each_default_token_is_reported(tmp_path: Path, text: str) -> None:
