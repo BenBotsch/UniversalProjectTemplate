@@ -13,7 +13,7 @@ blocked_by_decisions: []
 agent_ready: false
 related_issues: ["#24"]
 created_at: "2026-11-10"
-updated_at: "2026-11-10"
+updated_at: "2026-11-11"
 ---
 
 # FEAT-055: Offer the Shared Figure Style in the Python Profile
@@ -122,3 +122,5 @@ uv run figkit check docs/figures
   `end-of-file-fixer` leave the SVG byte-identical, and `git diff --check` reports nothing for it.
   pip-audit on the export reports no known vulnerabilities. `uv build`, Ruff, mypy, pytest,
   actionlint and `pre-commit validate-config` pass. The run on GitHub is not verified yet.
+- **Open:** R1 and R2 need a CI run in a derived repository on GitHub, once without and once with
+  a figure finding. The feature stays `active` until then.

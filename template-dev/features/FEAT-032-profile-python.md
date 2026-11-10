@@ -13,7 +13,7 @@ blocked_by_decisions: []
 agent_ready: true
 related_issues: ["#23"]
 created_at: "2026-11-10"
-updated_at: "2026-11-10"
+updated_at: "2026-11-11"
 ---
 
 # FEAT-032: Add Python Profile
@@ -110,3 +110,5 @@ ruff check . && ruff format --check . && mypy src && pytest --cov
   ("No known vulnerabilities") pass, and so do actionlint, zizmor and `validate_project.py`.
   Without `tests/test_smoke.py`, pytest exits with 5, so the gate fails. R4 (green CI on GitHub)
   is not verified yet. It needs a derived repository on GitHub.
+- **Open:** R4 needs a derived repository on GitHub, for example `BenBotsch/upt-smoke-public`,
+  initialized with `--profile python`. The feature stays `active` until its CI is green there.
