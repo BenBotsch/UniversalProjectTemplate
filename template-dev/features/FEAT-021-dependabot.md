@@ -3,7 +3,7 @@ id: "FEAT-021"
 title: "Configure Dependabot Baseline"
 epic: "EPIC-06"
 phase: 2
-status: "active"
+status: "implemented"
 priority: "high"
 effort: "xs"
 target_repo: "universal-project-template"
@@ -58,7 +58,7 @@ default branch (`main`) and must be synced to `develop` (§19).
 ## Acceptance Criteria
 
 - [x] Dependency updates are configured (§17.5).
-- [ ] GitHub shows the Dependabot configuration as valid in a test repository.
+- [x] GitHub shows the Dependabot configuration as valid in a test repository.
 
 ## Verification
 
@@ -83,4 +83,8 @@ yamllint .github/dependabot.yml
   ecosystems (`FEAT-031`).
 - `docs/governance/branching-and-releases.md` has a new "Dependency Updates" section;
   `docs/governance/security-policy.md` names the file in the dependency row.
-- Open: GitHub must show the configuration as valid after the push.
+- Verified on GitHub after `.github/dependabot.yml` reached `main` (merge of PR #4): the
+  Dependabot update run 42827131704 for `github_actions` in `/` succeeded with the source branch
+  `develop` and the commit prefix `ci` with scope. It opened no pull request because all actions
+  were already current. The check ran in the template repository itself, not in a separate test
+  repository.
