@@ -38,6 +38,21 @@ jobs:
         uses: ./.github/actions/python-setup # zizmor: ignore[self-repository]
       - name: "Lint"
         run: uv run ruff check --output-format=github .
+      # Checks the committed figures (docs/figures/README.md). The guide alone needs no check, so
+      # the figures group is installed only when the folder holds a figure.
+      - name: "Check figures"
+        run: |
+          shopt -s nullglob
+          figures=(docs/figures/*.svg docs/figures/*.png docs/figures/*.webp)
+          if [ "${#figures[@]}" -eq 0 ]; then
+            echo "No figures in docs/figures; nothing to check"
+            exit 0
+          fi
+          locked=()
+          if [ -f uv.lock ]; then
+            locked=(--locked)
+          fi
+          uv run "${locked[@]}" --group figures figkit check docs/figures
 
   type-check:
     name: "type-check"
@@ -102,8 +117,11 @@ jobs:
       - name: "Set up the project"
         uses: ./.github/actions/python-setup # zizmor: ignore[self-repository]
       - name: "Audit the locked dependencies for known vulnerabilities"
+        # A git source such as FigureKit has no hash and no PyPI advisory, so it is left out of the
+        # export; its own dependencies stay in and are audited.
         env:
           REQUIREMENTS: "${{ runner.temp }}/requirements.txt"
         run: |
-          uv export --all-groups --no-emit-project --format requirements-txt --output-file "${REQUIREMENTS}"
+          uv export --all-groups --no-emit-project --no-emit-package figkit \
+            --format requirements-txt --output-file "${REQUIREMENTS}"
           uvx --from "pip-audit==2.10.1" pip-audit --strict --disable-pip --requirement "${REQUIREMENTS}"

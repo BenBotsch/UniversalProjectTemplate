@@ -587,3 +587,61 @@ def _evaluator() -> Any:
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
+
+
+def _figure_step() -> str:
+    """Return the script of the figure check in the python profile's lint job."""
+    workflow = REPOSITORY_ROOT / "profiles" / "python" / "files" / ".github" / "workflows"
+    jobs = yaml.safe_load((workflow / "python.yml").read_text(encoding="utf-8"))["jobs"]
+    (step,) = [step for step in jobs["lint"]["steps"] if step.get("name") == "Check figures"]
+    return str(step["run"])
+
+
+@pytest.mark.skipif(shutil.which("bash") is None, reason="needs bash, like the CI runner")
+@pytest.mark.parametrize(
+    ("figures", "lock", "uv_exit", "expected_exit", "expected_call"),
+    [
+        pytest.param([], True, 0, 0, None, id="guide-only"),
+        pytest.param(["chart.svg"], True, 0, 0, "run --locked --group figures", id="figures"),
+        pytest.param(["chart.png"], False, 0, 0, "run --group figures", id="no-lock"),
+        pytest.param(["chart.svg"], True, 1, 1, "run --locked --group figures", id="finding"),
+    ],
+)
+def test_python_figure_check_runs_only_with_figures(
+    tmp_path: Path,
+    figures: list[str],
+    lock: bool,
+    uv_exit: int,
+    expected_exit: int,
+    expected_call: str | None,
+) -> None:
+    """The check installs FigureKit only for a folder with figures and fails with figkit."""
+    project = tmp_path / "project"
+    write(project, "docs/figures/README.md", b"# Figures\n")
+    for name in figures:
+        write(project, f"docs/figures/{name}", b"<svg/>\n")
+    if lock:
+        write(project, "uv.lock", b"")
+    calls = tmp_path / "calls.txt"
+    write(
+        tmp_path,
+        "bin/uv",
+        f'#!/usr/bin/env bash\necho "$*" >> "{calls.as_posix()}"\nexit {uv_exit}\n'.encode(),
+    )
+    (tmp_path / "bin" / "uv").chmod(0o755)
+    script = tmp_path / "step.sh"
+    script.write_bytes(_figure_step().encode())
+
+    result = subprocess.run(  # noqa: S603
+        [shutil.which("bash") or "bash", "-eo", "pipefail", script.as_posix()],
+        cwd=project,
+        env={"PATH": f"{(tmp_path / 'bin').as_posix()}:/usr/bin:/bin"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == expected_exit, result.stdout + result.stderr
+    called = calls.read_text(encoding="utf-8").splitlines() if calls.exists() else []
+    expected = [f"{expected_call} figkit check docs/figures"] if expected_call else []
+    assert called == expected

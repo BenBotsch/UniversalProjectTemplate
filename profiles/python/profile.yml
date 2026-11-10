@@ -2,7 +2,7 @@
 # Format and rules: profiles/README.md and docs/architecture/adr/0006-technology-profiles.md.
 schema_version: "1.0"
 id: "python"
-version: "0.1.0"
+version: "0.2.0"
 description: "Python package with uv, Ruff, mypy, pytest, build and pip-audit jobs"
 technology:
   languages: ["python"]
@@ -10,6 +10,10 @@ technology:
 files:
   - ".github/actions/python-setup/action.yml"
   - ".github/workflows/python.yml"
+  - ".pre-commit-config.yaml"
+  - "docs/figures/.editorconfig"
+  - "docs/figures/.gitattributes"
+  - "docs/figures/README.md"
   - "pyproject.toml"
   - "src/PROJECT_PACKAGE/__init__.py"
   - "src/PROJECT_PACKAGE/py.typed"
