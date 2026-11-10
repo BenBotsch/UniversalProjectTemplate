@@ -3,7 +3,7 @@ id: "FEAT-023"
 title: "Provide Phase A Bootstrap Script with GitHub CLI"
 epic: "EPIC-07"
 phase: 2
-status: "planned"
+status: "active"
 priority: "high"
 effort: "m"
 target_repo: "universal-project-template"
@@ -59,16 +59,16 @@ start. §21.6: "label already exists → no error".
 
 ## Tasks
 
-- [ ] **T1:** Script skeleton with parameter validation and auth check.
-- [ ] **T2:** Repo creation and `develop` branch creation, idempotent.
-- [ ] **T3:** Label sync from YAML (use `powershell-yaml` or `gh label create --force`); document the dependency.
-- [ ] **T4:** Pester tests and README.
+- [x] **T1:** Script skeleton with parameter validation and auth check.
+- [x] **T2:** Repo creation and `develop` branch creation, idempotent.
+- [x] **T3:** Label sync from YAML (use `powershell-yaml` or `gh label create --force`); document the dependency.
+- [x] **T4:** Pester tests and README.
 
 ## Acceptance Criteria
 
 - [ ] A new repository can be created from the template (§17.1).
 - [ ] Bootstrap can be run repeatedly without corrupting configuration (§17.1).
-- [ ] Bootstrap supports dry-run or equivalent plan output (§17.1).
+- [x] Bootstrap supports dry-run or equivalent plan output (§17.1).
 - [ ] §21.6: "label already exists → no error, update if needed".
 
 ## Verification
@@ -83,3 +83,21 @@ pwsh scripts/bootstrap/New-ProjectRepository.ps1 -Owner <test-owner> -Name upt-s
 - **Allowed paths:** `scripts/bootstrap/**`, `tests/bootstrap/**`, this feature file, backlog status.
 - **Requires approval:** any non-dry-run execution against GitHub (creates real repositories).
 - **Pitfalls:** `gh repo create --template` is asynchronous; wait for the default branch before creating `develop`.
+
+## Implementation Notes
+
+- The script defaults to a dry run; changes need `-Apply` (`-DryRun` is accepted and explicit).
+  This follows `dry_run_default: true` in `bootstrap.yml` and §13.6, and goes beyond the `-DryRun`
+  switch named in the scope.
+- `develop` is created through the GitHub API (`POST repos/{repo}/git/refs` with the head SHA of
+  `main`) instead of a local clone and push.
+- The script waits for the default branch after `gh repo create --template` (`-WaitSeconds`,
+  default 120).
+- Labels use `powershell-yaml` for reading and `gh label create --force` for create-or-update.
+  Empty descriptions are omitted because Windows PowerShell 5.1 drops empty native arguments.
+- Placeholder replacement is out of scope (Phase B). `README.md` "Using this template" was
+  corrected: it claimed that the bootstrap tooling replaces the placeholders.
+- Verified locally: 18 Pester 5.7.1 tests with a simulated `gh` under Windows PowerShell 5.1.
+  Not verified: a real run against GitHub (needs approval), PowerShell 7 and PSScriptAnalyzer.
+  The acceptance criteria for repository creation, repeated runs and existing labels stay open
+  until a real smoke test with `-Apply` against a test owner.

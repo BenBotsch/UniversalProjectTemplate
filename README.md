@@ -7,12 +7,13 @@ PROJECT_DESCRIPTION
 This repository was created from a language-agnostic project template. Before you start
 development:
 
-1. Run the bootstrap tooling in `scripts/bootstrap/` to replace the placeholders `PROJECT_NAME`,
-   `PROJECT_DESCRIPTION`, `OWNER`, `REPOSITORY` and `OWNER_OR_TEAM`, synchronize labels and
-   create the `develop` branch.
-2. Choose a license for the project and add it as `LICENSE` (see [License](#license)).
-3. Select a technology profile and fill in the sections below.
-4. Remove this section.
+1. Create the repository with the bootstrap script in `scripts/bootstrap/`. It synchronizes the
+   labels and creates the `develop` branch; see its [README](scripts/bootstrap/README.md).
+2. Replace the placeholders `PROJECT_NAME`, `PROJECT_DESCRIPTION`, `OWNER`, `REPOSITORY` and
+   `OWNER_OR_TEAM`. The bootstrap script does not replace them yet.
+3. Choose a license for the project and add it as `LICENSE` (see [License](#license)).
+4. Select a technology profile and fill in the sections below.
+5. Remove this section.
 
 ## Features
 
