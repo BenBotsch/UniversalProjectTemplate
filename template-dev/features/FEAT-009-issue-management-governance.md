@@ -3,7 +3,7 @@ id: "FEAT-009"
 title: "Document Issue Management Rules and Lifecycle"
 epic: "EPIC-03"
 phase: 1
-status: "planned"
+status: "implemented"
 priority: "high"
 effort: "s"
 target_repo: "universal-project-template"
@@ -57,13 +57,13 @@ proposed policy schema.
 
 ## Tasks
 
-- [ ] **T1:** Write the document with rule IDs and transition table.
-- [ ] **T2:** Integrate the sections delivered by `FEAT-007` and `FEAT-008` (or create the file first and let them add sections).
+- [x] **T1:** Write the document with rule IDs and transition table.
+- [x] **T2:** Integrate the sections delivered by `FEAT-007` and `FEAT-008` (or create the file first and let them add sections).
 
 ## Acceptance Criteria
 
-- [ ] Each §6.2 invariant has a rule ID used later by `FEAT-018` error messages.
-- [ ] Parent-child relationships and blockers can be recorded: the procedure with native sub-issues and dependencies is documented (§17.2).
+- [x] Each §6.2 invariant has a rule ID used later by `FEAT-018` error messages.
+- [x] Parent-child relationships and blockers can be recorded: the procedure with native sub-issues and dependencies is documented (§17.2).
 
 ## Verification
 

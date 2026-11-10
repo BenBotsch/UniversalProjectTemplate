@@ -26,7 +26,7 @@ what the task needs:
 
 ## Governance
 
-- [Issue Management](governance/issue-management.md): label taxonomy, issue forms and form field mapping.
+- [Issue Management](governance/issue-management.md): issue types, label taxonomy, metadata rules (`ISSUE-R*`), status lifecycle, hierarchy, issue forms and triage.
 - [Agent Workflow](governance/agent-workflow.md): agent adapter files and how to verify that tools pick them up.
 
 ## Architecture
