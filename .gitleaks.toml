@@ -1,0 +1,10 @@
+# Gitleaks configuration: the default rules plus an allowlist for test fixtures only.
+# Run locally: gitleaks git --config .gitleaks.toml --redact .
+title = "Repository secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Deliberately fake secrets in test fixtures. Never put a real secret here."
+paths = ['''^tests/(.+/)?fixtures/secrets/''']

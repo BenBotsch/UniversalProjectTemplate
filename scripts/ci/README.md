@@ -6,7 +6,9 @@ locally with the commands below, from the repository root.
 ## Setup
 
 The validators and the lint tools need Python 3.12 or later. `markdownlint-cli2` needs Node.js;
-`lychee` is a standalone binary from its [releases](https://github.com/lycheeverse/lychee/releases).
+`lychee` and `gitleaks` are standalone binaries from their releases
+([lychee](https://github.com/lycheeverse/lychee/releases),
+[gitleaks](https://github.com/gitleaks/gitleaks/releases)).
 
 ```text
 python -I -m pip install -r scripts/ci/requirements.txt
@@ -28,6 +30,8 @@ other projects.
 | `quality.yml` | `yaml-lint` | `yamllint --strict .` |
 | `quality.yml` | `markdown-lint` | `npx markdownlint-cli2@0.24.0 "**/*.md"` |
 | `quality.yml` | `link-check` | `lychee --offline --include-fragments --no-progress './**/*.md'` |
+| `security.yml` | `secret-scan` | `gitleaks git --config .gitleaks.toml --redact .` |
+| `security.yml` | `actions-pinning` | `python -I scripts/ci/check_action_pinning.py` |
 
 Additional checks for single files:
 
@@ -48,8 +52,13 @@ Locally, `zizmor` runs only its offline audits unless `GH_TOKEN` is set.
 | [.project/workflow.yml](../../.project/workflow.yml) `repository_validation` | `validate_repository.py` |
 | [.yamllint.yml](../../.yamllint.yml) | `yamllint` |
 | [.markdownlint.yaml](../../.markdownlint.yaml), [.markdownlint-cli2.yaml](../../.markdownlint-cli2.yaml) | `markdownlint-cli2` |
+| [.gitleaks.toml](../../.gitleaks.toml) | `gitleaks` |
 
 ## Workflow Rules
+
+The full checklist is in the
+[Security Policy for Development and CI](../../docs/governance/security-policy.md#workflow-review-checklist).
+In short:
 
 - Workflows use `permissions: contents: read`; a job requests more only with a documented reason.
 - Actions are pinned to a full commit SHA with the version as a comment, for example

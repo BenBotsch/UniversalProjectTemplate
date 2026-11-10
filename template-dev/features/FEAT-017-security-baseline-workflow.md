@@ -3,7 +3,7 @@ id: "FEAT-017"
 title: "Add Security Baseline Workflow and Secret Scanning"
 epic: "EPIC-06"
 phase: 2
-status: "planned"
+status: "active"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -57,16 +57,16 @@ input, `pull_request_target`, fork secrets, separate publish jobs), §10.3 Gitle
 
 ## Tasks
 
-- [ ] **T1:** `security.yml` with Gitleaks and config.
-- [ ] **T2:** Pinning checker with tests.
-- [ ] **T3:** `security-policy.md` and `docs/INDEX.md` line.
+- [x] **T1:** `security.yml` with Gitleaks and config.
+- [x] **T2:** Pinning checker with tests.
+- [x] **T3:** `security-policy.md` and `docs/INDEX.md` line.
 
 ## Acceptance Criteria
 
-- [ ] Secret scanning or an appropriate equivalent is configured (§17.4).
+- [x] Secret scanning or an appropriate equivalent is configured (§17.4).
 - [ ] No credentials, tokens or private keys are committed: a fixture commit with a fake AWS key fails `secret-scan` (§17.5).
-- [ ] External Actions are pinned or managed by an approved lock strategy (§17.5).
-- [ ] Test case "external PR with secret access → access denied" (§21.6) is documented with the workflow design that guarantees it.
+- [x] External Actions are pinned or managed by an approved lock strategy (§17.5).
+- [x] Test case "external PR with secret access → access denied" (§21.6) is documented with the workflow design that guarantees it.
 
 ## Verification
 
@@ -81,3 +81,15 @@ python -I -m pytest tests/ci/test_check_action_pinning.py
 - **Allowed paths:** files listed in Deliverables, `docs/INDEX.md` (line), this feature file, backlog status.
 - **Requires approval:** enabling GitHub secret scanning or push protection in repository settings.
 - **Pitfalls:** Never commit a real secret as a test; use well-known fake patterns and allowlist only the fixture path.
+
+## Implementation Notes
+
+- Open: the fake-AWS-key acceptance criterion needs a GitHub run. Gitleaks was not run locally,
+  because it is not installed and binary downloads are blocked in this environment.
+- Gitleaks 8.30.1 is installed from the release archive and verified against a SHA-256 checksum in
+  the workflow, instead of `gitleaks-action`, which needs a license key for organization accounts.
+- `actions-pinning` uses the runner's `python3` and no third-party packages. It also requires a
+  version comment after the SHA (`FEAT-016` R2).
+- `.project/quality-gates.yml`: `secret_scan` is set to `implemented`. `scripts/ci/README.md`
+  lists the local commands for both jobs.
+- Enabling GitHub secret scanning and push protection is a repository setting and stays open.

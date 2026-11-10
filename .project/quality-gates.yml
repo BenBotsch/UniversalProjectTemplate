@@ -39,7 +39,7 @@ quality_gates:
     required: true
     workflow: "security.yml"
     job: "secret-scan"
-    status: "not_implemented"
+    status: "implemented"
   formatting:
     required_when_applicable: true
     workflow: "ci.yml"

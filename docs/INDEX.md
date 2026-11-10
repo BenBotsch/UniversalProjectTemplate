@@ -33,6 +33,7 @@ what the task needs:
 - [Review Policy](governance/review-policy.md): review checklist, elevated attention and solo development.
 - [Agent Workflow](governance/agent-workflow.md): agent working cycle, reading strategy, pull request evidence, reporting and adapter files.
 - [Agent Permissions](governance/agent-permissions.md): what agents may do without approval, enforcing controls and escalation.
+- [Security Policy for Development and CI](governance/security-policy.md): security baseline, workflow review checklist, secret scanning and fork pull requests.
 - [Documentation Policy](governance/documentation-policy.md): where information lives, when to update documents and when to write an ADR.
 
 ## Architecture
