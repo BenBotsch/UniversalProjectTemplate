@@ -151,12 +151,16 @@ A release is approved only if all of these are true:
 |---|---|---|
 | Prevent direct pushes | Yes | Yes |
 | Require a pull request before merge | Yes | Yes |
-| Require CI checks | Yes | Yes |
+| Require the `quality-gate` check | Yes | Yes |
 | Require resolved conversations | Yes | Yes |
 | Prevent force pushes | Yes | Yes |
 | Prevent deletion | Yes | Yes |
 | Require review | Depends on team size | Depends on team size |
 | Require release approval | Yes | Not applicable |
+
+`quality-gate` is the only required status check; it fails when a gate that applies was skipped,
+failed or is not implemented. Do not require individual jobs, because GitHub treats a skipped job
+as passed. See the [Quality Model](quality-model.md#enforcement-in-ci).
 
 Whether these rules can be **enforced** depends on repository visibility and the GitHub plan.
 Branch protection and rulesets are available for public repositories on GitHub Free, but may be

@@ -32,6 +32,8 @@ elevated review attention; see [Review Policy](review-policy.md).
   40-character commit SHA, with the version as a comment, for example
   `uses: actions/checkout@<sha> # v7.0.1`. Look the SHA up from the action's release tag; never
   guess it. `python -I scripts/ci/check_action_pinning.py` enforces this.
+  Reusable workflows of this repository are called as `./.github/workflows/<file>` and run
+  from the same commit, so they need no pin.
 - [ ] **Verified downloads:** tools downloaded in a `run:` step have a pinned version and are
   verified against a SHA-256 checksum stored in the workflow.
 - [ ] **No untrusted input in scripts:** issue titles, pull request bodies, comments, branch names

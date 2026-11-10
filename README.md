@@ -44,7 +44,8 @@ Local setup, branches, commits and pull requests are described in [CONTRIBUTING.
 
 Every change runs through the quality gates defined in
 [.project/quality-gates.yml](.project/quality-gates.yml). A required check that was skipped or is
-not implemented counts as failed. The commands for local checks are listed in
+not implemented counts as failed. The `quality-gate` job is the single required check; see the
+[Quality Model](docs/governance/quality-model.md). The commands for local checks are listed in
 [CONTRIBUTING.md](CONTRIBUTING.md#tests-and-checks).
 
 ## Project Structure

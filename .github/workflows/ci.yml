@@ -1,10 +1,14 @@
-# Universal base CI: validates repository structure and project configuration.
+# Universal base CI: validates repository structure and project configuration, runs the quality,
+# security and pull request workflows as reusable workflows, and evaluates all results in the
+# quality-gate job. quality-gate is the single required status check.
 # Stack-specific jobs (format, lint, test, build) are added by technology profiles.
 name: "CI"
 
 on:
   pull_request:
     branches: [main, develop]
+    # "edited" re-runs the pull request validation when the title or description changes.
+    types: [opened, edited, synchronize, reopened]
   push:
     branches: [main, develop]
 
@@ -37,3 +41,60 @@ jobs:
         run: python -I scripts/ci/validate_project.py
       - name: "Validate repository structure"
         run: python -I scripts/ci/validate_repository.py
+
+  # The workspace-relative form ./ is used for reusable workflows because actionlint does not
+  # accept the self-repository form $/ yet; switch when it does.
+  quality:
+    name: "quality"
+    uses: ./.github/workflows/quality.yml # zizmor: ignore[self-repository]
+
+  security:
+    name: "security"
+    uses: ./.github/workflows/security.yml # zizmor: ignore[self-repository]
+
+  pull-request:
+    name: "pull-request"
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      # Read by the pull request validation of the called workflow.
+      pull-requests: read
+    uses: ./.github/workflows/pr-validation.yml # zizmor: ignore[self-repository]
+
+  quality-gate:
+    name: "quality-gate"
+    # Runs even if a needed job failed or was skipped; the evaluator decides. Without always(),
+    # a failed dependency would skip this job, and a skipped required check can count as passed.
+    if: always()
+    needs: [repository-validation, quality, security, pull-request]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # Reads the job results of this run through the Actions API.
+      actions: read
+    steps:
+      - name: "Check out repository with full history"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The changed files decide whether path-dependent gates apply.
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Set up Python"
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: "Install validator dependencies"
+        run: python -I -m pip install --disable-pip-version-check -r scripts/ci/requirements.txt
+      - name: "Read the job results of this run"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh api --paginate
+          "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}/jobs?per_page=100"
+          > "${RUNNER_TEMP}/jobs.json"
+      - name: "Evaluate quality gates"
+        run: >-
+          python -I scripts/ci/evaluate_quality_gates.py
+          --jobs "${RUNNER_TEMP}/jobs.json"
+          --event "${GITHUB_EVENT_PATH}"

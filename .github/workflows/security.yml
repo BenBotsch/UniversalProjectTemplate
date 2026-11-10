@@ -1,12 +1,11 @@
 # Security baseline: secret scanning and action pinning.
 # CodeQL, dependency and container scanning are added per technology profile.
+# Reusable workflow: ci.yml calls it for pull requests and pushes, so the quality-gate job can
+# evaluate its jobs. The weekly schedule runs it on its own.
 name: "Security"
 
 on:
-  pull_request:
-    branches: [main, develop]
-  push:
-    branches: [main, develop]
+  workflow_call:
   schedule:
     # Weekly full-history scan, Mondays at 03:17 UTC.
     - cron: "17 3 * * 1"

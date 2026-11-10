@@ -2,19 +2,16 @@
 # Conventional Commits. The rules are read from .project/workflow.yml.
 # The pull request text is read by the validator from the event file; no run: script
 # interpolates event data.
+# Reusable workflow: ci.yml calls it for pull_request events, including edits of the title and
+# description. Concurrency is controlled by ci.yml.
 name: "PR Validation"
 
 on:
-  pull_request:
-    types: [opened, edited, synchronize, reopened]
+  workflow_call:
 
 permissions:
   contents: read
   pull-requests: read
-
-concurrency:
-  group: "pr-validation-${{ github.event.pull_request.number }}"
-  cancel-in-progress: true
 
 jobs:
   pr-validation:

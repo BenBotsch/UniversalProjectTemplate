@@ -36,7 +36,7 @@ issue is authoritative.
 | 17 | [FEAT-023](features/FEAT-023-bootstrap-phase-a-script.md) | Provide Phase A Bootstrap Script with GitHub CLI | EPIC-07 | 2 | first | high | m | 008, 013 | - | yes | implemented |
 | 18 | [FEAT-018](features/FEAT-018-issue-validation.md) | Implement Issue Validator and Issue Validation Workflow | EPIC-06 | 2 | then | high | l | 007, 008, 009, 014 | - | yes | planned |
 | 19 | [FEAT-019](features/FEAT-019-pr-validation-and-commitlint.md) | Implement Pull Request Validation and Commit Convention Checks | EPIC-06 | 2 | then | high | m | 011, 012, 014 | - | yes | implemented |
-| 20 | [FEAT-020](features/FEAT-020-quality-gate-evaluator.md) | Enforce Quality Gates Without False Green Pipelines | EPIC-06 | 2 | then | high | m | 013, 016 | - | yes | planned |
+| 20 | [FEAT-020](features/FEAT-020-quality-gate-evaluator.md) | Enforce Quality Gates Without False Green Pipelines | EPIC-06 | 2 | then | high | m | 013, 016 | - | yes | active |
 | 21 | [FEAT-021](features/FEAT-021-dependabot.md) | Configure Dependabot Baseline | EPIC-06 | 2 | then | high | xs | 008 | - | yes | implemented |
 | 22 | [FEAT-024](features/FEAT-024-bootstrap-cli-core.md) | Build Bootstrap CLI Core with Plan, Apply and Reports | EPIC-07 | 2 | then | critical | l | 013, 014 | - | yes | planned |
 | 23 | [FEAT-025](features/FEAT-025-sync-labels.md) | Implement Idempotent Label Synchronization | EPIC-07 | 2 | then | high | s | 008, 024 | - | yes | planned |

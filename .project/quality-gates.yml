@@ -1,14 +1,26 @@
 # Quality gates and the CI jobs that implement them.
-# A final aggregator job compares this file with the actual job results. A required gate
-# passes only with result "success"; "skipped", missing or not implemented fail it.
+# The quality-gate job in ci.yml compares this file with the actual job results of the run
+# (scripts/ci/evaluate_quality_gates.py). It is the single required status check.
 #
 # Per gate:
 #   required | required_when_applicable | required_for_code_changes |
-#   review_required_for_relevant_changes   when the gate applies
-#   workflow   workflow file in .github/workflows/ that contains the job
+#   review_required_for_relevant_changes   kind of gate; exactly one, set to true
+#   applies_when   conditions, all of which must hold for the gate to apply; mandatory for
+#                  every kind except "required":
+#                    events          GitHub event names, for example pull_request, push
+#                    languages       values of technology.languages in project.yml; "*" = any
+#                    changed_paths   glob patterns; a changed file must match one
+#                    ignored_paths   glob patterns of changed files that do not count
+#   workflow   workflow file in .github/workflows/ that contains the job; ci.yml or a workflow
+#              that ci.yml calls
 #   job        CI job id that implements the gate
 #   status     "implemented" or "not_implemented"
-schema_version: "1.0"
+#
+# A gate that applies passes only with the result "success"; "skipped", missing or
+# not_implemented fail it. A gate that does not apply passes with its reason in the job summary.
+# Review gates print a notice and never fail; reviewers enforce them.
+# In glob patterns, * also matches "/".
+schema_version: "1.1"
 quality_gates:
   repository_validation:
     required: true
@@ -17,16 +29,22 @@ quality_gates:
     status: "implemented"
   issue_validation:
     required: true
+    applies_when:
+      events: ["issues"]
     workflow: "issue-validation.yml"
     job: "issue-validation"
     status: "not_implemented"
   pull_request_validation:
     required: true
+    applies_when:
+      events: ["pull_request"]
     workflow: "pr-validation.yml"
     job: "pr-validation"
     status: "implemented"
   conventional_commits:
     required: true
+    applies_when:
+      events: ["pull_request"]
     workflow: "pr-validation.yml"
     job: "commitlint"
     status: "implemented"
@@ -35,38 +53,77 @@ quality_gates:
     workflow: "quality.yml"
     job: "workflow-lint"
     status: "implemented"
+  yaml_lint:
+    required: true
+    workflow: "quality.yml"
+    job: "yaml-lint"
+    status: "implemented"
+  markdown_lint:
+    required: true
+    workflow: "quality.yml"
+    job: "markdown-lint"
+    status: "implemented"
+  link_check:
+    required: true
+    workflow: "quality.yml"
+    job: "link-check"
+    status: "implemented"
   secret_scan:
     required: true
     workflow: "security.yml"
     job: "secret-scan"
     status: "implemented"
+  action_pinning:
+    required: true
+    workflow: "security.yml"
+    job: "actions-pinning"
+    status: "implemented"
   formatting:
     required_when_applicable: true
+    applies_when:
+      languages: ["*"]
     workflow: "ci.yml"
     job: "format"
     status: "not_implemented"
   lint:
     required_when_applicable: true
+    applies_when:
+      languages: ["*"]
     workflow: "ci.yml"
     job: "lint"
     status: "not_implemented"
   tests:
     required_for_code_changes: true
+    applies_when:
+      languages: ["*"]
+      ignored_paths: ["*.md", "docs/*"]
     workflow: "ci.yml"
     job: "test"
     status: "not_implemented"
   build:
     required_when_applicable: true
+    applies_when:
+      languages: ["*"]
     workflow: "ci.yml"
     job: "build"
     status: "not_implemented"
   security:
     required_when_applicable: true
+    applies_when:
+      languages: ["*"]
     workflow: "security.yml"
     job: "security-analysis"
     status: "not_implemented"
   documentation:
     review_required_for_relevant_changes: true
+    applies_when:
+      events: ["pull_request"]
+      changed_paths: ["*.md", "docs/*"]
     workflow: "pr-validation.yml"
     job: "pr-validation"
     status: "not_implemented"
+
+# Quarantined flaky tests. A flaky test may be isolated from the required run only while an issue
+# tracks it; it is never skipped silently. Entry: {test: "<test id>", issue: "#<number>",
+# reason: "<why it is flaky>"}.
+flaky_tests: []

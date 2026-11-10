@@ -34,6 +34,7 @@ what the task needs:
 - [Agent Workflow](governance/agent-workflow.md): agent working cycle, reading strategy, pull request evidence, reporting and adapter files.
 - [Agent Permissions](governance/agent-permissions.md): what agents may do without approval, enforcing controls and escalation.
 - [Security Policy for Development and CI](governance/security-policy.md): security baseline, workflow review checklist, secret scanning and fork pull requests.
+- [Quality Model](governance/quality-model.md): quality characteristics, measurable gates, the quality-gate check and flaky tests.
 - [Documentation Policy](governance/documentation-policy.md): where information lives, when to update documents and when to write an ADR.
 
 ## Architecture
@@ -42,6 +43,7 @@ what the task needs:
 - [ADR Template](architecture/adr/0000-adr-template.md): starting point for a new ADR.
 - [ADR-0001: Use GitHub Issues as the Operational Source of Truth](architecture/adr/0001-use-github-issues.md)
 - [ADR-0002: Implement the Bootstrap Tool as a Python CLI](architecture/adr/0002-python-bootstrap-cli.md)
+- [ADR-0003: Aggregate CI Results in a Single Quality Gate Job](architecture/adr/0003-aggregate-ci-in-one-quality-gate.md)
 
 ## Features
 

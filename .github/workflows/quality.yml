@@ -1,18 +1,13 @@
 # Universal quality checks for workflows, YAML, Markdown and links.
+# Reusable workflow: ci.yml calls it for pull requests and pushes, so the quality-gate job can
+# evaluate its jobs. Concurrency is controlled by ci.yml.
 name: "Quality"
 
 on:
-  pull_request:
-    branches: [main, develop]
-  push:
-    branches: [main, develop]
+  workflow_call:
 
 permissions:
   contents: read
-
-concurrency:
-  group: "quality-${{ github.workflow }}-${{ github.ref }}"
-  cancel-in-progress: true
 
 jobs:
   workflow-lint:

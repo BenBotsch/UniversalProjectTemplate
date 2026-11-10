@@ -1,7 +1,9 @@
 # CI Scripts and Local Checks
 
-This directory contains the validators that the CI workflows run. Every CI check can be run
-locally with the commands below, from the repository root.
+This directory contains the validators that the CI workflows run. `ci.yml` calls `quality.yml`,
+`security.yml` and `pr-validation.yml` as reusable workflows, and its `quality-gate` job evaluates
+all results; it is the only required status check. Every CI check can be run locally with the
+commands below, from the repository root.
 
 ## Setup
 
@@ -34,6 +36,7 @@ other projects.
 | `security.yml` | `actions-pinning` | `python -I scripts/ci/check_action_pinning.py` |
 | `pr-validation.yml` | `pr-validation` | See [Pull Request Checks](#pull-request-checks) |
 | `pr-validation.yml` | `commitlint` | `python -I scripts/ci/pr_validation/validator.py commits --range develop..HEAD` |
+| `ci.yml` | `quality-gate` | See [Quality Gate Evaluation](#quality-gate-evaluation) |
 
 Additional checks for single files:
 
@@ -76,12 +79,30 @@ python -I scripts/ci/pr_validation/validator.py commits --range develop..HEAD
 
 The exit code is `0` if every rule passed, `1` if a rule failed and `2` for invalid input.
 
+## Quality Gate Evaluation
+
+[evaluate_quality_gates.py](evaluate_quality_gates.py) compares the job results of a CI run with
+[.project/quality-gates.yml](../../.project/quality-gates.yml). The rules are described in the
+[Quality Model](../../docs/governance/quality-model.md#enforcement-in-ci). In CI it reads the
+changed files from the event file. Locally, download the job list of a run and pass the event
+name and the revision range:
+
+```text
+gh api --paginate "repos/OWNER/REPOSITORY/actions/runs/RUN_ID/jobs?per_page=100" > jobs.json
+python -I scripts/ci/evaluate_quality_gates.py --jobs jobs.json --event-name pull_request --range develop..HEAD
+```
+
+Without `--event` or `--range`, the changed files are unknown and every path-dependent gate
+applies. The exit code is `0` if every applicable gate passed, `1` if a gate failed and `2` for
+invalid input.
+
 ## Configuration
 
 | File | Used by |
 |---|---|
 | [.project/workflow.yml](../../.project/workflow.yml) `repository_validation` | `validate_repository.py` |
 | [.project/workflow.yml](../../.project/workflow.yml) `branching`, `pull_requests` | `pr_validation/validator.py` |
+| [.project/quality-gates.yml](../../.project/quality-gates.yml), [.project/project.yml](../../.project/project.yml) `technology.languages` | `evaluate_quality_gates.py` |
 | [.yamllint.yml](../../.yamllint.yml) | `yamllint` |
 | [.markdownlint.yaml](../../.markdownlint.yaml), [.markdownlint-cli2.yaml](../../.markdownlint-cli2.yaml) | `markdownlint-cli2` |
 | [.gitleaks.toml](../../.gitleaks.toml) | `gitleaks` |
@@ -96,5 +117,6 @@ In short:
 - Actions are pinned to a full commit SHA with the version as a comment, for example
   `uses: actions/checkout@<sha> # v7.0.1`. Look the SHA up from the action's release tag.
 - No job uses `continue-on-error`. A required check must not pass because it was skipped.
+- A new gate job is added to `ci.yml` or a workflow it calls, and to `quality-gates.yml`.
 - `run:` scripts do not interpolate untrusted event data such as titles, bodies or branch names.
 - Job ids match the `job` fields in [.project/quality-gates.yml](../../.project/quality-gates.yml).

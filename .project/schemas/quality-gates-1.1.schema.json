@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-project-template:schema:quality-gates:1.1",
+  "title": "quality-gates.yml",
+  "description": "Quality gates, the CI jobs that implement them and when they apply.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "quality_gates", "flaky_tests"],
+  "properties": {
+    "schema_version": { "const": "1.1" },
+    "x_extensions": { "type": "object", "description": "Project-specific fields; ignored by template tooling." },
+    "quality_gates": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": { "$ref": "#/$defs/gate" }
+    },
+    "flaky_tests": {
+      "type": "array",
+      "description": "Quarantined flaky tests; each one is tracked by an issue.",
+      "items": { "$ref": "#/$defs/flaky_test" }
+    }
+  },
+  "$defs": {
+    "strings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "applies_when": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "events": {
+          "$ref": "#/$defs/strings",
+          "description": "GitHub event names, for example pull_request or push."
+        },
+        "languages": {
+          "$ref": "#/$defs/strings",
+          "description": "Values of technology.languages in project.yml; \"*\" means any language."
+        },
+        "changed_paths": {
+          "$ref": "#/$defs/strings",
+          "description": "Glob patterns; the gate applies if a changed file matches one."
+        },
+        "ignored_paths": {
+          "$ref": "#/$defs/strings",
+          "description": "Glob patterns of changed files that never make the gate apply."
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflow", "job", "status"],
+      "properties": {
+        "required": { "const": true },
+        "required_when_applicable": { "const": true },
+        "required_for_code_changes": { "const": true },
+        "review_required_for_relevant_changes": { "const": true },
+        "applies_when": { "$ref": "#/$defs/applies_when" },
+        "workflow": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+\\.ya?ml$" },
+        "job": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$" },
+        "status": { "enum": ["implemented", "not_implemented"] }
+      },
+      "oneOf": [
+        { "required": ["required"] },
+        { "required": ["required_when_applicable"] },
+        { "required": ["required_for_code_changes"] },
+        { "required": ["review_required_for_relevant_changes"] }
+      ],
+      "dependentRequired": {
+        "required_when_applicable": ["applies_when"],
+        "required_for_code_changes": ["applies_when"],
+        "review_required_for_relevant_changes": ["applies_when"]
+      }
+    },
+    "flaky_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["test", "issue", "reason"],
+      "properties": {
+        "test": { "type": "string", "minLength": 1, "description": "Test id, for example tests/test_api.py::test_upload." },
+        "issue": { "type": "string", "pattern": "^#[1-9][0-9]*$", "description": "Tracking issue, for example #42." },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

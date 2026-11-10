@@ -5,8 +5,8 @@ convention, not native GitHub configuration**: GitHub ignores them. They take ef
 the bootstrap tool, the CI validators and the dashboard. A field that no tool reads has no effect.
 
 Every file starts with `schema_version`. The current version is `"1.1"` for `workflow.yml` and
-`"1.0"` for all other files. A change to the structure of a file requires a new schema version
-and a migration note; see [Migrations](#migrations).
+`quality-gates.yml`, and `"1.0"` for all other files. A change to the structure of a file requires
+a new schema version and a migration note; see [Migrations](#migrations).
 
 ## Schemas and Validation
 
@@ -71,12 +71,18 @@ automatically with later template versions; upgrades run as reviewed migrations.
 | Field | Allowed values |
 |---|---|
 | Applicability key | `required`, `required_when_applicable`, `required_for_code_changes`, `review_required_for_relevant_changes`; each set to `true` |
-| `workflow` | File name in `.github/workflows/` |
+| `applies_when.events` | GitHub event names, for example `pull_request`, `push` |
+| `applies_when.languages` | Values of `technology.languages` in `project.yml`; `"*"` means any language |
+| `applies_when.changed_paths`, `ignored_paths` | Glob patterns of changed files; `*` also matches `/` |
+| `workflow` | File name in `.github/workflows/`: `ci.yml` or a workflow that `ci.yml` calls |
 | `job` | Job id in that workflow |
 | `status` | `implemented`, `not_implemented` |
+| `flaky_tests[]` | `test` (test id), `issue` (`#<number>`), `reason` |
 
-A required gate passes only if its job finished with `success`. A skipped, missing or
-`not_implemented` job fails the gate; it is never reported as green.
+`applies_when` is mandatory for every kind except `required`; all of its conditions must hold
+for the gate to apply. A gate that applies passes only if its job finished with `success`. A
+skipped, missing or `not_implemented` job fails the gate; it is never reported as green. See the
+[Quality Model](../docs/governance/quality-model.md#enforcement-in-ci).
 
 ### `workflow.yml`
 
@@ -132,3 +138,4 @@ only when `is_template` is `false`. `--format json` prints the findings for othe
 | File | From | To | Change | Migration |
 |---|---|---|---|---|
 | `workflow.yml` | `1.0` | `1.1` | Adds the required fields `pull_requests.required_sections` and `pull_requests.automation_authors`, read by the pull request validator | Set `schema_version: "1.1"` and add both fields; the values in this template are the defaults. Until then the validator uses the defaults and `validate_project.py` still accepts `1.0`. |
+| `quality-gates.yml` | `1.0` | `1.1` | Adds `applies_when` per gate, mandatory except for `required` gates, and the required list `flaky_tests` | Set `schema_version: "1.1"`, add `applies_when` to each conditional gate and `flaky_tests: []`. `validate_project.py` still accepts `1.0`, but the quality-gate job rejects it. |
