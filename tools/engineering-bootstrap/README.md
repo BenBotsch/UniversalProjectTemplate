@@ -11,8 +11,8 @@ projects do not contain it.
 
 The core is in place: configuration loading and validation, the plan and apply engine, the
 GitHub API client and the reports. Implemented commands are `validate` without `--repo`, which
-checks the local configuration, and `sync-labels`. All other commands exit with code `2` and the
-message "not implemented yet".
+checks the local configuration, `sync-labels` and `configure-repo`. All other commands exit with
+code `2` and the message "not implemented yet".
 
 ## Installation
 
@@ -40,6 +40,7 @@ ruff format --check .
 project-bootstrap init --repo OWNER/NAME --profile python [--dry-run | --apply]
 project-bootstrap validate [--repo OWNER/NAME]
 project-bootstrap sync-labels --repo OWNER/NAME [--dry-run | --apply [--prune [--yes]]]
+project-bootstrap configure-repo --repo OWNER/NAME [--dry-run | --apply]
 project-bootstrap audit --owner OWNER
 ```
 
@@ -81,6 +82,44 @@ available, `2` invalid usage, an unconfirmed `--prune` or a command that is not 
   changes.
 - `bootstrap.synchronize_labels` in `bootstrap.yml` does not affect this command; it is meant for
   `init`.
+
+## Branches and Repository Settings
+
+`configure-repo --repo OWNER/NAME` needs `bootstrap.yml` with `schema_version: "1.1"` and a
+`repository_settings` section; with schema `1.0` it exits with `1` before any request. The token
+needs administration access to the repository, otherwise the settings fail without a change.
+
+Branches (resource `branches`), from `repository` in `project.yml`:
+
+- The default branch must exist. In a repository without commits it is reported as `failed`,
+  because the API cannot create a branch without a commit.
+- A missing development branch is created at the head of the default branch, unless
+  `bootstrap.create_develop_branch` is `false`. An existing development branch is never moved or
+  reset, even if it is behind.
+
+Settings (resource `repository-settings`), one change per setting:
+
+| Key | Source | GitHub setting |
+|---|---|---|
+| `default_branch` | `project.yml` `repository.default_branch` | Default branch |
+| `description` | `project.yml` `project.description`; `skipped` while it contains a placeholder token | Description |
+| `has_issues`, `has_discussions` | `bootstrap.enable_issues`, `bootstrap.enable_discussions` | Issues, Discussions |
+| `has_wiki`, `delete_branch_on_merge` | `repository_settings` | Wiki, automatic deletion of head branches |
+| `merge_methods` | `workflow.yml` `pull_requests.merge_strategy`: each method used there is allowed, all others are disallowed | Squash, merge commit and rebase merging, written in one request |
+| `is_template` | `project.yml` `project.is_template` | Template repository; only reported, never changed |
+| `topics` | `repository_settings.topics`; `skipped` when not set | Topics, replaced as a whole |
+| `actions_permissions`, `actions_selected` | `repository_settings.actions` | Allowed actions and, for `selected`, the allow-list |
+| `workflow_permissions` | `repository_settings.actions` | Default `GITHUB_TOKEN` permissions and whether Actions may approve pull requests |
+| `dependabot_alerts`, `dependabot_security_updates` | `repository_settings.security`, if `bootstrap.configure_dependabot` | Dependabot alerts and security updates |
+| `secret_scanning`, `secret_scanning_push_protection`, `private_vulnerability_reporting` | `repository_settings.security`, if `bootstrap.configure_security` | Secret scanning, push protection, private vulnerability reporting |
+
+A setting is `skipped` with the reason when the configuration leaves it unmanaged or GitHub does
+not offer it for the repository: secret scanning and push protection in a private repository
+without GitHub Secret Protection or Advanced Security, and private vulnerability reporting in a
+private repository. A `false` value switches a feature off. With `allowed_actions: "selected"`,
+a workflow that uses an action outside the allow-list fails until the action is added to
+`patterns_allowed` and `configure-repo` runs again. Organization policies can make GitHub refuse
+an Actions setting; the change is then `failed` with GitHub's message.
 
 ## Behavior
 
@@ -165,6 +204,8 @@ credential-like values with `***`, also at debug level.
 | `github.py` | Token resolution, HTTP client with pagination, rate limits, retries, typed errors and log redaction |
 | `report.py` | Text and JSON reports |
 | `resources/labels.py` | Label resource: compare, create, update, rename and delete labels |
+| `resources/branches.py` | Branch resource: check the default branch, create the development branch |
+| `resources/repo_settings.py` | Settings resource: repository, Actions and security settings |
 
 A resource implements `read_actual()`, `desired()`, `diff(actual, desired)` and `apply(change)`.
 The engine has no GitHub specifics, so every resource can be tested with fakes; GitHub access is

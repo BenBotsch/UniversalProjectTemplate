@@ -22,6 +22,7 @@ from engineering_bootstrap import __version__
 from engineering_bootstrap.config import (
     CONFIG_NAMES,
     ConfigError,
+    ProjectConfig,
     load_config,
     resolve_config_dir,
     validate_config,
@@ -35,7 +36,12 @@ from engineering_bootstrap.github import (
     resolve_token,
 )
 from engineering_bootstrap.report import Report, render_json, render_text
+from engineering_bootstrap.resources.branches import BranchResource, spec_from_config
 from engineering_bootstrap.resources.labels import LabelResource, specs_from_config
+from engineering_bootstrap.resources.repo_settings import (
+    RepoSettingsResource,
+    settings_from_config,
+)
 
 EXIT_OK = 0
 EXIT_FAILED = 1
@@ -107,6 +113,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--yes", action="store_true", help="confirm --prune without asking, e.g. in CI"
     )
 
+    configure = commands.add_parser(
+        "configure-repo",
+        parents=[common],
+        help="create the development branch and apply the repository settings",
+    )
+    configure.add_argument("--repo", required=True, metavar="OWNER/NAME")
+
     audit = commands.add_parser(
         "audit", parents=[common], help="audit the repositories of an owner (not implemented yet)"
     )
@@ -164,10 +177,8 @@ def _confirm_prune(deletions: list[Change], args: argparse.Namespace) -> bool:
     return answer.strip().lower() in {"y", "yes"}
 
 
-def _sync_labels(args: argparse.Namespace, transport: httpx.BaseTransport | None) -> Report | int:
-    if args.prune and not args.apply:
-        print("--prune requires --apply", file=sys.stderr)
-        return EXIT_USAGE
+def _prepare_remote(args: argparse.Namespace) -> tuple[ProjectConfig, str] | int:
+    """Check ``--repo``, load the configuration and resolve the token, or return an exit code."""
     if not REPO_PATTERN.fullmatch(args.repo):
         print(f"invalid --repo {args.repo!r}; expected OWNER/NAME", file=sys.stderr)
         return EXIT_USAGE
@@ -183,6 +194,17 @@ def _sync_labels(args: argparse.Namespace, transport: httpx.BaseTransport | None
         print(str(exc), file=sys.stderr)
         return EXIT_FAILED
     install_redaction(token)
+    return config, token
+
+
+def _sync_labels(args: argparse.Namespace, transport: httpx.BaseTransport | None) -> Report | int:
+    if args.prune and not args.apply:
+        print("--prune requires --apply", file=sys.stderr)
+        return EXIT_USAGE
+    prepared = _prepare_remote(args)
+    if isinstance(prepared, int):
+        return prepared
+    config, token = prepared
 
     with GitHubClient(token, transport=transport) as client:
         resource = LabelResource(
@@ -195,6 +217,38 @@ def _sync_labels(args: argparse.Namespace, transport: httpx.BaseTransport | None
                 print("prune not confirmed; nothing was changed", file=sys.stderr)
                 return EXIT_USAGE
         changes = engine.run(apply=args.apply)
+    return Report(
+        command=args.command,
+        mode="apply" if args.apply else "dry-run",
+        target=args.repo,
+        changes=changes,
+    )
+
+
+def _configure_repo(
+    args: argparse.Namespace, transport: httpx.BaseTransport | None
+) -> Report | int:
+    prepared = _prepare_remote(args)
+    if isinstance(prepared, int):
+        return prepared
+    config, token = prepared
+    try:
+        settings = settings_from_config(config.files)
+    except ValueError as exc:
+        print(f"invalid configuration: {exc}", file=sys.stderr)
+        return EXIT_FAILED
+
+    with GitHubClient(token, transport=transport) as client:
+        resources = [
+            BranchResource(
+                client,
+                args.repo,
+                spec_from_config(config.files["project"]),
+                create_development_branch=config.bootstrap["create_develop_branch"],
+            ),
+            RepoSettingsResource(client, args.repo, settings),
+        ]
+        changes = Engine(resources).run(apply=args.apply)
     return Report(
         command=args.command,
         mode="apply" if args.apply else "dry-run",
@@ -224,8 +278,9 @@ def main(argv: Sequence[str] | None = None, *, transport: httpx.BaseTransport | 
     args = build_parser().parse_args(argv)
     _configure_logging(args.verbose)
 
-    if args.command == "sync-labels":
-        result = _sync_labels(args, transport)
+    remote_commands = {"sync-labels": _sync_labels, "configure-repo": _configure_repo}
+    if args.command in remote_commands:
+        result = remote_commands[args.command](args, transport)
         return result if isinstance(result, int) else _emit(result, args)
 
     if args.command != "validate" or args.repo is not None:

@@ -6,7 +6,8 @@ import json
 from pathlib import Path
 
 import pytest
-from conftest import FakeGitHub
+import yaml
+from conftest import FakeGitHub, FakeRepository
 
 from engineering_bootstrap.cli import EXIT_FAILED, EXIT_OK, EXIT_USAGE, main
 
@@ -17,7 +18,7 @@ def test_help_lists_the_commands(capsys: pytest.CaptureFixture[str]) -> None:
 
     assert exit_info.value.code == 0
     out = capsys.readouterr().out
-    for command in ("init", "validate", "sync-labels", "audit"):
+    for command in ("init", "validate", "sync-labels", "configure-repo", "audit"):
         assert command in out
 
 
@@ -232,3 +233,83 @@ def test_invalid_config_fails_before_any_request(
     assert sync(label_project, fake_github) == EXIT_FAILED
     assert "invalid configuration: labels.yml" in capsys.readouterr().err
     assert fake_github.requests == []
+
+
+@pytest.fixture
+def repo_project(template_config_dir: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Return the template configuration with a token in the environment."""
+    monkeypatch.setenv("GITHUB_TOKEN", "test-token")
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    return template_config_dir
+
+
+def configure(project: Path, fake: FakeRepository, *options: str) -> int:
+    argv = ["configure-repo", f"--repo={fake.repo}", "--config", str(project), *options]
+    return main(argv, transport=fake.transport)
+
+
+def test_configure_repo_dry_run_changes_nothing(
+    repo_project: Path, fake_repository: FakeRepository, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code = configure(repo_project, fake_repository, "--format", "json")
+
+    report = json.loads(capsys.readouterr().out)
+    assert code == EXIT_OK
+    assert report["command"] == "configure-repo"
+    assert report["mode"] == "dry-run"
+    assert {change["resource"] for change in report["changes"]} == {
+        "branches",
+        "repository-settings",
+    }
+    develop = next(c for c in report["changes"] if c["key"] == "develop")
+    assert develop["action"] == "create"
+    assert fake_repository.writes() == []
+
+
+def test_configure_repo_apply_then_rerun_is_noop(
+    repo_project: Path, fake_repository: FakeRepository, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert configure(repo_project, fake_repository, "--apply") == EXIT_OK
+    assert "develop" in fake_repository.refs
+    capsys.readouterr()
+    fake_repository.requests.clear()
+
+    code = configure(repo_project, fake_repository, "--apply", "--format", "json")
+
+    summary = json.loads(capsys.readouterr().out)["summary"]
+    assert code == EXIT_OK
+    assert fake_repository.writes() == []
+    assert summary["create"] == summary["update"] == summary["failed"] == 0
+
+
+def test_configure_repo_needs_bootstrap_schema_1_1(
+    repo_project: Path, fake_repository: FakeRepository, capsys: pytest.CaptureFixture[str]
+) -> None:
+    bootstrap_file = repo_project / "bootstrap.yml"
+    data = yaml.safe_load(bootstrap_file.read_text(encoding="utf-8"))
+    data["schema_version"] = "1.0"
+    del data["repository_settings"]
+    bootstrap_file.write_text(yaml.safe_dump(data), encoding="utf-8")
+
+    code = configure(repo_project, fake_repository)
+
+    assert code == EXIT_FAILED
+    assert "migrate it to schema_version 1.1" in capsys.readouterr().err
+    assert fake_repository.requests == []
+
+
+def test_configure_repo_failure_exits_with_1(
+    repo_project: Path, fake_repository: FakeRepository
+) -> None:
+    fake_repository.empty = True
+
+    assert configure(repo_project, fake_repository, "--apply") == EXIT_FAILED
+
+
+def test_configure_repo_rejects_invalid_repo(
+    repo_project: Path, fake_repository: FakeRepository
+) -> None:
+    argv = ["configure-repo", "--repo", "octo/demo/../x", "--config", str(repo_project)]
+
+    assert main(argv, transport=fake_repository.transport) == EXIT_USAGE
+    assert fake_repository.requests == []

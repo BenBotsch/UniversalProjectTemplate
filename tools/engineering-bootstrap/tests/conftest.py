@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
+from typing import Any
 from urllib.parse import unquote
 
 import httpx
@@ -115,3 +117,183 @@ class FakeGitHub:
 def fake_github() -> FakeGitHub:
     """Return a fake GitHub with an empty repository ``octo/demo``."""
     return FakeGitHub("octo/demo")
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+MERGE_FIELDS = ("allow_squash_merge", "allow_merge_commit", "allow_rebase_merge")
+
+
+@pytest.fixture
+def template_config_dir(tmp_path: Path) -> Path:
+    """Return a copy of the template's own ``.project`` directory."""
+    target = tmp_path / ".project"
+    shutil.copytree(REPOSITORY_ROOT / ".project", target)
+    return target
+
+
+class FakeRepository:
+    """Stateful stand-in for the branch, settings, Actions and security endpoints of one repo.
+
+    The initial state is a public repository created from the template: only ``main`` exists,
+    and the settings have GitHub's defaults.
+
+    Attributes:
+        settings: Body of ``GET /repos/{repo}``.
+        refs: Head commit per branch name.
+        empty: The repository has no commits; git endpoints answer 409.
+        actions, selected_actions, workflow: Bodies of the Actions permission endpoints.
+        vulnerability_alerts, security_fixes, vulnerability_reporting: Security switches.
+        requests: ``(method, path)`` of every request, for assertions.
+    """
+
+    def __init__(self, repo: str) -> None:
+        self.repo = repo
+        self.settings: dict[str, Any] = {
+            "full_name": repo,
+            "visibility": "public",
+            "private": False,
+            "permissions": {"admin": True, "push": True, "pull": True},
+            "default_branch": "main",
+            "description": None,
+            "topics": [],
+            "has_issues": True,
+            "has_discussions": False,
+            "has_wiki": True,
+            "is_template": False,
+            "delete_branch_on_merge": False,
+            "allow_squash_merge": True,
+            "allow_merge_commit": True,
+            "allow_rebase_merge": True,
+            "security_and_analysis": {
+                "secret_scanning": {"status": "disabled"},
+                "secret_scanning_push_protection": {"status": "disabled"},
+            },
+        }
+        self.refs: dict[str, str] = {"main": "a" * 40}
+        self.empty = False
+        self.actions: dict[str, Any] = {"enabled": True, "allowed_actions": "all"}
+        self.selected_actions: dict[str, Any] = {
+            "github_owned_allowed": False,
+            "verified_allowed": False,
+            "patterns_allowed": [],
+        }
+        self.workflow: dict[str, Any] = {
+            "default_workflow_permissions": "write",
+            "can_approve_pull_request_reviews": True,
+        }
+        self.vulnerability_alerts = False
+        self.security_fixes = False
+        self.vulnerability_reporting = False
+        self.requests: list[tuple[str, str]] = []
+
+    def make_private(self) -> None:
+        """Turn the repository into a private one without Advanced Security."""
+        self.settings.update(visibility="private", private=True)
+
+    @property
+    def transport(self) -> httpx.MockTransport:
+        """Return an httpx transport that serves this fake."""
+        return httpx.MockTransport(self)
+
+    def writes(self) -> list[tuple[str, str]]:
+        """Return the requests that are not GET."""
+        return [request for request in self.requests if request[0] != "GET"]
+
+    def __call__(self, request: httpx.Request) -> httpx.Response:
+        path = unquote(request.url.raw_path.decode().split("?")[0])
+        method = request.method
+        self.requests.append((method, path))
+        base = f"/repos/{self.repo}"
+        body = json.loads(request.content) if request.content else {}
+        if not path.startswith(base):
+            return _not_found()
+        sub = path[len(base) :]
+        if sub == "" and method == "GET":
+            return httpx.Response(200, json=self.settings)
+        if sub == "" and method == "PATCH":
+            return self._patch(body)
+        if sub.startswith("/git/"):
+            return self._git(method, sub, body)
+        if sub == "/topics" and method == "PUT":
+            self.settings["topics"] = body["names"]
+            return httpx.Response(200, json=body)
+        if sub == "/actions/permissions":
+            return _json_endpoint(method, self.actions, body)
+        if sub == "/actions/permissions/selected-actions":
+            if self.actions["allowed_actions"] != "selected":
+                return httpx.Response(409, json={"message": "allowed_actions is not selected"})
+            return _json_endpoint(method, self.selected_actions, body)
+        if sub == "/actions/permissions/workflow":
+            return _json_endpoint(method, self.workflow, body)
+        if sub == "/vulnerability-alerts":
+            if method == "GET":
+                return httpx.Response(204) if self.vulnerability_alerts else _not_found()
+            self.vulnerability_alerts = method == "PUT"
+            return httpx.Response(204)
+        if sub == "/automated-security-fixes":
+            if method == "GET":
+                return httpx.Response(200, json={"enabled": self.security_fixes, "paused": False})
+            if method == "PUT" and not self.vulnerability_alerts:
+                return httpx.Response(422, json={"message": "Vulnerability alerts are disabled"})
+            self.security_fixes = method == "PUT"
+            return httpx.Response(204)
+        if sub == "/private-vulnerability-reporting":
+            if self.settings["visibility"] != "public":
+                return httpx.Response(422, json={"message": "only for public repositories"})
+            if method == "GET":
+                return httpx.Response(200, json={"enabled": self.vulnerability_reporting})
+            self.vulnerability_reporting = method == "PUT"
+            return httpx.Response(204)
+        return _not_found()
+
+    def _patch(self, body: dict[str, Any]) -> httpx.Response:
+        analysis = body.pop("security_and_analysis", None)
+        if analysis is not None and self.settings["visibility"] != "public":
+            return httpx.Response(422, json={"message": "Advanced Security is not purchased"})
+        if "default_branch" in body and body["default_branch"] not in self.refs:
+            return httpx.Response(422, json={"message": "Validation Failed"})
+        merged = {**self.settings, **body}
+        if not any(merged[name] for name in MERGE_FIELDS):
+            return httpx.Response(422, json={"message": "at least one merge method is required"})
+        if analysis is not None:
+            merged["security_and_analysis"] = {**merged["security_and_analysis"], **analysis}
+        self.settings = merged
+        return httpx.Response(200, json=self.settings)
+
+    def _git(self, method: str, sub: str, body: dict[str, Any]) -> httpx.Response:
+        if self.empty:
+            return httpx.Response(409, json={"message": "Git Repository is empty."})
+        prefix = "/git/ref/heads/"
+        if method == "GET" and sub.startswith(prefix):
+            sha = self.refs.get(sub[len(prefix) :])
+            if sha is None:
+                return _not_found()
+            return httpx.Response(
+                200, json={"ref": sub[len("/git/ref/") :], "object": {"sha": sha}}
+            )
+        if method == "POST" and sub == "/git/refs":
+            branch = body["ref"].removeprefix("refs/heads/")
+            if branch in self.refs:
+                return httpx.Response(422, json={"message": "Reference already exists"})
+            self.refs[branch] = body["sha"]
+            return httpx.Response(201, json=body)
+        return _not_found()
+
+
+def _json_endpoint(method: str, state: dict[str, Any], body: dict[str, Any]) -> httpx.Response:
+    if method == "GET":
+        return httpx.Response(200, json=state)
+    if method == "PUT":
+        state.update(body)
+        return httpx.Response(204)
+    return _not_found()
+
+
+def _not_found() -> httpx.Response:
+    return httpx.Response(404, json={"message": "Not Found"})
+
+
+@pytest.fixture
+def fake_repository() -> FakeRepository:
+    """Return a fake public repository ``octo/demo`` that contains only ``main``."""
+    return FakeRepository("octo/demo")

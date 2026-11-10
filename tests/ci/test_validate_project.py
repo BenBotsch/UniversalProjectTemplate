@@ -131,6 +131,45 @@ def test_aliases_are_rejected_by_labels_schema_1_0(project_copy: Path) -> None:
     assert any("aliases" in problem for problem in messages(project_copy))
 
 
+def test_bootstrap_schema_1_0_is_still_accepted(project_copy: Path) -> None:
+    def downgrade(data: dict) -> None:
+        data["schema_version"] = "1.0"
+        del data["repository_settings"]
+
+    edit(project_copy, "bootstrap", downgrade)
+    assert messages(project_copy) == []
+
+
+def test_repository_settings_are_required_by_bootstrap_schema_1_1(project_copy: Path) -> None:
+    edit(project_copy, "bootstrap", lambda d: d.pop("repository_settings"))
+    assert_single_problem(
+        project_copy, "bootstrap.yml", "(root)", "'repository_settings' is a required property"
+    )
+
+
+def test_selected_actions_require_an_allow_list(project_copy: Path) -> None:
+    edit(
+        project_copy,
+        "bootstrap",
+        lambda d: d["repository_settings"]["actions"].pop("patterns_allowed"),
+    )
+    assert any("patterns_allowed" in problem for problem in messages(project_copy))
+
+
+def test_allow_list_is_rejected_unless_actions_are_selected(project_copy: Path) -> None:
+    edit(
+        project_copy,
+        "bootstrap",
+        lambda d: d["repository_settings"]["actions"].update(allowed_actions="all"),
+    )
+    problems = messages(project_copy)
+    assert len(problems) == 3
+    assert all(
+        "repository_settings.actions: False schema does not allow" in problem
+        for problem in problems
+    )
+
+
 def test_numeric_schema_version_is_reported(project_copy: Path) -> None:
     edit(project_copy, "workflow", lambda d: d.update(schema_version=1.0))
     assert_single_problem(
