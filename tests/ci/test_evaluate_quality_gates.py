@@ -462,7 +462,9 @@ def test_repository_gates_fail_when_a_language_is_set(tmp_path: Path) -> None:
     shutil.copytree(ROOT / ".github" / "workflows", tmp_path / ".github" / "workflows")
     project = tmp_path / evaluator.PROJECT_PATH
     data = yaml.safe_load(project.read_text(encoding="utf-8"))
-    data["technology"]["languages"] = ["python"]
+    # A language that no profile of the project covers; in a derived project with the python
+    # profile, its gates replace the generic ones.
+    data["technology"]["languages"] = ["cobol"]
     project.write_text(yaml.safe_dump(data), encoding="utf-8")
     jobs = tmp_path / "jobs.json"
     jobs.write_text(json.dumps({"jobs": _repository_jobs()}), encoding="utf-8")

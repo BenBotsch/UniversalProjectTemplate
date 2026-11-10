@@ -31,8 +31,9 @@ validated against `profiles/_schema/profile.schema.json`. It also contains a dir
 holding the files the profile owns. `project-bootstrap apply-profile` and
 `init --profile` apply the profile in two ways.
 
-1. **Own files.** Every file under `files/` is copied to the same path in the project. The tokens
-   `PROJECT_NAME`, `PROJECT_DESCRIPTION` and `PROJECT_PACKAGE` are replaced in paths and content.
+1. **Own files.** Every file under `files/` is copied to the same path in the project. Tokens for
+   the project name, its description and the derived package name are replaced in paths and
+   content.
    A profile must not ship a base file such as `ci.yml`.
 2. **Anchored blocks in base files.** Five base files each carry an anchor comment, and the
    profile's entries are inserted directly above it. Each inserted block is wrapped in
