@@ -93,3 +93,5 @@ python -I -m pytest tests/ci/test_check_action_pinning.py
 - `.project/quality-gates.yml`: `secret_scan` is set to `implemented`. `scripts/ci/README.md`
   lists the local commands for both jobs.
 - Enabling GitHub secret scanning and push protection is a repository setting and stays open.
+- First run on GitHub on 2026-11-10: `secret-scan` (full history) and `actions-pinning` passed.
+  The negative test with a fake key commit is still open.

@@ -68,7 +68,7 @@ validation). An empty project must not start a build that does not exist (§1.3)
 
 ## Acceptance Criteria
 
-- [ ] Repository validation runs automatically (§17.4).
+- [x] Repository validation runs automatically (§17.4).
 - [x] GitHub Actions/YAML validation is available (§17.4).
 - [x] GitHub Actions permissions follow least privilege (§17.5).
 - [x] External Actions are pinned (§17.5).
@@ -105,3 +105,6 @@ markdownlint-cli2
 - `link-check` runs lychee offline: only repository-internal links and anchors are checked.
 - `.project/quality-gates.yml`: `repository_validation` and `workflow_lint` are set to
   `implemented`. `CONTRIBUTING.md` now links to `scripts/ci/README.md` for the commands.
+- First runs on GitHub on 2026-11-10, after the push of `develop`: `CI`, `Quality` and `Security`
+  passed with all seven jobs. The negative test with a pull request that introduces invalid
+  metadata is still open.
