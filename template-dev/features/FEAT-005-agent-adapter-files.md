@@ -3,7 +3,7 @@ id: "FEAT-005"
 title: "Add Thin Agent Adapter Files"
 epic: "EPIC-02"
 phase: 1
-status: "active"
+status: "implemented"
 priority: "high"
 effort: "xs"
 target_repo: "universal-project-template"
@@ -54,12 +54,12 @@ examples for `CLAUDE.md` and `.github/copilot-instructions.md`.
 ## Tasks
 
 - [x] **T1:** Write both adapter files.
-- [ ] **T2:** Document and run the pickup test for Claude Code; record the result in the PR.
+- [x] **T2:** Document and run the pickup test for Claude Code; record the result in the PR.
 
 ## Acceptance Criteria
 
-- [ ] Claude Code and Copilot can access relevant shared instructions (§17.3).
-- [ ] Agent-specific files do not duplicate core rules unnecessarily (§17.3).
+- [x] Claude Code and Copilot can access relevant shared instructions (§17.3).
+- [x] Agent-specific files do not duplicate core rules unnecessarily (§17.3).
 
 ## Verification
 
@@ -73,3 +73,13 @@ wc -l CLAUDE.md .github/copilot-instructions.md     # each <= 15
 - **Allowed paths:** `CLAUDE.md`, `.github/copilot-instructions.md`, the subsection in `docs/governance/agent-workflow.md`, this feature file, backlog status.
 - **Requires approval:** none.
 - **Pitfalls:** Copilot pickup cannot be tested without a Copilot seat; report it as "not executed" if unavailable.
+
+## Implementation Notes
+
+- Claude Code pickup test (2026-11-10): the maintainer ran a new Claude Code session in the test
+  repository `BenBotsch/upt-smoke-2` and confirmed that it followed `AGENTS.md`. The answer was not
+  recorded verbatim.
+- Copilot pickup: not executed (no Copilot session was used). `.github/copilot-instructions.md` uses
+  the documented repository instruction file and only links `AGENTS.md` and `docs/INDEX.md`.
+- Duplication (R1, R2): `CLAUDE.md` (12 lines) imports `AGENTS.md`, and
+  `.github/copilot-instructions.md` (9 lines) links it; neither adds a rule of its own.

@@ -28,7 +28,7 @@ Structured, machine-readable issues: six forms, a complete label taxonomy, writt
 
 | ID | Title | Phase | Priority | Depends on | Status |
 |---|---|---|---|---|---|
-| [FEAT-007](../features/FEAT-007-issue-forms.md) | Add Issue Forms and Issue Template Configuration | 1 | critical | 008 | active |
+| [FEAT-007](../features/FEAT-007-issue-forms.md) | Add Issue Forms and Issue Template Configuration | 1 | critical | 008 | implemented |
 | [FEAT-008](../features/FEAT-008-label-taxonomy.md) | Define Complete Label Taxonomy in labels.yml | 1 | critical | 001 | implemented |
 | [FEAT-009](../features/FEAT-009-issue-management-governance.md) | Document Issue Management Rules and Lifecycle | 1 | high | 003, 008 | implemented |
 | [FEAT-010](../features/FEAT-010-github-projects.md) | Provide Optional GitHub Projects Board Setup | 2 | medium | 008, 024 | planned |

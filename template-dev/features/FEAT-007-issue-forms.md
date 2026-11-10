@@ -3,7 +3,7 @@ id: "FEAT-007"
 title: "Add Issue Forms and Issue Template Configuration"
 epic: "EPIC-03"
 phase: 1
-status: "active"
+status: "implemented"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -74,7 +74,7 @@ Initial labels follow `DEC-05` default: `type:*` + `status:triage`, no priority.
 - [x] Bug, Task, Feature and Epic issue forms are available (§17.2).
 - [x] Improvement and Documentation forms are available (§17.2).
 - [x] A test fails when a form references a label missing from `labels.yml`.
-- [ ] In a test repository with synchronized labels, each form creates an issue with the expected labels (manual check after `FEAT-023`).
+- [x] In a test repository with synchronized labels, each form creates an issue with the expected labels (manual check after `FEAT-023`).
 
 ## Verification
 
@@ -88,3 +88,12 @@ python -I scripts/ci/check_issue_forms.py     # created in T4
 - **Allowed paths:** `.github/ISSUE_TEMPLATE/**`, `scripts/ci/check_issue_forms.py` (+ test), the mapping section in `docs/governance/issue-management.md`, this feature file, backlog status.
 - **Requires approval:** creating issues in a real repository.
 - **Pitfalls:** §19: Issue Forms do not enforce required fields for API-created issues; Severity dropdown does not set a label.
+
+## Implementation Notes
+
+- Label check (2026-11-10) in the private test repository `BenBotsch/upt-smoke-2` with synchronized
+  labels, whose forms are identical to this template (same blob SHAs): one issue per
+  form (#1 to #6) was created with `gh issue create`, using the title prefix, labels and field
+  headings of each form. Each issue has exactly the labels of its form. Limitation: the issues
+  were created through the API, not through the web form, so the form rendering and the
+  "New issue" chooser were not checked.
