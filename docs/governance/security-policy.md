@@ -67,6 +67,12 @@ The `secret-scan` job in `.github/workflows/security.yml` runs Gitleaks with the
 Any finding fails the job. The allowlist covers only `fixtures/secrets/` directories below `tests/`,
 for deliberately fake test values; it never covers real secrets.
 
+For the full-history scan, the checkout with `fetch-depth: 0` fetches every branch, and Gitleaks
+scans all fetched refs. It therefore checks every branch on GitHub, not only the branch that
+triggered the run. A secret on any branch fails the push runs on `main` and `develop` and the
+scheduled run until the branch is deleted. This is intended: no branch may hold a secret. Delete
+branches with deliberately fake secrets right after a test.
+
 GitHub secret scanning and push protection are repository settings. Enabling them changes
 repository security settings and needs approval by a maintainer; see
 [Agent Permissions](agent-permissions.md).
