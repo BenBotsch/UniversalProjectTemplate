@@ -43,7 +43,8 @@ repository_settings:
   # topics: ["python", "cli"]
   actions:
     # Local and GitHub-owned actions plus the listed ones. A workflow that uses another action
-    # fails until it is added here and configure-repo runs again.
+    # fails until it is added here and configure-repo runs again; validate_project.py reports
+    # such an action.
     allowed_actions: "selected"
     github_owned_allowed: true
     verified_allowed: false

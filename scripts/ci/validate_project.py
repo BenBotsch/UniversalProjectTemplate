@@ -8,7 +8,9 @@ label rules of check_labels.py and cross-file checks run:
 - ``development_branch`` differs from ``default_branch`` in project.yml;
 - branches in workflow.yml are the default or development branch of project.yml,
   and releases come from the default branch;
-- ``branch_name_pattern`` and ``tag_pattern`` are valid regular expressions.
+- ``branch_name_pattern`` and ``tag_pattern`` are valid regular expressions;
+- every action that the workflows in .github/ use is allowed by
+  ``repository_settings.actions`` in bootstrap.yml, so applying the settings cannot stop CI.
 
 The files are only parsed with ``yaml.safe_load``; their content is never executed.
 
@@ -20,6 +22,7 @@ Requires: pyyaml, jsonschema (see scripts/ci/requirements.txt).
 
 from __future__ import annotations
 
+import fnmatch
 import importlib.util
 import json
 import re
@@ -56,18 +59,22 @@ class Problem:
         return f"{self.file}:{self.path}: {self.message}"
 
 
-def _load_check_labels() -> ModuleType:
-    """Load check_labels.py from this directory; ``python -I`` does not add it to sys.path."""
-    path = Path(__file__).with_name("check_labels.py")
-    spec = importlib.util.spec_from_file_location("check_labels", path)
+def _load_sibling(name: str) -> ModuleType:
+    """Load a script from this directory; ``python -I`` does not add it to sys.path."""
+    path = Path(__file__).with_name(f"{name}.py")
+    spec = importlib.util.spec_from_file_location(name, path)
     if spec is None or spec.loader is None:
         raise ImportError(f"cannot load {path}")
     module = importlib.util.module_from_spec(spec)
+    # Dataclasses look up their module in sys.modules while the module executes.
+    sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
 
 
-check_labels = _load_check_labels()
+check_labels = _load_sibling("check_labels")
+check_action_pinning = _load_sibling("check_action_pinning")
+GITHUB_OWNED_PREFIXES = ("actions/", "github/")
 
 
 def load_config(path: Path) -> tuple[Any, list[Problem]]:
@@ -134,12 +141,16 @@ def validate_schema(path: Path, data: Any, schema_dir: Path) -> list[Problem]:
     return sorted(problems, key=lambda problem: (problem.path, problem.message))
 
 
-def check_cross_file(configs: dict[str, Any], paths: dict[str, Path]) -> list[Problem]:
+def check_cross_file(
+    configs: dict[str, Any], paths: dict[str, Path], repository_root: Path | None = None
+) -> list[Problem]:
     """Check consistency between the configuration files.
 
     Args:
         configs: Schema-valid parsed data, keyed by configuration name.
         paths: File path per configuration name, used in messages.
+        repository_root: Repository root whose workflows are checked against the Actions
+            allow-list; ``None`` skips that check.
 
     Returns:
         All cross-file problems.
@@ -196,6 +207,96 @@ def check_cross_file(configs: dict[str, Any], paths: dict[str, Path]) -> list[Pr
                     workflow, {default, development}, default, paths["workflow"]
                 )
             )
+
+    bootstrap = configs.get("bootstrap")
+    if (
+        repository_root is not None
+        and bootstrap is not None
+        and "repository_settings" in bootstrap
+    ):
+        problems.extend(
+            check_allowed_actions(
+                bootstrap["repository_settings"]["actions"],
+                repository_root,
+                paths["bootstrap"],
+            )
+        )
+    return problems
+
+
+def action_is_allowed(ref: str, actions: dict[str, Any]) -> bool:
+    """Return whether GitHub would let a workflow use ``ref`` under ``actions``.
+
+    Local actions and reusable workflows of the same repository are always allowed.
+    Docker image references are not covered by the allow-list and pass. Actions of verified
+    Marketplace creators cannot be recognized offline, so ``verified_allowed`` is ignored and
+    such actions must be listed in ``patterns_allowed`` to pass.
+
+    Args:
+        ref: Value of a ``uses:`` key, for example ``owner/repo/path@sha``.
+        actions: ``repository_settings.actions`` of bootstrap.yml.
+
+    Returns:
+        ``True`` if the reference is allowed.
+    """
+    if ref.startswith(("./", "docker://")):
+        return True
+    policy = actions["allowed_actions"]
+    if policy == "all":
+        return True
+    if policy == "local_only":
+        return False
+    name, _, version = ref.partition("@")
+    if actions["github_owned_allowed"] and name.startswith(GITHUB_OWNED_PREFIXES):
+        return True
+    repository = "/".join(name.split("/")[:2])
+    for pattern in actions["patterns_allowed"]:
+        pattern_name, separator, pattern_version = pattern.partition("@")
+        if not separator:
+            pattern_version = "*"
+        names_match = fnmatch.fnmatchcase(name, pattern_name) or fnmatch.fnmatchcase(
+            repository, pattern_name
+        )
+        if names_match and fnmatch.fnmatchcase(version, pattern_version):
+            return True
+    return False
+
+
+def check_allowed_actions(
+    actions: dict[str, Any], repository: Path, bootstrap_path: Path
+) -> list[Problem]:
+    """Report workflow and action references that the Actions allow-list would block.
+
+    Args:
+        actions: ``repository_settings.actions`` of bootstrap.yml.
+        repository: Repository root that holds ``.github/``.
+        bootstrap_path: Path of bootstrap.yml, used in messages.
+
+    Returns:
+        One problem per blocked reference.
+    """
+    problems = []
+    for path in check_action_pinning.list_files(repository):
+        display = path.relative_to(repository).as_posix()
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue  # check_action_pinning.py reports unreadable files.
+        for number, line in enumerate(lines, start=1):
+            match = check_action_pinning.USES_LINE.match(line)
+            if match is None or line.lstrip().startswith("#"):
+                continue
+            ref = match["ref"]
+            if not action_is_allowed(ref, actions):
+                problems.append(
+                    Problem(
+                        bootstrap_path,
+                        "repository_settings.actions",
+                        f"{display}:{number} uses {ref!r}, which allowed_actions "
+                        f"{actions['allowed_actions']!r} blocks; add a matching entry "
+                        "to patterns_allowed",
+                    )
+                )
     return problems
 
 
@@ -313,7 +414,7 @@ def validate_project(project_dir: Path) -> list[Problem]:
         problems.extend(schema_problems)
         if not schema_problems:
             valid[name] = data
-    problems.extend(check_cross_file(valid, paths))
+    problems.extend(check_cross_file(valid, paths, project_dir.parent))
     return problems
 
 
