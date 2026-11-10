@@ -11,6 +11,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Waits seven days before proposing a new release.
+    cooldown:
+      default-days: 7
     target-branch: "develop"
     labels:
       - "area:ci-cd"
