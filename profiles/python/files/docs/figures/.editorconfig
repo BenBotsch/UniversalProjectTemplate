@@ -1,0 +1,4 @@
+# Generated figures stay as matplotlib writes them; editors must not trim them.
+[*.svg]
+trim_trailing_whitespace = false
+insert_final_newline = false

@@ -17,6 +17,8 @@ project-bootstrap init --repo OWNER/NAME --profile python --apply --issue N
 | `tests/test_smoke.py` | One test that imports the package |
 | `.github/workflows/python.yml` | The jobs below, called by `ci.yml` as job `python` |
 | `.github/actions/python-setup/action.yml` | Shared setup: Python, uv and `uv sync` |
+| `.pre-commit-config.yaml` | Local hooks: whitespace, YAML and TOML checks, Ruff and mypy |
+| `docs/figures/README.md`, `.gitattributes`, `.editorconfig` | Guide and settings for generated figures |
 
 The package name is the project name in lower case, with every other character replaced by `_`.
 The profile also adds a Dependabot entry for the `uv` ecosystem and the label `area:python`.
@@ -44,7 +46,7 @@ with `covers`, so these become inapplicable for a Python project.
 | Job | Gate | Covers | Command |
 |---|---|---|---|
 | `python / format` | `python_formatting` | `formatting` | `ruff format --check .` |
-| `python / lint` | `python_lint` | `lint` | `ruff check .` |
+| `python / lint` | `python_lint` | `lint` | `ruff check .`, and `figkit check docs/figures` when figures exist |
 | `python / type-check` | `python_type_check` | none | `mypy` |
 | `python / test (3.12)`, `(3.13)` | `python_tests` | `tests` | `pytest --cov` |
 | `python / build` | `python_build` | `build` | `uv build` |
@@ -52,6 +54,22 @@ with `covers`, so these become inapplicable for a Python project.
 
 `python_tests` is required for code changes. A pull request that changes only Markdown or `docs/`
 skips it. pytest fails when it collects no test, so deleting the tests fails the gate.
+
+## Figures
+
+The optional dependency group `figures` installs [FigureKit](https://github.com/BenBotsch/FigureKit),
+the shared figure style, with matplotlib. `uv sync` and the built package leave it out.
+`docs/figures/README.md` describes the naming, the light and dark files, embedding and alt text.
+
+When `docs/figures/` holds an SVG, PNG or WebP file, the `lint` job installs the group and runs
+`figkit check docs/figures`. A missing dark file, an opaque chart or a file above its budget
+fails the gate. Without figures the job is unchanged. matplotlib writes SVG lines that end with a
+space, so the pre-commit hooks, `.gitattributes` and `.editorconfig` leave `docs/figures/*.svg`
+unchanged.
+
+FigureKit is pinned to a tag. The audit job leaves the git source out of its export, because it
+has no hash and no PyPI advisory, and audits its dependencies. To drop figures, delete the group
+and `docs/figures/`.
 
 ## Decisions
 

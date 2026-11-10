@@ -15,6 +15,9 @@ dev = [
     "pytest-cov>=7.1",
     "ruff>=0.17",
 ]
+# Optional: figures in the shared FigureKit style, with matplotlib; see docs/figures/README.md.
+# The package and its runtime installation do not need this group, and uv sync leaves it out.
+figures = ["figkit @ git+https://github.com/BenBotsch/FigureKit@v0.2.1"]
 
 [build-system]
 requires = ["uv_build>=0.13.5,<0.14"]

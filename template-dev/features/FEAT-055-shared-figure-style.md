@@ -3,7 +3,7 @@ id: "FEAT-055"
 title: "Offer the Shared Figure Style in the Python Profile"
 epic: "EPIC-08"
 phase: 3
-status: "planned"
+status: "active"
 priority: "low"
 effort: "s"
 target_repo: "universal-project-template"
@@ -11,7 +11,7 @@ spec_refs: []
 dependencies: ["FEAT-032"]
 blocked_by_decisions: []
 agent_ready: false
-related_issues: []
+related_issues: ["#24"]
 created_at: "2026-11-10"
 updated_at: "2026-11-10"
 ---
@@ -71,14 +71,14 @@ quality gates of projects without figures.
 
 ## Tasks
 
-- [ ] **T1:** Dependency group, guide and hook exclusions in the Python profile.
-- [ ] **T2:** Conditional CI step and fixture test with and without `docs/figures/`.
+- [x] **T1:** Dependency group, guide and hook exclusions in the Python profile.
+- [x] **T2:** Conditional CI step and fixture test with and without `docs/figures/`.
 
 ## Acceptance Criteria
 
-- [ ] A fixture project without `docs/figures/` passes CI unchanged.
-- [ ] A fixture project with a light figure but no dark counterpart fails the figure check.
-- [ ] A fixture project with valid figure pairs passes the figure check.
+- [x] A fixture project without `docs/figures/` passes CI unchanged.
+- [x] A fixture project with a light figure but no dark counterpart fails the figure check.
+- [x] A fixture project with valid figure pairs passes the figure check.
 
 ## Verification
 
@@ -93,3 +93,32 @@ uv run figkit check docs/figures
 - **Requires approval:** changing the pinned FigureKit tag in released profiles.
 - **Pitfalls:** matplotlib SVGs end lines with spaces; whitespace hooks must exclude them, or they
   rewrite generated files and break byte-identical output.
+
+## Implementation Notes
+
+- The python profile is raised to 0.2.0. `pyproject.toml` gets the dependency group `figures`
+  with `figkit @ git+https://github.com/BenBotsch/FigureKit@v0.2.1`, the tag that
+  `PredictiveMaintenanceMLOps` uses (R3). A dependency group is not part of the built package, and
+  `uv sync` installs only `dev` by default (R4).
+- The guide is `docs/figures/README.md` of the profile. It covers the naming, `<picture>`
+  embedding, alt text and sources (T1).
+- **Condition (R1):** the profile ships the guide, so `docs/figures/` always exists. The step
+  "Check figures" in the `lint` job therefore runs `figkit check docs/figures` only when the
+  folder holds an SVG, PNG or WebP file. It uses `--locked` when `uv.lock` exists. A finding
+  fails the `lint` job and its gate `python_lint` (R2). No new job or gate is needed.
+- **Deviation:** the template already has a base `.gitattributes`, which a profile must not ship.
+  The rule `*.svg -whitespace` is in `docs/figures/.gitattributes` instead, and
+  `docs/figures/.editorconfig` keeps editors from trimming the SVGs. `.pre-commit-config.yaml` is
+  new and excludes the SVGs from `end-of-file-fixer` and `trailing-whitespace` (pitfall).
+- **Change to the audit job:** pip-audit rejects the git requirement of FigureKit, because it has
+  no hash. `uv export` leaves it out with `--no-emit-package figkit`, so matplotlib, numpy and
+  Pillow are still audited. The option is ignored when the group is deleted.
+- **Tests (T2):** `test_python_figure_check_runs_only_with_figures` runs the script of the step
+  with a stub `uv`: guide only, figures with and without `uv.lock`, and a finding.
+- **Verification (local, Windows, FigureKit v0.2.1):** in a project initialized with the profile,
+  `uv lock` and `uv sync --locked` install neither FigureKit nor matplotlib. With a rendered pair
+  `demo.svg`/`demo-dark.svg`, the step reports `ok`. Without `demo-dark.svg` it fails with
+  "missing its pair". With only the guide it skips. `pre-commit run trailing-whitespace` and
+  `end-of-file-fixer` leave the SVG byte-identical, and `git diff --check` reports nothing for it.
+  pip-audit on the export reports no known vulnerabilities. `uv build`, Ruff, mypy, pytest,
+  actionlint and `pre-commit validate-config` pass. The run on GitHub is not verified yet.
