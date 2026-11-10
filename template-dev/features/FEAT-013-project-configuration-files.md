@@ -3,7 +3,7 @@ id: "FEAT-013"
 title: "Create Machine-Readable Project Configuration Files"
 epic: "EPIC-05"
 phase: 1
-status: "planned"
+status: "implemented"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -61,15 +61,15 @@ through bootstrap, validators and dashboard. §4.2 assigns content per file, §4
 
 ## Tasks
 
-- [ ] **T1:** Write `project.yml` and `.project/README.md`.
-- [ ] **T2:** Write `quality-gates.yml` and `workflow.yml`.
-- [ ] **T3:** Write `bootstrap.yml` with template-only fields.
+- [x] **T1:** Write `project.yml` and `.project/README.md`.
+- [x] **T2:** Write `quality-gates.yml` and `workflow.yml`.
+- [x] **T3:** Write `bootstrap.yml` with template-only fields.
 
 ## Acceptance Criteria
 
-- [ ] Default project metadata is initialized (§17.1); schema validation follows in `FEAT-014`.
-- [ ] `template_only_paths` and `is_template` are defined and documented.
-- [ ] All files parse as YAML.
+- [x] Default project metadata is initialized (§17.1); schema validation follows in `FEAT-014`.
+- [x] `template_only_paths` and `is_template` are defined and documented.
+- [x] All files parse as YAML.
 
 ## Verification
 
