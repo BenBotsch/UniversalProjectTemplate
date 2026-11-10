@@ -32,7 +32,7 @@ bootstrap; `docs/` is what derived projects keep.
 
 ## Scope
 
-- `docs/INDEX.md` listing only directories that contain files. `docs/governance/issue-management.md` already exists (label taxonomy from `FEAT-008`) and must be listed.
+- `docs/INDEX.md` listing only directories that contain files. `docs/governance/issue-management.md` already exists (label taxonomy from `FEAT-008`) and must be listed. Root `AGENTS.md` (`FEAT-004`) must be listed as the first entry of the agent reading order.
 - Minimal, real content per area that is meaningful for every project.
 - ADR template and `ADR-0001` (GitHub Issues as operational source of truth).
 - Feature-spec template and a planning README for derived projects.

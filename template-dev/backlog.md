@@ -20,7 +20,7 @@ issue is authoritative.
 | 1 | [FEAT-001](features/FEAT-001-repository-skeleton.md) | Create Repository Skeleton and Hygiene Files | EPIC-01 | 1 | first | critical | s | - | - | yes | implemented |
 | 2 | [FEAT-008](features/FEAT-008-label-taxonomy.md) | Define Complete Label Taxonomy in labels.yml | EPIC-03 | 1 | first | critical | s | 001 | - | yes | implemented |
 | 3 | [FEAT-013](features/FEAT-013-project-configuration-files.md) | Create Machine-Readable Project Configuration Files | EPIC-05 | 1 | first | critical | m | 001 | - | yes | implemented |
-| 4 | [FEAT-004](features/FEAT-004-agents-md.md) | Write Root AGENTS.md | EPIC-02 | 1 | first | critical | s | 001 | - | yes | planned |
+| 4 | [FEAT-004](features/FEAT-004-agents-md.md) | Write Root AGENTS.md | EPIC-02 | 1 | first | critical | s | 001 | - | yes | implemented |
 | 5 | [FEAT-011](features/FEAT-011-pr-template-and-codeowners.md) | Add Pull Request Template and CODEOWNERS Convention | EPIC-04 | 1 | first | critical | xs | 001 | - | yes | planned |
 | 6 | [FEAT-002](features/FEAT-002-root-community-files.md) | Write Root Community and Policy Files | EPIC-01 | 1 | first | critical | m | 001 | - | yes | planned |
 | 7 | [FEAT-003](features/FEAT-003-docs-scaffold-and-adr.md) | Create Documentation Scaffold, Index and ADR Process | EPIC-01 | 1 | first | high | m | 001 | - | yes | planned |
