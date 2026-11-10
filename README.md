@@ -9,9 +9,9 @@ development:
 
 1. Create the repository with the bootstrap script in `scripts/bootstrap/`. It synchronizes the
    labels and creates the `develop` branch; see its [README](scripts/bootstrap/README.md).
-2. Replace the placeholders `PROJECT_NAME`, `PROJECT_DESCRIPTION`, `OWNER`, `REPOSITORY` and
-   `OWNER_OR_TEAM`. The bootstrap script does not replace them yet.
-3. Choose a license for the project and add it as `LICENSE` (see [License](#license)).
+2. Replace the placeholders `PROJECT_NAME`, `PROJECT_DESCRIPTION`, `OWNER` and `REPOSITORY`.
+   The bootstrap script does not replace them yet. Check the owner in `.github/CODEOWNERS`.
+3. Decide on the license of the project and update `LICENSE` (see [License](#license)).
 4. Select a technology profile and fill in the sections below.
 5. Remove this section.
 
@@ -58,7 +58,7 @@ not implemented counts as failed. The commands for local checks are listed in
 | `tests/`, `examples/` | Optional, depending on the technology profile |
 | `AGENTS.md` | Binding rules for contributors and coding agents |
 | `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md`, `CHANGELOG.md` | Community and policy files |
-| `LICENSE` | Selected explicitly for each project |
+| `LICENSE` | License of the template; each project decides on its own |
 | `.editorconfig`, `.gitattributes`, `.gitignore` | Cross-platform formatting, line endings and ignore rules |
 
 The template prescribes no programming language and no source layout. Language-specific files
@@ -85,6 +85,6 @@ Do not report vulnerabilities in public issues. Follow [SECURITY.md](SECURITY.md
 
 ## License
 
-Every project created from this template must choose its own license explicitly and add it as
-`LICENSE`. The license of the template repository does not automatically apply to code in a
-derived project. Until a `LICENSE` file exists, no license is granted.
+The template is licensed under the [MIT License](LICENSE). A project created from the template
+receives this `LICENSE` file as a copy. Each project decides on its own license explicitly: keep
+the MIT License with the project's copyright holder, or replace the file with another license.

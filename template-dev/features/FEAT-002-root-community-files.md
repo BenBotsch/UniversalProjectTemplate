@@ -65,12 +65,12 @@ explicitly per project (§3.1, §19); the template must not silently impose one.
 - [x] **T1:** Write `README.md` and `CHANGELOG.md`.
 - [x] **T2:** Write `CONTRIBUTING.md` and `SUPPORT.md`.
 - [x] **T3:** Write `SECURITY.md`.
-- [ ] **T4:** Human decision: license of the template repository; add `LICENSE` afterwards (see [open-decisions.md](../open-decisions.md#additional-human-only-choices)).
+- [x] **T4:** Human decision: license of the template repository; add `LICENSE` afterwards (see [open-decisions.md](../open-decisions.md#additional-human-only-choices)).
 
 ## Acceptance Criteria
 
 - [x] A consistent README and project entry point are available (§17.1).
-- [ ] The selected project license is explicit and appropriate (§17.1), documented as a bootstrap choice for derived projects.
+- [x] The selected project license is explicit and appropriate (§17.1), documented as a bootstrap choice for derived projects.
 - [ ] Confidential security vulnerabilities have a private reporting channel (§17.2).
 - [x] `CHANGELOG.md` validates against the Keep a Changelog structure (headings `## [Unreleased]`).
 
@@ -87,3 +87,11 @@ markdownlint-cli2 "*.md"   # once FEAT-016 provides the config
 - **Allowed paths:** the five root files, `LICENSE` (after T4 only), this feature file, backlog status.
 - **Requires approval:** choosing a license (T4).
 - **Pitfalls:** §19: placeholder links remain in derived repos if not validated; keep tokens consistent. Private vulnerability reporting must be enabled per repository; say so in `SECURITY.md`.
+
+## Implementation Notes
+
+- T4 decided by the maintainer on 2026-11-10: MIT License for the template repository, copyright
+  holder from the maintainer's Git identity. Derived projects receive the file as a copy; the
+  `README.md` License section asks each project to keep or replace it explicitly. `LICENSE` is not
+  in `template_only_paths`, because removing it would leave derived projects without any license
+  file to decide on.

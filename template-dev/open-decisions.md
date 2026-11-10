@@ -28,6 +28,6 @@ These are not architecture decisions but need a human before the affected task c
 
 | Choice | Affected | Note |
 |---|---|---|
-| License of the template repository itself | FEAT-002/T4 | §1.3, §19: a license is selected explicitly; agents must not pick one |
-| Owner/team handle for CODEOWNERS in the template | FEAT-011 | Placeholder `@OWNER_OR_TEAM` stays in the template; replaced by `FEAT-028` |
+| License of the template repository itself | FEAT-002/T4 | Decided 2026-11-10: MIT License |
+| Owner/team handle for CODEOWNERS in the template | FEAT-011 | Decided 2026-11-10: `@BenBotsch`; derived projects inherit it, `FEAT-028` changes it |
 | Creating the GitHub repository and marking it as template | FEAT-048, FEAT-026 | Outward-facing action; requires explicit approval |

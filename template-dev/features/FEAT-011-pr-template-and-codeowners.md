@@ -73,3 +73,11 @@ grep -c "^## " .github/PULL_REQUEST_TEMPLATE.md     # 7 level-2 sections
 - **Allowed paths:** the two files, this feature file, backlog status.
 - **Requires approval:** none.
 - **Pitfalls:** An unreplaced `@OWNER_OR_TEAM` produces CODEOWNERS errors in derived repos; `FEAT-028` replaces it, `FEAT-015` detects it.
+
+## Implementation Notes
+
+- Owner decided by the maintainer on 2026-11-10: `.github/CODEOWNERS` names `@BenBotsch` instead
+  of `@OWNER_OR_TEAM`. This deviates from R3: derived projects inherit the owner, and repository
+  validation no longer reports an unset owner. `@OWNER_OR_TEAM` stays a placeholder token in
+  `workflow.yml`, so a project that reintroduces it is still reported. `README.md` asks derived
+  projects to check the owner. `FEAT-028` must replace the owner instead of a placeholder.
