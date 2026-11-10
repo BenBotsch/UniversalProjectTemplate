@@ -85,6 +85,17 @@
         "require_human_approval": { "type": "boolean" }
       }
     },
+    "repository_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Settings of scripts/ci/validate_repository.py; omitted fields use its defaults.",
+      "properties": {
+        "required_files": { "$ref": "#/$defs/string_list" },
+        "placeholder_tokens": { "$ref": "#/$defs/string_list" },
+        "placeholder_allowlist": { "$ref": "#/$defs/string_list" },
+        "docs_index_severity": { "enum": ["error", "warning"] }
+      }
+    },
     "issue_policy": {
       "type": "object",
       "additionalProperties": false,
@@ -115,6 +126,11 @@
     }
   },
   "$defs": {
+    "string_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
     "branch_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._/-]*$" },
     "merge_method": { "enum": ["squash", "merge", "rebase"] },
     "label_value": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },

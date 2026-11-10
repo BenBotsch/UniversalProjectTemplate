@@ -44,6 +44,32 @@ releases:
   tag_pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
   require_human_approval: true
 
+# Read by scripts/ci/validate_repository.py.
+repository_validation:
+  required_files:
+    - "README.md"
+    - "AGENTS.md"
+    - "CONTRIBUTING.md"
+    - "SECURITY.md"
+    - "CHANGELOG.md"
+    - ".project/project.yml"
+    - ".github/PULL_REQUEST_TEMPLATE.md"
+    - ".github/ISSUE_TEMPLATE/config.yml"
+  # Checked only when project.is_template is false. A token must not continue a longer name.
+  placeholder_tokens:
+    - "PROJECT_NAME"
+    - "PROJECT_DESCRIPTION"
+    - "OWNER/REPOSITORY"
+    - "@OWNER_OR_TEAM"
+    - "OWNER/"
+  # Glob patterns of files that name the tokens on purpose, for example to document them.
+  placeholder_allowlist:
+    - ".project/README.md"
+    - ".project/workflow.yml"
+    - "scripts/ci/validate_repository.py"
+    - "tests/ci/*"
+  docs_index_severity: "error"
+
 issue_policy:
   # Provisional default: new issues start in triage; priority is required from status:ready on.
   initial_status: "triage"

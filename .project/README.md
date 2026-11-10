@@ -88,6 +88,9 @@ A required gate passes only if its job finished with `success`. A skipped, missi
 | `pull_requests.merge_strategy.*` | `squash`, `merge`, `rebase` |
 | `issue_policy.initial_status` | A value from `issue_policy.supported_states` |
 | `issue_policy.*_label_groups`, `required_for_ready` | Group names from `labels.yml` |
+| `repository_validation.required_files`, `placeholder_allowlist` | Paths relative to the repository root; the allowlist takes glob patterns |
+| `repository_validation.placeholder_tokens` | Literal tokens; a match inside a longer identifier is ignored |
+| `repository_validation.docs_index_severity` | `error` (default), `warning` |
 
 ### `bootstrap.yml`
 
@@ -115,3 +118,8 @@ control this:
 Values that bootstrap replaces during initialization use these tokens: `PROJECT_NAME`,
 `PROJECT_DESCRIPTION` and `OWNER`. Repository validation reports tokens that remain in a derived
 project.
+
+Repository validation (`python -I scripts/ci/validate_repository.py`) reports each check with a
+rule ID: `REPO-REQUIRED`, `REPO-PLACEHOLDER`, `REPO-TEMPLATE-ONLY`, `REPO-DEAD-LINK-TEMPLATE`,
+`REPO-DOCS-INDEX`, `REPO-ISSUE-FORMS` and `REPO-CONFIG`. Placeholder and template-only checks run
+only when `is_template` is `false`. `--format json` prints the findings for other tools.
