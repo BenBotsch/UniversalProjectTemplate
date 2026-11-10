@@ -48,7 +48,7 @@ issue is authoritative.
 | 29 | [FEAT-048](features/FEAT-048-seed-backlog-migration.md) | Migrate Seed Backlog to GitHub Issues | EPIC-10 | 2 | then | high | m | 007, 008, 025 | - | no | planned |
 | 30 | [FEAT-010](features/FEAT-010-github-projects.md) | Provide Optional GitHub Projects Board Setup | EPIC-03 | 2 | then | medium | m | 008, 024 | DEC-03 | no | planned |
 | 31 | [FEAT-022](features/FEAT-022-severity-priority-suggestion.md) | Suggest Priority from Bug Severity | EPIC-06 | 2 | then | low | s | 018 | - | yes | planned |
-| 32 | [FEAT-031](features/FEAT-031-profile-mechanism.md) | Define Technology Profile Mechanism | EPIC-08 | 3 | then | high | l | 016, 020, 024 | - | yes | active |
+| 32 | [FEAT-031](features/FEAT-031-profile-mechanism.md) | Define Technology Profile Mechanism | EPIC-08 | 3 | then | high | l | 016, 020, 024 | - | yes | implemented |
 | 33 | [FEAT-032](features/FEAT-032-profile-python.md) | Add Python Profile | EPIC-08 | 3 | then | high | m | 031 | - | yes | active |
 | 34 | [FEAT-034](features/FEAT-034-profile-node-typescript.md) | Add Node.js and TypeScript Profile | EPIC-08 | 3 | then | medium | m | 031 | - | yes | planned |
 | 35 | [FEAT-033](features/FEAT-033-profile-cpp-cmake-conan.md) | Add C++ Profile with CMake and Conan | EPIC-08 | 3 | then | medium | l | 031 | - | yes | planned |

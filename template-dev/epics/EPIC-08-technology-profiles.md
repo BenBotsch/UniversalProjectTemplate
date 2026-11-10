@@ -28,7 +28,7 @@ Add optional per-stack profiles on top of the universal base, and later extract 
 
 | ID | Title | Phase | Priority | Depends on | Status |
 |---|---|---|---|---|---|
-| [FEAT-031](../features/FEAT-031-profile-mechanism.md) | Define Technology Profile Mechanism | 3 | high | 016, 020, 024 | active |
+| [FEAT-031](../features/FEAT-031-profile-mechanism.md) | Define Technology Profile Mechanism | 3 | high | 016, 020, 024 | implemented |
 | [FEAT-032](../features/FEAT-032-profile-python.md) | Add Python Profile | 3 | high | 031 | active |
 | [FEAT-033](../features/FEAT-033-profile-cpp-cmake-conan.md) | Add C++ Profile with CMake and Conan | 3 | medium | 031 | planned |
 | [FEAT-034](../features/FEAT-034-profile-node-typescript.md) | Add Node.js and TypeScript Profile | 3 | medium | 031 | planned |
