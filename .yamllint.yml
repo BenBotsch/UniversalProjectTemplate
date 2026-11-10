@@ -1,0 +1,22 @@
+# yamllint configuration, compatible with GitHub workflow syntax.
+extends: default
+
+ignore: |
+  .git/
+  node_modules/
+  .venv/
+  # Deliberately invalid fixture for the configuration validator tests.
+  tests/ci/fixtures/project/invalid-syntax.yml
+
+rules:
+  # Workflow files use `on:` as a key; do not treat it as a boolean.
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false
+  # Most YAML files in this repository do not start with "---".
+  document-start: disable
+  # Pinned action references with version comments exceed 80 characters.
+  line-length:
+    max: 120
+  comments:
+    min-spaces-from-content: 1

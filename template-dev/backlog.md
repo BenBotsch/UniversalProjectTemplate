@@ -31,7 +31,7 @@ issue is authoritative.
 | 12 | [FEAT-012](features/FEAT-012-branching-commit-release-docs.md) | Document Branching, Commit and Release Conventions | EPIC-04 | 1 | first | high | m | 003 | - | yes | implemented |
 | 13 | [FEAT-006](features/FEAT-006-agent-governance-docs.md) | Write Agent Workflow, Permissions and Documentation Policy | EPIC-02 | 1 | first | high | m | 003, 004 | - | yes | implemented |
 | 14 | [FEAT-015](features/FEAT-015-repository-validator.md) | Implement Repository Validator with Placeholder and Template-Only Checks | EPIC-06 | 2 | first | critical | m | 014 | - | yes | implemented |
-| 15 | [FEAT-016](features/FEAT-016-base-ci-workflows.md) | Add Universal Base CI and Quality Workflows | EPIC-06 | 2 | first | critical | m | 014, 015 | - | yes | planned |
+| 15 | [FEAT-016](features/FEAT-016-base-ci-workflows.md) | Add Universal Base CI and Quality Workflows | EPIC-06 | 2 | first | critical | m | 014, 015 | - | yes | active |
 | 16 | [FEAT-017](features/FEAT-017-security-baseline-workflow.md) | Add Security Baseline Workflow and Secret Scanning | EPIC-06 | 2 | first | critical | m | 016 | - | yes | planned |
 | 17 | [FEAT-023](features/FEAT-023-bootstrap-phase-a-script.md) | Provide Phase A Bootstrap Script with GitHub CLI | EPIC-07 | 2 | first | high | m | 008, 013 | - | yes | planned |
 | 18 | [FEAT-018](features/FEAT-018-issue-validation.md) | Implement Issue Validator and Issue Validation Workflow | EPIC-06 | 2 | then | high | l | 007, 008, 009, 014 | - | yes | planned |

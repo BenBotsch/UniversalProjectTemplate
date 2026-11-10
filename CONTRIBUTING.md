@@ -52,14 +52,10 @@ incompatible changes with `!` after the type or with a `BREAKING CHANGE:` footer
 
 Run all applicable checks before you open a pull request, and report the actual results.
 
-| Check | Command |
-|---|---|
-| Project configuration | `python -I scripts/ci/validate_project.py` |
-| Repository structure, placeholders, docs index | `python -I scripts/ci/validate_repository.py` |
-| Label configuration | `python -I scripts/ci/check_labels.py .project/labels.yml` |
-| Issue forms | `python -I scripts/ci/check_issue_forms.py` |
-| Repository script tests | `python -I -m pytest tests/ci` |
-| Format, lint, type check, build, tests | Defined by the technology profile; add the commands here when a profile is set up |
+The commands for every CI check, and how to install the tools, are listed in
+[scripts/ci/README.md](scripts/ci/README.md). Format, lint, type check, build and test commands
+for the code itself are defined by the technology profile; add them to this section when a profile is
+set up.
 
 Never disable, skip or weaken a check to make a pull request pass.
 

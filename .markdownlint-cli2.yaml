@@ -1,0 +1,7 @@
+# markdownlint-cli2 options; the rules are in .markdownlint.yaml.
+# Run: npx markdownlint-cli2 "**/*.md"
+gitignore: true
+ignores:
+  - "node_modules/**"
+  # The specification is a German working document with its own structure.
+  - "template-dev/specification.md"

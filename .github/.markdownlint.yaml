@@ -1,0 +1,5 @@
+# The pull request template starts with section headings and uses <issue-number> placeholders.
+extends: "../.markdownlint.yaml"
+MD041: false
+MD033:
+  allowed_elements: ["issue-number"]

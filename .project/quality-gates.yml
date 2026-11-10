@@ -14,7 +14,7 @@ quality_gates:
     required: true
     workflow: "ci.yml"
     job: "repository-validation"
-    status: "not_implemented"
+    status: "implemented"
   issue_validation:
     required: true
     workflow: "issue-validation.yml"
@@ -34,7 +34,7 @@ quality_gates:
     required: true
     workflow: "quality.yml"
     job: "workflow-lint"
-    status: "not_implemented"
+    status: "implemented"
   secret_scan:
     required: true
     workflow: "security.yml"

@@ -23,6 +23,8 @@ documents.
 
 ## Releases
 
+<!-- The numbering continues the steps above. -->
+<!-- markdownlint-disable MD029 -->
 7. **Test the release candidate** from a defined state of `develop`, optionally on a
    `release/X.Y.Z` branch.
 8. **Open a release pull request into `main`** and get it approved against the
@@ -32,6 +34,7 @@ documents.
     [changelog](../../CHANGELOG.md).
 11. **Synchronize `main` into `develop`**, including hotfixes and release fixes; see
     [Synchronizing `main` into `develop`](branching-and-releases.md#synchronizing-main-into-develop).
+<!-- markdownlint-enable MD029 -->
 
 ## Hotfixes
 

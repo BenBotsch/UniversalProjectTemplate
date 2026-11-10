@@ -3,7 +3,7 @@ id: "FEAT-016"
 title: "Add Universal Base CI and Quality Workflows"
 epic: "EPIC-06"
 phase: 2
-status: "planned"
+status: "active"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -61,17 +61,17 @@ validation). An empty project must not start a build that does not exist (§1.3)
 
 ## Tasks
 
-- [ ] **T1:** `ci.yml` with `repository-validation`.
-- [ ] **T2:** `quality.yml` with actionlint and zizmor.
-- [ ] **T3:** YAML/Markdown lint and link check with configs.
-- [ ] **T4:** `scripts/ci/README.md`.
+- [x] **T1:** `ci.yml` with `repository-validation`.
+- [x] **T2:** `quality.yml` with actionlint and zizmor.
+- [x] **T3:** YAML/Markdown lint and link check with configs.
+- [x] **T4:** `scripts/ci/README.md`.
 
 ## Acceptance Criteria
 
 - [ ] Repository validation runs automatically (§17.4).
-- [ ] GitHub Actions/YAML validation is available (§17.4).
-- [ ] GitHub Actions permissions follow least privilege (§17.5).
-- [ ] External Actions are pinned (§17.5).
+- [x] GitHub Actions/YAML validation is available (§17.4).
+- [x] GitHub Actions permissions follow least privilege (§17.5).
+- [x] External Actions are pinned (§17.5).
 - [ ] The initial CI pipeline passes on the template and fails on a PR that introduces invalid metadata (§17.6).
 
 ## Verification
@@ -89,3 +89,19 @@ markdownlint-cli2
 - **Allowed paths:** `.github/workflows/ci.yml`, `.github/workflows/quality.yml`, lint config files, `scripts/ci/README.md`, this feature file, backlog status.
 - **Requires approval:** pushing workflows to a GitHub repository (outward-facing).
 - **Pitfalls:** §19 "green by skipped jobs". Pin by SHA; look SHAs up from the action's release, never invent them.
+
+## Implementation Notes
+
+- Open: both CI acceptance criteria need a GitHub repository. Pushing the workflows needs
+  approval. Locally, `validate_project.py` fails with exit code 1 on a copy with a broken
+  `schema_version`.
+- `repository-validation` also runs `pytest tests/ci`, so that the validators are tested before
+  they gate the repository.
+- Lint tools are pinned in `scripts/ci/requirements-lint.txt`. zizmor is pinned to 1.31.1,
+  because 1.32.0 was released less than two weeks before this change.
+- Markdown rules are in `.markdownlint.yaml`; `.github/.markdownlint.yaml` extends it for the pull
+  request template. `docs/governance/development-workflow.md` disables MD029 for one list whose
+  numbering continues on purpose.
+- `link-check` runs lychee offline: only repository-internal links and anchors are checked.
+- `.project/quality-gates.yml`: `repository_validation` and `workflow_lint` are set to
+  `implemented`. `CONTRIBUTING.md` now links to `scripts/ci/README.md` for the commands.
