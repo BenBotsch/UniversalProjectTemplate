@@ -90,5 +90,5 @@ message on `develop`. The title therefore follows the same syntax, for example
 `feat(api): add image analysis endpoint`. The individual commits on a feature branch should still
 be small and conventional, but the title is what reaches the history.
 
-The merge strategy is a provisional default; see
+The merge strategy is decided in [ADR-0004](../architecture/adr/0004-merge-policy.md); see
 [Branching and Releases](branching-and-releases.md#merge-strategy).

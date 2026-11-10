@@ -102,3 +102,16 @@ project-bootstrap configure-repo --repo <test-owner>/upt-smoke --dry-run
   settings are not managed; organization policies that reject a setting are reported as `failed`.
   The allow-list must list every third-party action a workflow uses, or CI stops; no check covers
   that yet.
+- **Verification (2026-11-10):** package tests 130 passed, `ruff check` and `ruff format --check`
+  clean; `tests/ci` 310 passed; `validate_project.py`, `validate_repository.py`,
+  `check_labels.py`, the backlog verifier, yamllint, actionlint, zizmor, markdownlint, gitleaks
+  and a relative link check clean. On GitHub, CI run 42854236693 for 102f727 on `develop` passed,
+  including `bootstrap-tool` and `quality-gate`.
+- **Live run against the private `BenBotsch/upt-smoke-2` (approved: `--apply`):** the dry run
+  planned 6 `update`, 7 `noop` and 6 `skipped`, 0 `failed`; the apply applied the 6 updates
+  (auto-delete of head branches, rebase merges off, Actions allow-list, Dependabot alerts and
+  security updates); a second dry run reported 13 `noop` and 6 `skipped`. `gh api` confirmed the
+  values. Skipped were the placeholder description, `is_template`, the unset topics, secret
+  scanning and push protection (no Secret Protection) and private vulnerability reporting
+  (private repository). `develop` already existed, so branch creation was verified only against
+  the fake repository.

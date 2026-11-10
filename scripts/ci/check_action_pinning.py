@@ -106,6 +106,24 @@ def check_file(path: Path, display: str) -> list[Finding]:
     return findings
 
 
+def list_files(repository: Path) -> list[Path]:
+    """List the workflow and action files of a repository.
+
+    Args:
+        repository: Repository root.
+
+    Returns:
+        The files in sorted order.
+    """
+    return sorted(
+        path
+        for directory in SCANNED_DIRECTORIES
+        if (repository / directory).is_dir()
+        for path in (repository / directory).rglob("*")
+        if path.is_file() and path.suffix in YAML_SUFFIXES
+    )
+
+
 def check_repository(repository: Path) -> tuple[int, list[Finding]]:
     """Check every workflow and action file of a repository.
 
@@ -115,13 +133,7 @@ def check_repository(repository: Path) -> tuple[int, list[Finding]]:
     Returns:
         Number of scanned files and all findings.
     """
-    files = sorted(
-        path
-        for directory in SCANNED_DIRECTORIES
-        if (repository / directory).is_dir()
-        for path in (repository / directory).rglob("*")
-        if path.is_file() and path.suffix in YAML_SUFFIXES
-    )
+    files = list_files(repository)
     findings = []
     for path in files:
         findings.extend(check_file(path, path.relative_to(repository).as_posix()))

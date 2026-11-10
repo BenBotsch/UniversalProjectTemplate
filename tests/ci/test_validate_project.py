@@ -162,10 +162,15 @@ def test_protection_mode_must_be_solo_or_team(project_copy: Path) -> None:
     assert any("protection.mode" in problem for problem in messages(project_copy))
 
 
-def test_repository_settings_are_required_by_bootstrap_schema_1_1(project_copy: Path) -> None:
+def test_repository_settings_are_required_by_bootstrap_schema_1_1(
+    project_copy: Path,
+) -> None:
     edit(project_copy, "bootstrap", lambda d: d.pop("repository_settings"))
     assert_single_problem(
-        project_copy, "bootstrap.yml", "(root)", "'repository_settings' is a required property"
+        project_copy,
+        "bootstrap.yml",
+        "(root)",
+        "'repository_settings' is a required property",
     )
 
 
@@ -502,3 +507,91 @@ def test_cross_file_checks_skip_files_with_schema_errors(project_copy: Path) -> 
     assert [(p.file.name, p.path) for p in problems] == [
         ("labels.yml", "labels.0.color")
     ]
+
+
+def write_workflow(project_dir: Path, *uses: str) -> None:
+    workflows = project_dir.parent / ".github" / "workflows"
+    workflows.mkdir(parents=True, exist_ok=True)
+    steps = "".join(f"      - uses: {ref}\n" for ref in uses)
+    (workflows / "ci.yml").write_text(
+        f"on: push\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n{steps}",
+        encoding="utf-8",
+    )
+
+
+SHA = "a" * 40
+
+
+def test_template_workflows_are_covered_by_the_actions_allow_list() -> None:
+    problems = validate_project.check_allowed_actions(
+        yaml.safe_load((PROJECT_DIR / "bootstrap.yml").read_text(encoding="utf-8"))[
+            "repository_settings"
+        ]["actions"],
+        ROOT,
+        PROJECT_DIR / "bootstrap.yml",
+    )
+
+    assert problems == []
+
+
+def test_action_missing_from_the_allow_list_is_reported(project_copy: Path) -> None:
+    write_workflow(
+        project_copy,
+        f"actions/checkout@{SHA} # v7",
+        "./.github/actions/setup",
+        f"astral-sh/setup-uv@{SHA} # v6",
+    )
+
+    assert_single_problem(
+        project_copy,
+        "bootstrap.yml",
+        "repository_settings.actions",
+        f".github/workflows/ci.yml:8 uses 'astral-sh/setup-uv@{SHA}', which allowed_actions "
+        "'selected' blocks; add a matching entry to patterns_allowed",
+    )
+
+
+@pytest.mark.parametrize(
+    ("ref", "actions", "allowed"),
+    [
+        ("./local", {"allowed_actions": "local_only"}, True),
+        ("docker://alpine@sha256:" + "0" * 64, {"allowed_actions": "local_only"}, True),
+        ("owner/repo@v1", {"allowed_actions": "all"}, True),
+        ("actions/checkout@v7", {"allowed_actions": "local_only"}, False),
+        ("github/codeql-action/init@v4", "selected", True),
+        ("owner/repo/sub/path@v1", "selected", True),
+        ("owner/other@v1", "selected", True),
+        ("owner/repo@v2", {"patterns": ["owner/repo@v1"]}, False),
+        ("someone/action@v1", "selected", False),
+        ("actions/checkout@v7", {"github_owned_allowed": False}, False),
+    ],
+)
+def test_action_is_allowed_follows_the_github_policy(
+    ref: str, actions: dict[str, Any] | str, allowed: bool
+) -> None:
+    settings: dict[str, Any] = {
+        "allowed_actions": "selected",
+        "github_owned_allowed": True,
+        "verified_allowed": True,
+        "patterns_allowed": ["owner/repo@*", "owner/*"],
+    }
+    if isinstance(actions, dict):
+        if "patterns" in actions:
+            settings["patterns_allowed"] = actions.pop("patterns")
+        settings.update(actions)
+
+    assert validate_project.action_is_allowed(ref, settings) is allowed
+
+
+def test_bootstrap_1_0_skips_the_allow_list_check(project_copy: Path) -> None:
+    bootstrap = yaml.safe_load(
+        (project_copy / "bootstrap.yml").read_text(encoding="utf-8")
+    )
+    del bootstrap["repository_settings"]
+    bootstrap["schema_version"] = "1.0"
+    (project_copy / "bootstrap.yml").write_text(
+        yaml.safe_dump(bootstrap), encoding="utf-8"
+    )
+    write_workflow(project_copy, f"someone/action@{SHA} # v1")
+
+    assert messages(project_copy) == []

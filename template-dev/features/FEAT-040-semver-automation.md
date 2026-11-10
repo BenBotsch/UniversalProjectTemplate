@@ -9,7 +9,7 @@ effort: "m"
 target_repo: "universal-project-template"
 spec_refs: ["§9.1", "§9.2", "§9.3", "§9.5", "§19.1"]
 dependencies: ["FEAT-019", "FEAT-039"]
-blocked_by_decisions: ["DEC-02", "DEC-06"]
+blocked_by_decisions: ["DEC-06"]
 agent_ready: false
 related_issues: []
 created_at: "2026-11-10"
