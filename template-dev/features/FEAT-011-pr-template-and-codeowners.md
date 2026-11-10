@@ -3,7 +3,7 @@ id: "FEAT-011"
 title: "Add Pull Request Template and CODEOWNERS Convention"
 epic: "EPIC-04"
 phase: 1
-status: "planned"
+status: "active"
 priority: "critical"
 effort: "xs"
 target_repo: "universal-project-template"
@@ -53,8 +53,8 @@ block solo accounts (§14.3).
 
 ## Tasks
 
-- [ ] **T1:** Add PR template.
-- [ ] **T2:** Add CODEOWNERS.
+- [x] **T1:** Add PR template.
+- [x] **T2:** Add CODEOWNERS.
 
 ## Acceptance Criteria
 

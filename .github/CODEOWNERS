@@ -1,0 +1,18 @@
+# Code owners are requested automatically as reviewers for matching paths.
+# The last matching pattern wins.
+#
+# @OWNER_OR_TEAM is a placeholder. Bootstrap replaces it with a user or team
+# that has write access to this repository; repository validation reports it
+# while it remains. An unreplaced placeholder shows as an error on GitHub.
+#
+# CODEOWNERS alone does not enforce reviews. Mandatory code owner review needs
+# a branch ruleset. For a solo account, do not require code owner approval:
+# authors cannot approve their own pull requests, so every merge would block.
+
+*                   @OWNER_OR_TEAM
+
+# Changes here need elevated review attention.
+/.github/           @OWNER_OR_TEAM
+/.project/          @OWNER_OR_TEAM
+/SECURITY.md        @OWNER_OR_TEAM
+/docs/architecture/ @OWNER_OR_TEAM
