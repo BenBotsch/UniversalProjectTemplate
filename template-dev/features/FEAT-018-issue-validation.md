@@ -3,7 +3,7 @@ id: "FEAT-018"
 title: "Implement Issue Validator and Issue Validation Workflow"
 epic: "EPIC-06"
 phase: 2
-status: "planned"
+status: "active"
 priority: "high"
 effort: "l"
 target_repo: "universal-project-template"
@@ -11,7 +11,7 @@ spec_refs: ["§5.2", "§6.2", "§6.3", "§6.5", "§21.5", "§21.6"]
 dependencies: ["FEAT-007", "FEAT-008", "FEAT-009", "FEAT-014"]
 blocked_by_decisions: []
 agent_ready: true
-related_issues: []
+related_issues: ["#20"]
 created_at: "2026-11-10"
 updated_at: "2026-11-10"
 ---
@@ -61,19 +61,19 @@ initial labels follow `DEC-05` default.
 
 ## Tasks
 
-- [ ] **T1:** Validator library for label invariants with tests.
-- [ ] **T2:** Section parsing per type with tests.
-- [ ] **T3:** Dependency and `agent:ready` checks with API mocks.
-- [ ] **T4:** Runner with comment upsert and label handling; loop protection.
+- [x] **T1:** Validator library for label invariants with tests.
+- [x] **T2:** Section parsing per type with tests.
+- [x] **T3:** Dependency and `agent:ready` checks with API mocks.
+- [x] **T4:** Runner with comment upsert and label handling; loop protection.
 - [ ] **T5:** Workflow file; manual test in a test repository.
 
 ## Acceptance Criteria
 
-- [ ] Required issue fields are validated (§17.2).
-- [ ] Exactly one type label and one status label are enforced by validation (§17.2).
-- [ ] Priority and other required metadata are validated according to policy (§17.2).
-- [ ] Conflicting labels are detected and reported (§17.2).
-- [ ] §21.6 cases pass: issue without `type:*` fails; two `priority:*` fail; Bug without reproduction steps fails and gets `status:needs-info`; `agent:ready` with open blockers fails.
+- [x] Required issue fields are validated (§17.2).
+- [x] Exactly one type label and one status label are enforced by validation (§17.2).
+- [x] Priority and other required metadata are validated according to policy (§17.2).
+- [x] Conflicting labels are detected and reported (§17.2).
+- [x] §21.6 cases pass: issue without `type:*` fails; two `priority:*` fail; Bug without reproduction steps fails and gets `status:needs-info`; `agent:ready` with open blockers fails.
 
 ## Verification
 
@@ -88,3 +88,31 @@ actionlint .github/workflows/issue-validation.yml
 - **Allowed paths:** `scripts/ci/issue_validation/**`, `tests/ci/issue_validation/**`, `.github/workflows/issue-validation.yml`, this feature file, backlog status.
 - **Requires approval:** creating issues in a real repository for the manual test.
 - **Pitfalls:** §19: forms do not cover API paths; labels added by `GITHUB_TOKEN` do not trigger new workflow runs, which helps against loops but means re-validation needs the `edited`/`labeled` event from a user.
+
+## Implementation Notes
+
+- **Decisions (issue #20):** the rules come from `issue_policy` in `.project/workflow.yml`, the
+  label groups in `.project/labels.yml` and the required fields of the issue forms, so a derived
+  project changes the policy without code changes. Every finding carries its `ISSUE-R*` ID.
+  Section parsing reuses `parse_sections` from `pr_validation/validator.py`; `_No response_`, HTML
+  comments and headings inside code fences count as empty or absent. `agent:ready` (R3) looks for
+  an acceptance and a scope heading by keyword, so it also works for issues not created from a
+  form. `status:blocked` (R4) accepts a "blocked by" dependency or a `#123`, `owner/repo#123` or
+  issue URL reference in the body or a comment.
+- **Comment and labels (R5):** the runner finds its comment by the marker *and* the workflow's own
+  login, so a copied marker is ignored. A second marker in the comment records that the validator
+  set `status:needs-info`; only then does it remove the label and restore `status:triage`. An
+  open issue without any status label gets `status:triage`.
+- **Exit codes (R7):** findings do not fail the job; they are in the comment and the job summary.
+  The job fails with exit `1` for an API error, with a rate-limit or `issues: write` hint, and
+  with exit `2` for an invalid event file.
+- **Deviations:** `ISSUE-R10` (closed issues) is left to review, because the validator skips
+  closed issues. `priority` and `effort` were added to `optional_single_label_groups` in
+  `.project/workflow.yml` (outside the allowed paths) so that "at most one" is policy, not code.
+  `docs/governance/issue-management.md` and `scripts/ci/README.md` describe the validator.
+- **Verification so far:** unit tests for every rule and §21.6 case, the runner against a fake
+  API client and `UrllibClient` against a local HTTP server; `actionlint`, `zizmor` and
+  `yamllint` on the workflow.
+- **Open:** T5's manual test in `BenBotsch/upt-smoke-public` needs approval for creating issues
+  there and a merge of the workflow into that repository's default branch, because `issues`
+  events run the workflow file of the default branch. The feature stays `active` until then.

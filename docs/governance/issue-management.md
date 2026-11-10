@@ -92,11 +92,43 @@ verified during triage and review. A planned issue is an issue in `status:ready`
 | ISSUE-R7 | `agent:ready` and `agent:working` are not set at the same time. | automated |
 | ISSUE-R8 | `agent:ready` is set only if the issue has acceptance criteria and a scope, has no unresolved blockers and needs no permissions beyond those approved for agents. | automated where data exists, otherwise review |
 | ISSUE-R9 | An issue in `status:blocked` names its blocker, preferably as a "blocked by" dependency, otherwise in a comment. | automated |
-| ISSUE-R10 | An issue in `status:review` references a pull request or another reviewable artifact. | automated |
+| ISSUE-R10 | An issue in `status:review` references a pull request or another reviewable artifact. | review |
 | ISSUE-R11 | The issue body contains the mandatory content of its type, using the headings of its issue form. | automated |
 
 `required_single_label_groups`, `required_for_ready` and `optional_single_label_groups` in
 `workflow.yml` encode ISSUE-R1 to ISSUE-R5; `agent_ready_requires` encodes ISSUE-R8.
+
+### Automated validation
+
+The workflow
+[`.github/workflows/issue-validation.yml`](../../.github/workflows/issue-validation.yml) checks
+every open issue when it is opened, edited, labeled, unlabeled or reopened. It reports the rules
+marked "automated" above in a single comment on the issue and updates that comment on every
+change. Details and local commands are in
+[scripts/ci/README.md](../../scripts/ci/README.md#issue-validation).
+
+- ISSUE-R8 checks the acceptance criteria and the scope through the form sections below and the
+  blockers through the issue's open "blocked by" dependencies. Whether the issue needs more than
+  the approved agent permissions is decided in review.
+- ISSUE-R9 accepts a "blocked by" dependency or an issue reference (`#123`) in the description or
+  a comment.
+- ISSUE-R11 reports every required field of the type's form whose heading is missing or empty.
+- ISSUE-R10 is checked in review: a pull request that links the issue from its own description
+  appears only in the issue timeline.
+
+| Type | Acceptance criteria (ISSUE-R8) | Scope (ISSUE-R8) |
+|---|---|---|
+| Bug | `### Acceptance Criteria` | `### Expected Behavior` |
+| Task | `### Acceptance Criteria` | `### Scope` |
+| Feature | `### Acceptance Criteria` | `### Functional Requirements` |
+| Epic | `### Success Criteria` | `### Scope and Deliverables` |
+| Improvement | `### Acceptance Criteria` | `### Proposed Improvement` |
+| Documentation | `### Acceptance Criteria` | `### Required Change` |
+
+When an issue in `status:triage`, or without a status, breaks a rule, the validator replaces the
+status with `status:needs-info` and restores `status:triage` once every rule passes. It changes
+no other status: for a planned issue it only comments. It never removes a `status:needs-info`
+label that a person set.
 
 ### Initial labels
 
@@ -200,9 +232,9 @@ with the `area:security` label.
 Forms set no `priority:*` label; the priority is set during triage. The Severity dropdown of the
 Bug form describes the impact, is stored as text and does not set a priority label.
 
-Forms are not a hard barrier: issues created through the API or CLI bypass them and must be
-checked separately. Labels set by a form exist only after the labels are synchronized from
-`.project/labels.yml`. Check the forms after every change:
+Forms are not a hard barrier: issues created through the API or CLI bypass them; the
+[automated validation](#automated-validation) checks them. Labels set by a form exist only after
+the labels are synchronized from `.project/labels.yml`. Check the forms after every change:
 
 ```text
 python -I scripts/ci/check_issue_forms.py

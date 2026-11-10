@@ -1,0 +1,45 @@
+# Issue validation: checks every issue against the issue rules of .project/workflow.yml and the
+# issue forms, and reports the result in one comment on the issue.
+# Issue forms do not protect issues created through the API, so this runs for every issue event.
+# The issue text is read by the validator through the API; no run: script interpolates event
+# data. Label changes made with the job token do not start new workflow runs, and the validator
+# skips events sent by its own account.
+# Not a pull request check: it is not called by ci.yml and has no quality gate.
+name: "Issue Validation"
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  # One run per issue at a time; each run reads the current state of the issue.
+  group: issue-validation-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  issue-validation:
+    name: "issue-validation"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      # Write the validation comment and set or remove status:needs-info.
+      issues: write
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: "Set up Python"
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: "Install validator dependencies"
+        run: python -I -m pip install --disable-pip-version-check -r scripts/ci/requirements.txt
+      - name: "Validate issue"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -I scripts/ci/issue_validation/run.py --event "${GITHUB_EVENT_PATH}"

@@ -86,7 +86,9 @@ issue_policy:
   required_for_ready:
     - priority
     - area
+  # At most one label; with required_for_ready, a planned issue has exactly one priority.
   optional_single_label_groups:
+    - priority
     - effort
   supported_types:
     - bug
