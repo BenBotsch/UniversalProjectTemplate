@@ -17,18 +17,49 @@ details them and names the control that enforces each one.
 | Change secrets, access rights or security settings | No | Yes |
 | Publish a release | No | Yes |
 | Destructive data operations | No | Yes |
-| Merge a pull request | No | Yes |
+| Merge a pull request | Only under a [standing merge approval](#standing-merge-approval) | Yes, per pull request |
 | Create or move a tag | No | Yes |
 | Approve its own potentially sensitive change | No | Not possible; a human reviews |
 | Refactors or migrations unrelated to the issue | No | Yes, as a separate issue |
 
 "Approval" means an explicit statement by an authorized person for this specific operation. An
 approval for one operation does not extend to the next; every merge and every release needs its
-own approval.
+own approval. The only exception is a recorded
+[standing merge approval](#standing-merge-approval).
 
 Examples of an elevated dependency risk: a new package with few maintainers or no releases, a
 dependency that runs code at install time, a license that differs from the project license, or a
 dependency that requests network or file system access the project does not need otherwise.
+
+## Standing Merge Approval
+
+An authorized person can approve once that agents merge their own pull requests. Without a
+recorded standing approval, every merge needs its own approval, as in the matrix above.
+
+The standing approval is recorded in the project-specific instructions of
+[AGENTS.md](../../AGENTS.md#project-specific-instructions) with the person who granted it, the
+date and its scope. The scope states whether pull requests that change the
+[elevated review paths](review-policy.md#elevated-attention) are included. Removing the entry
+revokes the approval; an approval given only in a conversation is not a standing approval.
+
+Under a standing approval an agent merges a pull request only if:
+
+- The pull request was opened by the agent and targets the development branch.
+- Every required check has finished and passed. A pending, failed or skipped required check, a
+  merge conflict or a requested change blocks the merge.
+- Every review conversation is resolved.
+- It is within the recorded scope. A pull request that changes an elevated review path names
+  these paths in its review notes.
+
+The agent merges with the method from `pull_requests.merge_strategy` in
+[`.project/workflow.yml`](../../.project/workflow.yml), never bypasses a ruleset and never uses
+an administrator override. After the merge it updates the linked issues as described in the
+[status lifecycle](issue-management.md#status-lifecycle) and closes the issues the pull request
+completes, with a comment that names the pull request. Pull requests into the development branch
+do not close issues automatically.
+
+A standing approval never covers pull requests into the default branch, release pull requests,
+tags, releases or any other operation in the matrix.
 
 ## Controls
 
@@ -40,7 +71,7 @@ organizational control as technically enforced.
 | Restricted action | Technical control | Without the technical control |
 |---|---|---|
 | Change `main` or `develop` directly | Branch protection or ruleset: require a pull request, block force pushes and deletion | Organizational: agents push only to work branches |
-| Merge a pull request | Branch protection: required checks and reviews; the agent's token lacks merge rights | Organizational: only a human merges |
+| Merge a pull request | Branch protection: required checks and reviews; without a standing merge approval, the agent's token lacks merge rights | Organizational: a human merges, or the agent merges under a standing merge approval |
 | Publish a release, create or move a tag | Release workflow in a protected environment with required reviewers; tag rulesets | Organizational: releases and tags only after explicit approval |
 | Change secrets, access rights or security settings | Separate roles: the agent's token has no admin scope; secrets are stored as protected secrets, available only in protected environments | Organizational: the agent never requests these scopes |
 | Destructive data operations | No production credentials in agent environments; production access only through protected environments | Organizational: explicit confirmation before every destructive command |
@@ -53,8 +84,8 @@ Principles behind the controls:
 - **Minimal tokens:** every token and every workflow gets only the permissions it needs.
 - **Protected environments and secrets:** release and deployment credentials are reachable only
   from protected environments with required reviewers.
-- **Separate roles:** the identity an agent uses cannot merge, release or administer the
-  repository.
+- **Separate roles:** the identity an agent uses cannot release or administer the repository,
+  and it can merge only where a standing merge approval allows it.
 
 ### Availability
 
