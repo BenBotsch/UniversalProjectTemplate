@@ -498,3 +498,92 @@ def test_init_applies_the_profile_in_the_same_commit(
     assert record["project"]["is_template"] is False
     assert record["profiles"] == [{"id": "noop", "version": "0.1.0"}]
     assert git(root, "status", "--porcelain") == ""
+
+
+# The python profile of the template (FEAT-032)
+
+
+def test_python_profile_jobs_are_reported_into_the_quality_gate(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Every python gate resolves to a job of the CI run, and the generic gates are covered."""
+    project = tmp_path / "project"
+    shutil.copytree(REPOSITORY_ROOT / ".project", project / ".project")
+    for path in BASE_FILES:
+        write(project, path, (REPOSITORY_ROOT / path).read_bytes())
+    path = project / ".project" / "project.yml"
+    path.write_text(
+        set_yaml_scalars(
+            path.read_text(encoding="utf-8"),
+            {
+                ("project", "name"): NAME,
+                ("project", "description"): "A demo tool.",
+                ("project", "is_template"): False,
+            },
+        ),
+        encoding="utf-8",
+    )
+    for workflow in ("quality.yml", "security.yml", "pr-validation.yml"):
+        write(
+            project,
+            f".github/workflows/{workflow}",
+            (REPOSITORY_ROOT / ".github" / "workflows" / workflow).read_bytes(),
+        )
+
+    code = main(
+        [
+            "apply-profile",
+            "--profile",
+            "python",
+            "--source",
+            str(REPOSITORY_ROOT / "profiles"),
+            "--path",
+            str(project),
+            "--apply",
+        ]
+    )
+    capsys.readouterr()
+
+    assert code == EXIT_OK
+    evaluator = _evaluator()
+    gates, _ = evaluator.load_gates(project / evaluator.QUALITY_GATES_PATH)
+    names = evaluator.resolve_job_names(project / ".github" / "workflows")
+    python_gates = {gate.name: gate for gate in gates if gate.name.startswith("python_")}
+    assert {names[(gate.workflow, gate.job)] for gate in python_gates.values()} == {
+        "python / format",
+        "python / lint",
+        "python / type-check",
+        "python / test",
+        "python / build",
+        "python / audit",
+    }
+    covered = {gate.covers for gate in python_gates.values()} - {None}
+    assert covered == {"formatting", "lint", "tests", "build", "security"}
+    pyproject = read(project, "pyproject.toml")
+    assert 'name = "demo_tool"' in pyproject
+    assert "PROJECT_" not in pyproject
+    assert 'description = "A demo tool."' in pyproject
+    assert (project / "src" / "demo_tool" / "py.typed").exists()
+    monkeypatch.chdir(project)
+    validator = REPOSITORY_ROOT / "scripts" / "ci" / "validate_project.py"
+    result = subprocess.run(  # noqa: S603
+        [sys.executable, "-I", str(validator), str(project / ".project")],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def _evaluator() -> Any:
+    """Import the quality-gate evaluator of the template's scripts."""
+    import importlib.util
+
+    path = REPOSITORY_ROOT / "scripts" / "ci" / "evaluate_quality_gates.py"
+    spec = importlib.util.spec_from_file_location("evaluate_quality_gates", path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module

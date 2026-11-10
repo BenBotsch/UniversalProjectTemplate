@@ -1,0 +1,33 @@
+# Shared setup of the jobs in python.yml; part of the python technology profile.
+name: "Set up the Python project"
+description: "Installs Python, uv and the project with its dev dependency group."
+
+inputs:
+  python-version:
+    description: "Python version to install"
+    required: false
+    default: "3.12"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Set up Python"
+      uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: "Install uv"
+      shell: bash
+      run: python -I -m pip install --disable-pip-version-check "uv==0.13.5"
+    - name: "Install the project"
+      shell: bash
+      env:
+        # Use the Python installed above instead of a download managed by uv.
+        UV_PYTHON: ${{ inputs.python-version }}
+        UV_PYTHON_DOWNLOADS: "never"
+      run: |
+        if [ -f uv.lock ]; then
+          uv sync --locked
+        else
+          echo "::warning::uv.lock is missing; run uv lock and commit it for reproducible CI runs"
+          uv sync
+        fi

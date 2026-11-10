@@ -1,0 +1,53 @@
+# Packaging and tool configuration of the python technology profile. uv manages the
+# environment and the lock file: uv sync, uv run pytest, uv lock.
+[project]
+name = "PROJECT_PACKAGE"
+version = "0.1.0"
+description = "PROJECT_DESCRIPTION"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4",
+    "pytest>=9.2",
+    "pytest-cov>=7.1",
+    "ruff>=0.17",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.5,<0.14"]
+build-backend = "uv_build"
+
+# scripts/ci/ and tests/ci/ belong to the template base layer; its repository-validation job
+# tests them, so the project tools leave them out.
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["scripts/ci", "tests/ci"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "S", "PT", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+exclude = ["^tests/ci/"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--strict-markers", "--ignore=tests/ci"]
+
+[tool.coverage.run]
+source = ["PROJECT_PACKAGE"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+# Coverage is reported, not enforced. Raise the threshold once the project has real code;
+# 80 % is a reasonable start.
+fail_under = 0
