@@ -27,7 +27,7 @@ Machine-readable project metadata in `.project/` with JSON Schemas and a validat
 | ID | Title | Phase | Priority | Depends on | Status |
 |---|---|---|---|---|---|
 | [FEAT-013](../features/FEAT-013-project-configuration-files.md) | Create Machine-Readable Project Configuration Files | 1 | critical | 001 | implemented |
-| [FEAT-014](../features/FEAT-014-config-schemas-and-validator.md) | Add JSON Schemas and Project Configuration Validator | 1 | critical | 008, 013 | active |
+| [FEAT-014](../features/FEAT-014-config-schemas-and-validator.md) | Add JSON Schemas and Project Configuration Validator | 1 | critical | 008, 013 | implemented |
 
 ## Risks and Dependencies
 

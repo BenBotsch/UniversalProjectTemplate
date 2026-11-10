@@ -3,7 +3,7 @@ id: "FEAT-014"
 title: "Add JSON Schemas and Project Configuration Validator"
 epic: "EPIC-05"
 phase: 1
-status: "active"
+status: "implemented"
 priority: "critical"
 effort: "m"
 target_repo: "universal-project-template"
@@ -65,7 +65,7 @@ migrations. §10.6 names `scripts/ci/validate_project.py` as a planned implement
 ## Acceptance Criteria
 
 - [x] Default project metadata is schema-validated (§17.1).
-- [ ] CI fails with a clear error on invalid metadata (§17.6).
+- [x] CI fails with a clear error on invalid metadata (§17.6).
 - [x] All tests pass.
 
 ## Verification
@@ -81,3 +81,10 @@ python -I -m pytest tests/ci/test_validate_project.py
 - **Allowed paths:** `.project/schemas/**`, `scripts/ci/validate_project.py`, `scripts/ci/requirements.txt`, `tests/ci/**`, this feature file, backlog status.
 - **Requires approval:** adding dependencies beyond `pyyaml`, `jsonschema`, `pytest`.
 - **Pitfalls:** Schema changes need a version bump and a migration note (§4.4, `FEAT-046`).
+
+## Implementation Notes
+
+- Negative test on 2026-11-10 (issue #1, draft pull request #2, CI run 42813310865): the pull
+  request set `project.status` to `unknown-status`. `repository-validation` failed; the log shows
+  `error: .project/project.yml:project.status: 'unknown-status' is not one of ['planning',
+  'active', 'maintenance', 'archived']`. The pull request was closed without merging.
