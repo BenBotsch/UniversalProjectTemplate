@@ -46,6 +46,7 @@ what the task needs:
 - [ADR-0002: Implement the Bootstrap Tool as a Python CLI](architecture/adr/0002-python-bootstrap-cli.md)
 - [ADR-0003: Aggregate CI Results in a Single Quality Gate Job](architecture/adr/0003-aggregate-ci-in-one-quality-gate.md)
 - [ADR-0004: Squash into develop, Merge Commits into main](architecture/adr/0004-merge-policy.md)
+- [ADR-0005: Squash Hotfixes into main](architecture/adr/0005-squash-hotfixes.md)
 
 ## Features
 

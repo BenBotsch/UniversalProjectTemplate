@@ -49,4 +49,5 @@ disabled.
 - Pull request titles need the same care as commit messages; the pull request validator enforces
   their format.
 - A repository allows squash and merge commits; `configure-repo` disables rebase merges.
-- Follow-up: decide the merge method for hotfix pull requests.
+- Follow-up: decide the merge method for hotfix pull requests. Decided in
+  [ADR-0005](0005-squash-hotfixes.md).

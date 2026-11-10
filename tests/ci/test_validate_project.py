@@ -157,6 +157,47 @@ def test_protection_is_required_by_bootstrap_schema_1_2(project_copy: Path) -> N
     )
 
 
+def test_workflow_schema_1_1_is_still_accepted(project_copy: Path) -> None:
+    def downgrade(data: dict) -> None:
+        data["schema_version"] = "1.1"
+        del data["pull_requests"]["merge_strategy"]["hotfix_into_default_branch"]
+
+    edit(project_copy, "workflow", downgrade)
+    assert messages(project_copy) == []
+
+
+def test_hotfix_merge_method_is_required_by_workflow_schema_1_2(
+    project_copy: Path,
+) -> None:
+    edit(
+        project_copy,
+        "workflow",
+        lambda d: d["pull_requests"]["merge_strategy"].pop(
+            "hotfix_into_default_branch"
+        ),
+    )
+    assert_single_problem(
+        project_copy,
+        "workflow.yml",
+        "pull_requests.merge_strategy",
+        "'hotfix_into_default_branch' is a required property",
+    )
+
+
+def test_hotfix_merge_method_must_be_a_merge_method(project_copy: Path) -> None:
+    edit(
+        project_copy,
+        "workflow",
+        lambda d: d["pull_requests"]["merge_strategy"].update(
+            hotfix_into_default_branch="ff"
+        ),
+    )
+    assert any(
+        "pull_requests.merge_strategy.hotfix_into_default_branch" in problem
+        for problem in messages(project_copy)
+    )
+
+
 def test_protection_mode_must_be_solo_or_team(project_copy: Path) -> None:
     edit(project_copy, "bootstrap", lambda d: d["protection"].update(mode="none"))
     assert any("protection.mode" in problem for problem in messages(project_copy))

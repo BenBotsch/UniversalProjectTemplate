@@ -85,10 +85,11 @@ are generated from pull request labels.
 
 ## Pull Request Titles
 
-Pull requests into `develop` are squash-merged, and the pull request title becomes the commit
-message on `develop`. The title therefore follows the same syntax, for example
+Pull requests into `develop` and hotfix pull requests into `main` are squash-merged, and the pull
+request title becomes the commit message. The title therefore follows the same syntax, for example
 `feat(api): add image analysis endpoint`. The individual commits on a feature branch should still
 be small and conventional, but the title is what reaches the history.
 
-The merge strategy is decided in [ADR-0004](../architecture/adr/0004-merge-policy.md); see
+The merge strategy is decided in [ADR-0004](../architecture/adr/0004-merge-policy.md) and
+[ADR-0005](../architecture/adr/0005-squash-hotfixes.md); see
 [Branching and Releases](branching-and-releases.md#merge-strategy).
