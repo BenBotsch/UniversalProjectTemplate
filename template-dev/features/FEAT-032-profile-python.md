@@ -3,7 +3,7 @@ id: "FEAT-032"
 title: "Add Python Profile"
 epic: "EPIC-08"
 phase: 3
-status: "active"
+status: "implemented"
 priority: "high"
 effort: "m"
 target_repo: "universal-project-template"
@@ -108,7 +108,11 @@ ruff check . && ruff format --check . && mypy src && pytest --cov
 - **Verification (local, Windows, Python 3.12):** in a project initialized with the profile,
   `ruff format --check`, `ruff check`, `mypy`, `pytest --cov` (100 %), `uv build` and pip-audit
   ("No known vulnerabilities") pass, and so do actionlint, zizmor and `validate_project.py`.
-  Without `tests/test_smoke.py`, pytest exits with 5, so the gate fails. R4 (green CI on GitHub)
-  is not verified yet. It needs a derived repository on GitHub.
-- **Open:** R4 needs a derived repository on GitHub, for example `BenBotsch/upt-smoke-public`,
-  initialized with `--profile python`. The feature stays `active` until its CI is green there.
+  Without `tests/test_smoke.py`, pytest exits with 5, so the gate fails.
+- **Manual test of R4 (2026-11-11):** the private repository `BenBotsch/upt-smoke-python` was
+  created from the template (develop at `7b587a0`) and initialized with
+  `project-bootstrap init --profile python --apply`. Its initialization pull request
+  `upt-smoke-python#4` passed all 18 checks, including every `python / *` job, the matrix runs
+  `python / test (3.12)` and `(3.13)` and `quality-gate`. The first attempt,
+  `upt-smoke-python#2`, failed `markdown-lint` because init left a trailing blank line in
+  `AGENTS.md`; that was fixed in #37 (issue #36). Without `uv.lock`, CI warns as intended.

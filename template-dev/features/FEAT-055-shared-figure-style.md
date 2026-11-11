@@ -3,7 +3,7 @@ id: "FEAT-055"
 title: "Offer the Shared Figure Style in the Python Profile"
 epic: "EPIC-08"
 phase: 3
-status: "active"
+status: "implemented"
 priority: "low"
 effort: "s"
 target_repo: "universal-project-template"
@@ -121,6 +121,10 @@ uv run figkit check docs/figures
   "missing its pair". With only the guide it skips. `pre-commit run trailing-whitespace` and
   `end-of-file-fixer` leave the SVG byte-identical, and `git diff --check` reports nothing for it.
   pip-audit on the export reports no known vulnerabilities. `uv build`, Ruff, mypy, pytest,
-  actionlint and `pre-commit validate-config` pass. The run on GitHub is not verified yet.
-- **Open:** R1 and R2 need a CI run in a derived repository on GitHub, once without and once with
-  a figure finding. The feature stays `active` until then.
+  actionlint and `pre-commit validate-config` pass.
+- **Manual test of R1 and R2 (2026-11-11):** in `BenBotsch/upt-smoke-python#4` (see `FEAT-032`),
+  the initialization commit with only the guide reported "No figures in docs/figures; nothing to
+  check" and all checks passed (R1). A commit with a FigureKit-rendered `demo.svg` alone failed
+  `python / lint` with "missing its pair demo-dark.svg", and `quality-gate` reported `python_lint`
+  as failed (R2). Adding `demo-dark.svg` made the step report `docs/figures: ok` and all 18 checks
+  pass again.
